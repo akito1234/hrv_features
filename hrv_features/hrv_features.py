@@ -19,13 +19,13 @@ import pyhrv.tools as tools
 def features(nni,emotion):
     for i,key in enumerate(emotion.keys()):
         segment_hrv_report = segments_parameter(nni, emotion[key] , type=key)
+
+        
         if i == 0:
             df = pd.DataFrame([], columns=segment_hrv_report.keys())
         df =  pd.concat([df, pd.DataFrame(segment_hrv_report , index=[i])])
 
     return df
-
-
 
 
 def segments_parameter(_nni,_section, type=''):
@@ -116,23 +116,12 @@ def modify_tuple_to_float(parameter_list,emotion = "None"):
 
 
 if __name__ == '__main__':
-    path= r"\\Ts3400defc\共有フォルダ\theme\hrv_daily_fluctuation\05_Analysis\Analysis_Biosignals\emotion\RRI_kojima_2019-10-01_emotion.csv"
-    emotion = {'Neutral1':[300,600]  ,'Contentment':[600,900]
-              ,'Neutral2':[990,1290] ,'Disgust':[1290,1590]
+    path= r"\\Ts3400defc\共有フォルダ\theme\hrv_daily_fluctuation\05_Analysis\Analysis_Biosignals\emotion\RRI_tohma_2019-09-26_emotion.csv"
+    emotion = {'Neutral1':[600,900]  ,'Contentment':[900,1200]
+              ,'Neutral2':[1380,1680] ,'Disgust':[1680,1980]
               }
     nni = np.loadtxt(path,delimiter=',')
     df = features(nni,emotion)
-    print(df)
-    #result  = parameter(nni,type='Neutral')
+    df.to_excel(r"\\Ts3400defc\共有フォルダ\theme\hrv_daily_fluctuation\05_Analysis\Analysis_Features\Analysis_Features_Labels\tohma_2019-09-26_emotion.xlsx",index=None)
 
-    
-    #result = modify_tuple_to_float(result)
-
-    ##データの作成が完了した
-    #for key in result.keys():
-    #   print(key, result[key])
-
-    
-
-    pass
     pass
