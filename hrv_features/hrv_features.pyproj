@@ -23,6 +23,9 @@
   <ItemGroup>
     <Compile Include="frequency_domain.py" />
     <Compile Include="hrv_features.py" />
+    <Compile Include="hrv_plot.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

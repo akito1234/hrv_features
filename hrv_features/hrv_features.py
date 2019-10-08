@@ -18,32 +18,31 @@ import pyhrv.tools as tools
 
 def features(nni,emotion):
     for i,key in enumerate(emotion.keys()):
-        segment_hrv_report = segments_parameter(nni, emotion[key] , type=key)
-
-        
+        segment_hrv_report = segments_parameter(nni,emotion[key])
+           
         if i == 0:
             df = pd.DataFrame([], columns=segment_hrv_report.keys())
-        df =  pd.concat([df, pd.DataFrame(segment_hrv_report , index=[i])])
+        df =  pd.concat([df, pd.DataFrame(segment_hrv_report , index=[key])])
 
     return df
 
 
-def segments_parameter(_nni,_section, type=''):
+def segments_parameter(_nni,_section):
     tmStamps = np.cumsum(_nni)*0.001 #in seconds 
     nni_item =  _nni[(tmStamps>=_section[0]) & (tmStamps<=_section[1])]
-    results = parameter(nni_item,type=type)
+    results = parameter(nni_item)
     return results
 
 
 #---------------------------------------------
 #心拍変動からパラメータを算出する
 #---------------------------------------------
-def parameter(nni,type='Neutral'):
+def parameter(nni):
     # タイムスタンプの算出
     tmStamps = np.cumsum(nni)*0.001 #in seconds 
 
     #返り値を初期化
-    results = {'emotion' : type }
+    results = {}
 
     # -----------------周波数解析-------------------#
     # Define input parameters for the 'welch_psd()' function
@@ -52,11 +51,14 @@ def parameter(nni,type='Neutral'):
     kwargs_lomb = {'nfft': 2**8}
     # Define input parameters for the 'ar_psd()' function
     kwargs_ar = {'nfft': 2**10}
-    freqDomain = fd.frequency_domain(nni=nni.astype(int).tolist()
-                                          ,show=False
-                                          ,kwargs_welch=kwargs_welch
-                                          ,kwargs_lomb=kwargs_lomb
-                                          ,kwargs_ar=kwargs_ar)
+    #freqDomain = fd.frequency_domain(nni=nni.astype(int).tolist()
+    #                                      ,show=False
+    #                                      ,kwargs_welch=kwargs_welch
+    #                                      ,kwargs_lomb=kwargs_lomb
+    #                                      ,kwargs_ar=kwargs_ar)
+
+    freqDomain = fd.welch_psd(nni=nni.astype(int).tolist(),nfft= 2**10, detrend = True, window =  'hann',show=False)
+    
     for key in freqDomain.keys():
         results[key] = freqDomain[key]
 
@@ -73,9 +75,10 @@ def parameter(nni,type='Neutral'):
         results[key] = nonlinearDomain[key]
 
     #不要なパラメータの削除
-    del_keylist = ['fft_bands','lomb_bands','ar_bands'
+    del_keylist = ['fft_bands'
                   ,'fft_nfft','fft_window','fft_resampling_frequency','fft_interpolation'
-                  ,'fft_plot','lomb_plot','ar_plot'
+                  ,'fft_plot'
+                  #,'lomb_plot','ar_plot','lomb_bands','ar_bands'
                   ,'nni_histogram','poincare_plot','dfa_plot']
     for del_keys in del_keylist:
         del results[del_keys]
@@ -88,7 +91,7 @@ def parameter(nni,type='Neutral'):
 #---------------------------------------------
 #パラメータリストをfloat型に変換する
 #---------------------------------------------
-def modify_tuple_to_float(parameter_list,emotion = "None"):
+def modify_tuple_to_float(parameter_list):
     #-------------------------------------------------
     #・パラメータがlist型の場合
     #ar_rel : [A B C]を
@@ -96,7 +99,7 @@ def modify_tuple_to_float(parameter_list,emotion = "None"):
     #に変換
     #※パラメータがfloat型の場合はそのまんま
     #-------------------------------------------------
-    results = {'emotion' : emotion }
+    results = {}
     for key in parameter_list.keys():
         if type(parameter_list[key]) == tuple:
             #変更するラベル名を定義
@@ -115,13 +118,29 @@ def modify_tuple_to_float(parameter_list,emotion = "None"):
     return results
 
 
+#---------------------------------------------
+# ニュートラル状態を差分する
+#---------------------------------------------
+def correction_neutral_before(df_neutral,df_emotion):
+    correction_df = (df_emotion - df_neutral)
+    return df
+    pass
+
 if __name__ == '__main__':
-    path= r"\\Ts3400defc\共有フォルダ\theme\hrv_daily_fluctuation\05_Analysis\Analysis_Biosignals\emotion\RRI_tohma_2019-09-26_emotion.csv"
+    path= r"Z:\theme\hrv_daily_fluctuation\05_Analysis\Analysis_Biosignals\emotion\RRI_tohma_2019-09-26_emotion.csv"
+
+
+    #感情ラベルの時間を定義する
     emotion = {'Neutral1':[600,900]  ,'Contentment':[900,1200]
               ,'Neutral2':[1380,1680] ,'Disgust':[1680,1980]
               }
     nni = np.loadtxt(path,delimiter=',')
     df = features(nni,emotion)
-    df.to_excel(r"\\Ts3400defc\共有フォルダ\theme\hrv_daily_fluctuation\05_Analysis\Analysis_Features\Analysis_Features_Labels\tohma_2019-09-26_emotion.xlsx",index=None)
+
+    #ニュートラル補正
+    df_2 = (df.loc[['Contentment','Disgust']] - df.loc[['Neutral1','Neutral2']].values)
+    #df_Contentment = df.loc[['Contentment']] - df.loc[['Neutral2']].values
+
+    df_2.to_excel(r"Z:\theme\hrv_daily_fluctuation\05_Analysis\Analysis_Features\Analysis_Features_Labels\neutral_first_second\tohma_2019-09-26_emotion.xlsx")
 
     pass
