@@ -126,21 +126,63 @@ def correction_neutral_before(df_neutral,df_emotion):
     return df
     pass
 
+
+#-----------------------------------------------------------------------
+# 一定時間ごとのRRI
+#-----------------------------------------------------------------------
+def segumentation_rri(nni,sample_time=300,time_step=30):
+    time_inter = sample_time * 1000 # 標本数
+    time_step = time_step * 1000 # ステップ時間
+
+    # タイムスタンプの算出
+    tmStamps = np.cumsum(nni) #in seconds 
+
+    # 5sごとにデータを取り出す
+    start_time = np.arange(start = 0,
+                           stop  = tmStamps[-1]-time_inter,
+                           step  = time_step)
+    list = []
+    for i,start in enumerate(start_time):
+        end = start + time_inter
+        nni_item = nni[(tmStamps>= start) & (tmStamps <=end)];
+        list.append(nni_item)
+        
+    return list
+#-----------------------------------------------------------------------
+# 一定時間ごとの特徴量
+#-----------------------------------------------------------------------
+def segumentation_features(nni,sample_time=300,time_step=30):
+    rri_list = segumentation_rri(nni,sample_time,time_step)
+
+    for i,rri_item in enumerate(rri_list):
+        dict_parameters = parameter(rri_item)
+        time = sample_time + time_step * i;
+
+        if i == 0:
+            df = pd.DataFrame([], columns=dict_parameters.keys())
+
+        df =  pd.concat([df, pd.DataFrame(dict_parameters, index=[time])])
+
+    return df
+
+
 if __name__ == '__main__':
-    path= r"Z:\theme\hrv_daily_fluctuation\05_Analysis\Analysis_Biosignals\emotion\RRI_tohma_2019-09-26_emotion.csv"
-
-
-    #感情ラベルの時間を定義する
-    emotion = {'Neutral1':[600,900]  ,'Contentment':[900,1200]
-              ,'Neutral2':[1380,1680] ,'Disgust':[1680,1980]
-              }
+    path= r"\\Ts3400defc\共有フォルダ\theme\hrv_daily_fluctuation\05_Analysis\Analysis_Biosignals\baseline\RRI_kojima_2019-10-01_baseline.csv"
     nni = np.loadtxt(path,delimiter=',')
-    df = features(nni,emotion)
+    A = segumentation_features(nni,sample_time=300,time_step=60)
+    A.to_excel(r"\\Ts3400defc\共有フォルダ\theme\hrv_daily_fluctuation\05_Analysis\Analysis_Features\Analysis_Features_Labels\baseline\kojima_2019-10-01_baseline.xlsx")
+    pass
+    ##感情ラベルの時間を定義する
+    #emotion = {'Neutral1':[600,900]  ,'Contentment':[900,1200]
+    #          ,'Neutral2':[1380,1680] ,'Disgust':[1680,1980]
+    #          }
+    #nni = np.loadtxt(path,delimiter=',')
+    #df = features(nni,emotion)
 
-    #ニュートラル補正
-    df_2 = (df.loc[['Contentment','Disgust']] - df.loc[['Neutral1','Neutral2']].values)
-    #df_Contentment = df.loc[['Contentment']] - df.loc[['Neutral2']].values
+    ##ニュートラル補正
+    #df_2 = (df.loc[['Contentment','Disgust']] - df.loc[['Neutral1','Neutral2']].values)
+    ##df_Contentment = df.loc[['Contentment']] - df.loc[['Neutral2']].values
 
-    df_2.to_excel(r"Z:\theme\hrv_daily_fluctuation\05_Analysis\Analysis_Features\Analysis_Features_Labels\neutral_first_second\tohma_2019-09-26_emotion.xlsx")
+    #df_2.to_excel(r"Z:\theme\hrv_daily_fluctuation\05_Analysis\Analysis_Features\Analysis_Features_Labels\neutral_first_second\tohma_2019-09-26_emotion.xlsx")
 
     pass
