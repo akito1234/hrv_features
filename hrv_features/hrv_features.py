@@ -167,10 +167,10 @@ def segumentation_features(nni,sample_time=300,time_step=30):
 
 
 if __name__ == '__main__':
-    path= r"\\Ts3400defc\共有フォルダ\theme\hrv_daily_fluctuation\05_Analysis\Analysis_Biosignals\baseline\RRI_kojima_2019-10-01_baseline.csv"
+    path= r"\\Ts3400defc\共有フォルダ\theme\emotion\disgust_contentment\20190822\RRI\RRI_takase_2.csv"
     nni = np.loadtxt(path,delimiter=',')
-    A = segumentation_features(nni,sample_time=300,time_step=60)
-    A.to_excel(r"\\Ts3400defc\共有フォルダ\theme\hrv_daily_fluctuation\05_Analysis\Analysis_Features\Analysis_Features_Labels\baseline\kojima_2019-10-01_baseline.xlsx")
+    A = segumentation_features(nni,sample_time=120,time_step=120)
+    A.to_excel(r"\\Ts3400defc\共有フォルダ\theme\hrv_daily_fluctuation\05_Analysis\Analysis_Features\Analysis_Features_Labels\emotion\takase_2_20190822_emotion_300s.xlsx")
     pass
     ##感情ラベルの時間を定義する
     #emotion = {'Neutral1':[600,900]  ,'Contentment':[900,1200]
