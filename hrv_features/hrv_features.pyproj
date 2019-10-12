@@ -4,13 +4,14 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>hrv_features.py</StartupFile>
+    <StartupFile>opensignal_reader.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>hrv_features</Name>
     <RootNamespace>hrv_features</RootNamespace>
+    <InterpreterId>Global|PythonCore|3.6</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -26,6 +27,27 @@
     <Compile Include="hrv_plot.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="opensignalsreader\opensignalsreader.py" />
+    <Compile Include="opensignalsreader\transfer_functions\bio.py" />
+    <Compile Include="opensignalsreader\transfer_functions\bit.py" />
+    <Compile Include="opensignalsreader\transfer_functions\__init__.py" />
+    <Compile Include="opensignalsreader\__init__.py" />
+    <Compile Include="opensignalsreader\__version__.py" />
+    <Compile Include="opensignal_reader.py">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|PythonCore|3.6" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="opensignalsreader\" />
+    <Folder Include="opensignalsreader\transfer_functions\" />
+    <Folder Include="opensignalsreader\transfer_functions\__pycache__\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="opensignalsreader\transfer_functions\__pycache__\bit.cpython-36.pyc" />
+    <Content Include="opensignalsreader\transfer_functions\__pycache__\__init__.cpython-36.pyc" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
