@@ -2,8 +2,9 @@ from hrv.classical import frequency_domain
 from hrv.io import read_from_text
 import pyhrv.frequency_domain as fd
 import numpy as np
-
-
+from opensignalsreader import OpenSignalsReader
+from biosppy import signals
+import matplotlib.pyplot as plt
 
 
 def detrend(signal, Lambda):
@@ -41,37 +42,38 @@ def detrend(signal, Lambda):
   return filtered_signal
 
 
+path = r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-11\tohma\opensignals_dev_2019-10-11_17-29-23.txt"
+arc = OpenSignalsReader(path)
 
-path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_BioSignal\RRI_kishida_2019-10-11.csv"
-
-
-rri = np.loadtxt(path,delimiter=',')
-np.savetxt(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_BioSignal\RRI_kishida_test.csv"
-           ,detrend(rri,500)
-           ,delimiter= ",")
+# 心拍データからピークを取り出す
+heart_rate_ts,heart_rate = signals.ecg.ecg(signal= arc.signal(['ECG']) , sampling_rate=1000.0, show=False)[5:7]
 
 
+fig,axes = plt.subplots(3,1,sharex=True,figsize = (16,9),subplot_kw=({"xticks":np.arange(0,900,100)}) )
+axes[0].plot(heart_rate_ts,heart_rate,'b')
+axes[0].set_xlim(0,900)
+axes[0].set_ylabel("HR[bpm]")
+
+axes[1].plot(arc.t,
+             arc.signal(['EDA'])
+             ,'b')
+axes[1].set_ylim(0,25)
+axes[1].set_ylabel('EDA[us]')
 
 
-#results = frequency_domain(
-#    rri=rri,
-#    fs=4.0,
-#    method='welch',
-#    interp_method='cubic',
-#    detrend='linear'
-#)
-
-#print("***********************************************")
-#print("HRV analysis result")
-#print("***********************************************")
-#for key in results.keys():
-#    print(key, results[key])
+axes[2].plot(arc.t,
+             arc.signal(['RESP'])
+             ,'b')
+axes[2].set_ylabel('RESP[%]')
+axes[2].set_ylim(-50,50)
 
 
-#print("***********************************************")
-#print("pyHRV analysis result")
-#print("***********************************************")
+for i in range(3):
+    axes[i].axvspan(300,600,alpha=0.3,color="r",label="Stress")
 
-#results = fd.welch_psd(rri, nfft=2**10)
-#for key in results.keys():
-#    print(key, results[key])
+
+plt.legend()
+plt.xlabel("Time[s]")
+plt.show()
+
+ 

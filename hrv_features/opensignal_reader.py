@@ -18,11 +18,10 @@ import pandas as pd
 import hrv_features as hf
 
 # Read OpenSignals file
-path = r"Z:\theme\stress\02.BiometricData\2019-10-14\tohma\opensignals_dev_2019-10-14_12-09-33.txt"
+path = r"Z:\theme\stress\02.BiometricData\2019-10-14\kojima\opensignals_201806130003_2019-10-14_20-29-40.txt"
 
 # Read OpenSignals file and plot all signals
 arc = OpenSignalsReader(path)
-arc.plot(['ECG', 'EDA','RESP'])
 ecg = arc.signal('ECG')
 
 
@@ -34,7 +33,7 @@ nni = tools.nn_intervals(rpeaks.tolist())
 result = hf.segumentation_features(nni,sample_time=120,time_step=30)
 
 # 結果をエクスポート
-np.savetxt(r'Z:\theme\stress\03.Analysis\Analysis_BioSignal\RRI_tohma_2019-10-14.csv'
+np.savetxt(r'Z:\theme\stress\03.Analysis\Analysis_BioSignal\RRI_kojima_2019-10-14.csv'
            ,nni, delimiter=',' )
 
-result.to_excel(r"Z:\theme\stress\03.Analysis\Analysis_Features\features_tohma_2019-10-14_120s_windows.xlsx")
+result.to_excel(r"Z:\theme\stress\03.Analysis\Analysis_Features\features_kojima_2019-10-14_120s_windows.xlsx")

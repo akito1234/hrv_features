@@ -87,13 +87,6 @@ def features_plot(columns,subjects, path_list):
 
     plt.show()
 
-#path_list = [r"C:\Users\akito\Desktop\Hashimoto\20190802\summary\300s_30s\features_shizuya.xlsx"
-#             ,r"C:\Users\akito\Desktop\Hashimoto\20190802\summary\300s_30s\features_kishida.xlsx"
-#             ,r"C:\Users\akito\Desktop\Hashimoto\20190802\summary\300s_30s\features_teraki.xlsx"
-#             ]
-#subjects = ['shizuya','kishida','teraki']
-#columns = ['SD1','SD2','SD_ratio','ellipse_area','sample_entropy','dfa_short','dfa_long']
-#features_plot(columns,subjects, path_list)
 def box_whisker(columns,sum_contentment,sum_disgust,sum_recovery):
   #コラム一覧を取得する
   x = sum_contentment.columns.values
