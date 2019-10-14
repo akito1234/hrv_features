@@ -27,6 +27,9 @@
     <Compile Include="hrv_plot.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="hrv_test.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="opensignalsreader\opensignalsreader.py" />
     <Compile Include="opensignalsreader\transfer_functions\bio.py" />
     <Compile Include="opensignalsreader\transfer_functions\bit.py" />

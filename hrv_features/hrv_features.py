@@ -15,6 +15,10 @@ import pyhrv.time_domain as td
 import pyhrv.nonlinear as nl
 import pyhrv.tools as tools
 
+# お試し中
+from hrv.classical import frequency_domain
+from hrv.io import read_from_text
+
 
 def features(nni,emotion):
     for i,key in enumerate(emotion.keys()):
@@ -58,12 +62,18 @@ def parameter(nni):
     #                                      ,kwargs_ar=kwargs_ar)
 
     freqDomain = fd.welch_psd(nni=nni.astype(int).tolist(),nfft= 2**10, detrend = True, window =  'hann',show=False)
-    
+    #freqDomain = frequency_domain(
+    #    rri=nni,
+    #    fs=4.0,
+    #    method='welch',
+    #    interp_method='cubic',
+    #    detrend='linear'
+    #    )
     for key in freqDomain.keys():
         results[key] = freqDomain[key]
 
     # -----------------時系列解析-------------------#
-    timeDomain = td.time_domain(nni.astype(int).tolist())
+    timeDomain = td.time_domain(nni)
 
     for key in timeDomain.keys():
         results[key] = timeDomain[key]
@@ -167,10 +177,10 @@ def segumentation_features(nni,sample_time=300,time_step=30):
 
 
 if __name__ == '__main__':
-    path= r"\\Ts3400defc\共有フォルダ\theme\emotion\disgust_contentment\20190822\RRI\RRI_takase_2.csv"
-    nni = np.loadtxt(path,delimiter=',')
-    A = segumentation_features(nni,sample_time=120,time_step=120)
-    A.to_excel(r"\\Ts3400defc\共有フォルダ\theme\hrv_daily_fluctuation\05_Analysis\Analysis_Features\Analysis_Features_Labels\emotion\takase_2_20190822_emotion_300s.xlsx")
+    path= r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_BioSignal\RRI_kishida_kubios_2019-10-11.csv"
+    rri = np.loadtxt(path,delimiter=',')
+    A = segumentation_features(rri,sample_time=120,time_step=30)
+    A.to_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\features_kishida_2019-10-11_120s_windows_pre.xlsx")
     pass
     ##感情ラベルの時間を定義する
     #emotion = {'Neutral1':[600,900]  ,'Contentment':[900,1200]
