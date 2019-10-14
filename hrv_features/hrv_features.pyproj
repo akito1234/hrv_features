@@ -24,7 +24,7 @@
   <ItemGroup>
     <Compile Include="frequency_domain.py" />
     <Compile Include="hrv_features.py" />
-    <Compile Include="hrv_plot.py">
+    <Compile Include="long_time_hrv_processing.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="hrv_test.py">
@@ -39,6 +39,7 @@
     <Compile Include="opensignal_reader.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="user_tools.py" />
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="Global|PythonCore|3.6" />
