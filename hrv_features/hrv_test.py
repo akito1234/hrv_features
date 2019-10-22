@@ -12,9 +12,6 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 
-
-nu.binarize_signal()
-
 def detrend(signal, Lambda):
   """applies a detrending filter.
    
@@ -48,6 +45,10 @@ def detrend(signal, Lambda):
   D = spdiags(diags_data, diags_index, (signal_length-2), signal_length).toarray()
   filtered_signal = np.dot((H - np.linalg.inv(H + (Lambda**2) * np.dot(D.T, D))), signal)
   return filtered_signal 
+
+
+
+
 def plot_signal(path):
     arc = OpenSignalsReader(path)
 
@@ -55,9 +56,9 @@ def plot_signal(path):
     heart_rate_ts,heart_rate = signals.ecg.ecg(signal= arc.signal(['ECG']) , sampling_rate=1000.0, show=False)[5:7]
 
 
-    fig,axes = plt.subplots(3,1,sharex=True,figsize = (16,9),subplot_kw=({"xticks":np.arange(0,900,100)}) )
+    fig,axes = plt.subplots(3,1,sharex=True,figsize = (16,9),subplot_kw=({"xticks":np.arange(0,1200,100)}) )
     axes[0].plot(heart_rate_ts,heart_rate,'b')
-    axes[0].set_xlim(0,900)
+    axes[0].set_xlim(0,1200)
     axes[0].set_ylabel("HR[bpm]")
 
     axes[1].plot(arc.t,
@@ -76,13 +77,13 @@ def plot_signal(path):
 
     for i in range(3):
         axes[i].axvspan(300,600,alpha=0.3,color="r",label="Stress")
-
+        axes[i].axvspan(900,1200,alpha=0.3,color="b",label="Amusement")
 
     plt.legend()
     plt.xlabel("Time[s]")
     plt.show()
 
-    pass
+
 def plot_hrv(path):
     df = pd.read_excel(path,index_col=0)
     plt.rcParams["font.size"] = 18
@@ -107,5 +108,5 @@ def plot_hrv(path):
     plt.title('Subject1 - 2st')
     plt.show()
 
-path = r"Z:\theme\stress\02.BiometricData\2019-10-14\tohma\opensignals_dev_2019-10-14_12-09-33.txt"
+path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-21\tohma\opensignals_201806130003_2019-10-21_15-16-48.txt"
 plot_signal(path)
