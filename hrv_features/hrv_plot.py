@@ -1,5 +1,4 @@
-from hrv.classical import frequency_domain
-from hrv.io import read_from_text
+
 import pyhrv.frequency_domain as fd
 import numpy as np
 from opensignalsreader import OpenSignalsReader
@@ -97,7 +96,10 @@ def plot_hrv(path):
     ax2.plot(df.index.values, df['fft_abs_hf'].values, color='red',label='HF')
     ax2.plot(df.index.values, df['fft_abs_lf'].values, color='blue',label='LF')
     ax2.set_ylabel('LF, HF [ms^2]') 
+
+    # 塗りつぶしを指定
     plt.axvspan(300,600,alpha=0.3,color="r")
+    plt.axvspan(900,1200,alpha=0.3,color="b",label="Amusement")
     # 凡例
     # グラフの本体設定時に、ラベルを手動で設定する必要があるのは、barplotのみ。plotは自動で設定される＞
     handler1, label1 = ax1.get_legend_handles_labels()
@@ -108,5 +110,5 @@ def plot_hrv(path):
     plt.title('Subject1 - 2st')
     plt.show()
 
-path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-21\tohma\opensignals_201806130003_2019-10-21_15-16-48.txt"
+path = r"\\Ts3400defc\共有フォルダ\theme\mental_stress\02.BiometricData\2019-10-22\kishida\opensignals_dev_2019-10-22_13-54-50.txt"
 plot_signal(path)

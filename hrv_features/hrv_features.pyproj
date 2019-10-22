@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>hrv_test.py</StartupFile>
+    <StartupFile>neurokit_test.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -27,7 +27,7 @@
     <Compile Include="long_time_hrv_processing.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="hrv_test.py">
+    <Compile Include="hrv_plot.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="neurokit_test.py">
