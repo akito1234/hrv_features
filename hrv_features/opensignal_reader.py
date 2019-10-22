@@ -7,9 +7,8 @@ Created 2019.10.12 17:00
 
 # Import OpenSignalsReader
 from opensignalsreader import OpenSignalsReader
-from biosppy import signals
 import pyhrv.tools as tools
-
+from biosppy import signals
 # Import BasePlugins
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,7 +17,7 @@ import pandas as pd
 import hrv_features as hf
 
 # Read OpenSignals file
-path = r"Z:\theme\stress\02.BiometricData\2019-10-14\kojima\opensignals_201806130003_2019-10-14_20-29-40.txt"
+path = r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-21\opensignals_201806130003_2019-10-21_15-16-48.txt"
 
 # Read OpenSignals file and plot all signals
 arc = OpenSignalsReader(path)
@@ -33,7 +32,7 @@ nni = tools.nn_intervals(rpeaks.tolist())
 result = hf.segumentation_features(nni,sample_time=120,time_step=30)
 
 # 結果をエクスポート
-np.savetxt(r'Z:\theme\stress\03.Analysis\Analysis_BioSignal\RRI_kojima_2019-10-14.csv'
+np.savetxt(r'C:\Users\akito\Desktop\stress\03.Analysis\Analysis_BioSignal\RRI_tohma_2019-10-21.csv'
            ,nni, delimiter=',' )
 
-result.to_excel(r"Z:\theme\stress\03.Analysis\Analysis_Features\features_kojima_2019-10-14_120s_windows.xlsx")
+result.to_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\features_tohma_2019-10-21_120s_windows.xlsx")

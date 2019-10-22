@@ -15,11 +15,6 @@ import pyhrv.time_domain as td
 import pyhrv.nonlinear as nl
 import pyhrv.tools as tools
 
-# お試し中
-from hrv.classical import frequency_domain
-from hrv.io import read_from_text
-
-
 def features(nni,emotion):
     for i,key in enumerate(emotion.keys()):
         segment_hrv_report = segments_parameter(nni,emotion[key])
