@@ -110,5 +110,5 @@ def plot_hrv(path):
     plt.title('Subject1 - 2st')
     plt.show()
 
-path = r"\\Ts3400defc\共有フォルダ\theme\mental_stress\02.BiometricData\2019-10-22\kishida\opensignals_dev_2019-10-22_13-54-50.txt"
+path = r"\\Ts3400defc\共有フォルダ\theme\mental_stress\02.BiometricData\2019-10-23\shizuya\opensignals_dev_2019-10-23_14-09-52.txt"
 plot_signal(path)
