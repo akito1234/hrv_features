@@ -14,10 +14,14 @@ arc = OpenSignalsReader(path)
 processed_rsp = nk.rsp_process(arc.signal('RESP'), sampling_rate=1000)['RSP']
 
 # Process the signals
-rsp_data  = np.c_[processed_rsp['Cycles_Onsets'],
-                  processed_rsp['Cycles_Length'],
-                  processed_rsp['Expiration_Onsets']
-                   ]
+# 呼吸周期のみを評価
+#rsp_data  = np.c_[np.array(processed_rsp['Cycles_Onsets'])[1:],
+#                  processed_rsp['Cycles_Length']]
+
+# 呼吸ピークの解析
+Expiration_Onsets = np.array(processed_rsp['Expiration_Onsets'])
+Expiration_Length = Expiration_Onsets[:-1] - Expiration_Onsets[1:]
+rsp_data  = np.c_[Expiration_Onsets,Expiration_Length]
 
 np.savetxt(r"C:\Users\akito\Desktop\eda_tohma.csv"
             ,rsp_data,delimiter=',')
