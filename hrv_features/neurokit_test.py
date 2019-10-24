@@ -13,23 +13,22 @@ path = r"C:\Users\akito\Desktop\test.txt"
 #--呼吸--#
 # Read OpenSignals file and plot all signals
 arc = OpenSignalsReader(path)
-processed_rsp = nk.rsp_process(arc.signal('RESP'), sampling_rate=1000)['RSP']
+#processed_rsp = nk.rsp_process(arc.signal('RESP'), sampling_rate=1000)['RSP']
 
 # Process the signals
 # 呼吸周期のみを評価
-#rsp_data  = np.c_[np.array(processed_rsp['Cycles_Onsets'])[1:],
-#                  processed_rsp['Cycles_Length']]
+rsp_data  = np.c_[np.array(processed_rsp['Cycles_Onsets'])[1:],
+                  processed_rsp['Cycles_Length']]
 
 # 呼吸ピークの解析
-Expiration_Onsets = np.array(processed_rsp['Expiration_Onsets'])
-Expiration_Length = Expiration_Onsets[:-1] - Expiration_Onsets[1:]
-rsp_data  = np.c_[Expiration_Onsets,Expiration_Length]
+#Expiration_Onsets = np.array(processed_rsp['Expiration_Onsets'])
+#Expiration_Length = Expiration_Onsets[:-1] - Expiration_Onsets[1:]
+#rsp_data  = np.c_[Expiration_Onsets,Expiration_Length]
 
 np.savetxt(r"C:\Users\akito\Desktop\eda_tohma.csv"
             ,rsp_data,delimiter=',')
 
---皮膚コンダクタンス--#
-# Read OpenSignals file and plot all signals
+ 皮膚コンダクタンス--#
 arc = OpenSignalsReader(path)
 processed_eda = nk.rsp_process(arc.signal('EDA'), sampling_rate=1000)['EDA']
 #eda.eda(eda2, sampling_rate=1000.0, show=True, min_amplitude=0.1)
@@ -64,7 +63,7 @@ np.savetxt(r"C:\Users\akito\Desktop\eda_tohma.csv"
 #arc = OpenSignalsReader(path)
 #bio = nk.bio_process(ecg=arc.signal('ECG'), rsp=arc.signal('RESP'), eda=arc.signal('EDA'), sampling_rate=1000)
 #onsets = np.array([0,300,600,900])
-#epochs = nk.create_epochs(bio["df"], onsets, duration=300)
+#epochs = nk.create_epochs(bio["df"],onsets, duration=300)
 #data = {}  # Initialize an empty dict
 #for epoch_index in epochs:
 #    data[epoch_index] = {}  # Initialize an empty dict for the current epoch
@@ -81,6 +80,7 @@ np.savetxt(r"C:\Users\akito\Desktop\eda_tohma.csv"
 #        scr_max = 0  # If no SCR, consider the magnitude, i.e.  that the value is 0
 #    data[epoch_index]["SCR_Magnitude"] = scr_max
 
+
 #data = pd.DataFrame.from_dict(data, orient="index")  # Convert to a dataframe
 #data["Condition"] = ["Neutral","Stress",  "Neutral","Ammusement"]  # Add the conditions
-#print(data)
+##print(data)
