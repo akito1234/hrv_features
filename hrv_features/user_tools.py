@@ -77,10 +77,6 @@ def features_plot(columns,subjects, path_list):
             
             #axes[i].axvspan(900,1200, alpha=1.0,color="#ffcdd2",label="Ammusement")
             #axes[i].axvspan(1500,1800, alpha=0.5,color="y",label="Disgust")
-            
-
-            
-
             #axes[i].set_xlim(0,1100)
             #axes[i].set_ylim(400,1200)
             #axes[i].set_title("video{}_{}".format(number,subject))
