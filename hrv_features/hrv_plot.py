@@ -66,13 +66,11 @@ def plot_signal(path):
     axes[1].set_ylim(0,25)
     axes[1].set_ylabel('EDA[us]')
 
-
-    axes[2].plot(arc.t,
-                 arc.signal(['RESP'])
-                 ,'b')
-    axes[2].set_ylabel('RESP[%]')
-    axes[2].set_ylim(-50,50)
-
+    resp_data = signals.resp.resp(arc.signal('RESP'),show=False)
+    axes[2].plot(resp_data['resp_rate_ts'],
+                 resp_data['resp_rate'],'b')
+    axes[2].set_ylabel('RESP[Hz]')
+    axes[2].set_ylim(0,0.5)
 
     for i in range(3):
         axes[i].axvspan(300,600,alpha=0.3,color="r",label="Stress")
@@ -80,35 +78,29 @@ def plot_signal(path):
 
     plt.legend()
     plt.xlabel("Time[s]")
-    plt.show()
+    return plt
 
 
 def plot_hrv(path):
     df = pd.read_excel(path,index_col=0)
     plt.rcParams["font.size"] = 18
-    plt.figure(figsize=(24,8))
-    fig, ax1 = plt.subplots()
-    ax2 = ax1.twinx() # 二つ目の軸を定義
+    plt.figure(figsize=(16,9))
+    fig,axes = plt.subplots(2,1,sharex=True,figsize = (16,9),subplot_kw=({"xticks":np.arange(0,1200,100)}) )
+    axes[0].plot(df.index.values, df['fft_ratio'].values, color='black',label='LF/HF')
+    axes[0].set_xlim(0,1200)
+    axes[0].set_ylabel("LF/HF [-]")
 
-    ax1.plot(df.index.values, df['fft_ratio'].values, color='black',label='LF/HF')
-    ax1.set_ylabel('LF / HF [-]') # ラベルを設定
-    ax1.set_xlabel("Time[s]")
-    ax2.plot(df.index.values, df['fft_abs_hf'].values, color='red',label='HF')
-    ax2.plot(df.index.values, df['fft_abs_lf'].values, color='blue',label='LF')
-    ax2.set_ylabel('LF, HF [ms^2]') 
-
-    # 塗りつぶしを指定
-    plt.axvspan(300,600,alpha=0.3,color="r")
-    plt.axvspan(900,1200,alpha=0.3,color="b",label="Amusement")
-    # 凡例
-    # グラフの本体設定時に、ラベルを手動で設定する必要があるのは、barplotのみ。plotは自動で設定される＞
-    handler1, label1 = ax1.get_legend_handles_labels()
-    handler2, label2 = ax2.get_legend_handles_labels()
-    # 凡例をまとめて出力する
-    ax1.legend(handler1 + handler2, label1 + label2, loc=2, borderaxespad=0.)
+    axes[1].plot(df.index.values, df['fft_abs_hf'].values, color='red',label='HF')
+    axes[1].plot(df.index.values, df['fft_abs_lf'].values, color='blue',label='LF')
+    axes[1].set_ylabel('Power Specktraum[ms2]') # ラベルを設定
+    for i in range(2):
+        axes[i].axvspan(300,600,alpha=0.3,color="r",label="Stress")
+        axes[i].axvspan(900,1200,alpha=0.3,color="b",label="Amusement")
+    plt.legend()
+    plt.xlabel("Time[s]")
     plt.grid()
-    plt.title('Subject1 - 2st')
-    plt.show()
+    return plt
 
-path = r"\\Ts3400defc\共有フォルダ\theme\mental_stress\02.BiometricData\2019-10-23\teraki\opensignals_dev_2019-10-23_16-59-10.txt"
-plot_signal(path)
+path = r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\features_kishida_2019-10-22_120s_windows.xlsx"
+plt = plot_hrv(path)
+plt.savefig(r"C:\Users\akito\Desktop\features_kishida_2019-10-23.png")

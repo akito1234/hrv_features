@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>neurokit_test.py</StartupFile>
+    <StartupFile>hrv_plot.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,12 +22,15 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="biosinal_summary.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="eda_analysis.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="frequency_domain.py" />
-    <Compile Include="hrv_features.py" />
-    <Compile Include="long_time_hrv_processing.py">
+    <Compile Include="hrv_analysis.py" />
+    <Compile Include="util\long_time_hrv_processing.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="hrv_plot.py">
@@ -43,6 +46,9 @@
     <Compile Include="opensignalsreader\__init__.py" />
     <Compile Include="opensignalsreader\__version__.py" />
     <Compile Include="opensignal_reader.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="resp_analysis.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="user_tools.py" />

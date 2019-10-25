@@ -28,7 +28,7 @@ rsp_data  = np.c_[np.array(processed_rsp['Cycles_Onsets'])[1:],
 np.savetxt(r"C:\Users\akito\Desktop\eda_tohma.csv"
             ,rsp_data,delimiter=',')
 
- 皮膚コンダクタンス--#
+# 皮膚コンダクタンス--#
 arc = OpenSignalsReader(path)
 processed_eda = nk.rsp_process(arc.signal('EDA'), sampling_rate=1000)['EDA']
 #eda.eda(eda2, sampling_rate=1000.0, show=True, min_amplitude=0.1)
