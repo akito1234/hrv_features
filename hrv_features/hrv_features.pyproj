@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>hrv_plot.py</StartupFile>
+    <StartupFile>util\respiration.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -53,6 +53,9 @@
     </Compile>
     <Compile Include="user_tools.py" />
     <Compile Include="util\ecg_spectrogram.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="util\respiration.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
