@@ -25,20 +25,8 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import numpy as np
 
-x = np.arange(-3, 3, 0.25)
-y = np.arange(-3, 3, 0.25)
-X, Y = np.meshgrid(x, y)
-Z = np.sin(X)+ np.cos(Y)
-
-fig = plt.figure()
-ax = Axes3D(fig)
-ax.plot_wireframe(X,Y,Z) #<---ここでplot
-
-plt.show()
-
-
 # Read OpenSignals file
-path = r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-21\tohma\opensignals_201806130003_2019-10-21_15-16-48.txt"
+path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-23\shizuya\opensignals_dev_2019-10-23_14-09-52.txt"
 
 # Read OpenSignals file and plot all signals
 arc = OpenSignalsReader(path)
