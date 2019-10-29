@@ -13,11 +13,10 @@ from biosppy import signals
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import hrv_analysis as hf
 
-import hrv_features as hf
 
-# Read OpenSignals file
-path = r"\\Ts3400defc\共有フォルダ\theme\mental_stress\02.BiometricData\2019-10-23\teraki\opensignals_dev_2019-10-23_16-59-10.txt"
+path = r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-29\opensignals_dev_2019-10-28_13-50-02.txt"
 
 # Read OpenSignals file and plot all signals
 arc = OpenSignalsReader(path)
@@ -32,7 +31,7 @@ nni = tools.nn_intervals(rpeaks.tolist())
 result = hf.segumentation_features(nni,sample_time=120,time_step=30)
 
 # 結果をエクスポート
-np.savetxt(r'\\Ts3400defc\共有フォルダ\theme\mental_stress\03.Analysis\Analysis_BioSignal\RRI_teraki_2019-10-23.csv'
+np.savetxt(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_BioSignal\RRI_teraki_2019-10-23.csv"
            ,nni, delimiter=',' )
 
-result.to_excel(r"\\Ts3400defc\共有フォルダ\theme\mental_stress\03.Analysis\Analysis_Features\features_teraki_2019-10-23_120s_windows.xlsx")
+result.to_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\features_teraki_2019-10-23_120s_windows.xlsx")

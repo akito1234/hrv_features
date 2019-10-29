@@ -78,6 +78,7 @@ def plot_signal(path):
 
     plt.legend()
     plt.xlabel("Time[s]")
+
     return plt
 
 
@@ -101,6 +102,5 @@ def plot_hrv(path):
     plt.grid()
     return plt
 
-path = r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\features_kishida_2019-10-22_120s_windows.xlsx"
-plt = plot_hrv(path)
-plt.savefig(r"C:\Users\akito\Desktop\features_kishida_2019-10-23.png")
+path = r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-29\opensignals_dev_2019-10-28_13-50-02.txt"
+plt = plot_signal(path).show()
