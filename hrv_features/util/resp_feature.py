@@ -71,7 +71,9 @@ def resp(signal=None, sampling_rate=1000., show=True):
         rate_idx = []
         rate = []
     else:
-        #onsets = zeros[1:][::2]
+        inspiration = zeros[1:][::2]
+        expiration = zeros[::2]
+
         #recoveries = zeros[::2]
         # peak detection 
         #peaks = []
@@ -116,34 +118,44 @@ def resp(signal=None, sampling_rate=1000., show=True):
                            show=True)
 
     # output
-    args = (ts, filtered, zeros, ts_rate, rate)
-    names = ('ts', 'filtered', 'zeros', 'resp_rate_ts', 'resp_rate')
+    args = (ts, filtered, zeros, ts_rate, rate,inspiration, expiration)
+    names = ('ts', 'filtered', 'zeros', 'resp_rate_ts', 'resp_rate','inspiration', 'expiration')
 
     return utils.ReturnTuple(args, names)
 
 if __name__ == '__main__':
-    path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-28\shibata\opensignals_dev_2019-10-28_13-50-02.txt"
+    path = r"C:\Users\akito\Desktop\test.txt"
     arc = OpenSignalsReader(path)
     result = resp(signal=arc.signal('RESP'), sampling_rate=1000., show=False)
+
+
     import matplotlib.pyplot as plt
-    import matplotlib as mpl
-    # welch 法によるスペクトル解析
     plt.figure()
-    A = result['filtered']
-    filter= result['filtered'] - A.mean()
-    N = 300*1000
-    freq1,power1 = signal.welch(filter[(0<=result['ts']) & (result['ts']<300)], fs=1000.0, window='hanning',nperseg=N)
-    
-    plt.plot(freq1,power1,"b")
+    plt.plot(result['ts'],result['filtered'])
 
-    freq2,power2 = signal.welch(filter[(300<=result['ts']) & (result['ts']<600)], fs=1000.0, window='hanning',nperseg=N)
-    
-    plt.plot(freq2,power2,"r")
-
-    plt.xlabel("Frequency[Hz]")
-    plt.ylabel("Power/frequency[dB/Hz]")
-    plt.xlim(0,10)
+    for ins,exp in zip(result['inspiration'], result['expiration']):
+        plt.axvline(ins*0.001,color= 'b')
+        plt.axvline(exp*0.001,color= 'r')
     plt.show()
+    #import matplotlib.pyplot as plt
+    #import matplotlib as mpl
+    ## welch 法によるスペクトル解析
+    #plt.figure()
+    #A = result['filtered']
+    #filter= result['filtered'] - A.mean()
+    #N = 300*1000
+    #freq1,power1 = signal.welch(filter[(0<=result['ts']) & (result['ts']<300)], fs=1000.0, window='hanning',nperseg=N)
+    
+    #plt.plot(freq1,power1,"b")
+
+    #freq2,power2 = signal.welch(filter[(300<=result['ts']) & (result['ts']<600)], fs=1000.0, window='hanning',nperseg=N)
+    
+    #plt.plot(freq2,power2,"r")
+
+    #plt.xlabel("Frequency[Hz]")
+    #plt.ylabel("Power/frequency[dB/Hz]")
+    #plt.xlim(0,10)
+    #plt.show()
 
     #fig, ax = plt.subplots() 
     #N = 2**12
