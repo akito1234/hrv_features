@@ -56,6 +56,7 @@ def plot_signal(path):
 
 
     fig,axes = plt.subplots(3,1,sharex=True,figsize = (16,9),subplot_kw=({"xticks":np.arange(0,1200,100)}) )
+    axes[0].set_title(path)
     axes[0].plot(heart_rate_ts,heart_rate,'b')
     axes[0].set_xlim(0,1200)
     axes[0].set_ylabel("HR[bpm]")
@@ -102,5 +103,5 @@ def plot_hrv(path):
     plt.grid()
     return plt
 
-path = r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-29\opensignals_dev_2019-10-28_13-50-02.txt"
+path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-28\shibata\opensignals_dev_2019-10-28_13-50-02.txt"
 plt = plot_signal(path).show()

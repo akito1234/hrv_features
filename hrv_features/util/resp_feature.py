@@ -18,7 +18,7 @@ import numpy as np
 import biosppy.signals.tools as st
 from biosppy import plotting, utils
 from opensignalsreader import OpenSignalsReader
-
+from scipy import signal
 def resp(signal=None, sampling_rate=1000., show=True):
     """Process a raw Respiration signal and extract relevant signal features
     using default parameters.
@@ -31,6 +31,7 @@ def resp(signal=None, sampling_rate=1000., show=True):
     show : bool, optional
         If True, show a summary plot.
     Returns
+
     -------
     ts : array
         Signal time axis reference (seconds).
@@ -70,6 +71,17 @@ def resp(signal=None, sampling_rate=1000., show=True):
         rate_idx = []
         rate = []
     else:
+        #onsets = zeros[1:][::2]
+        #recoveries = zeros[::2]
+        # peak detection 
+        #peaks = []
+        #for (onset,recovery) in zip(onsets,recoveries):
+        #    if onset >= recovery:
+        #        continue
+        #    # 最大値のインデックスを取得
+        #    index_max = np.argmax(filtered[onset:recovery])
+        #    peaks.append(index_max + onset)
+
         # compute respiration rate
         rate_idx = beats[1:]
         rate = sampling_rate * (1. / np.diff(beats))
@@ -110,6 +122,40 @@ def resp(signal=None, sampling_rate=1000., show=True):
     return utils.ReturnTuple(args, names)
 
 if __name__ == '__main__':
-    path = r"C:\Users\akito\Desktop\test.txt"
+    path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-28\shibata\opensignals_dev_2019-10-28_13-50-02.txt"
     arc = OpenSignalsReader(path)
-    resp(signal=arc.signal('RESP'), sampling_rate=1000., show=True)
+    result = resp(signal=arc.signal('RESP'), sampling_rate=1000., show=False)
+    import matplotlib.pyplot as plt
+    import matplotlib as mpl
+    # welch 法によるスペクトル解析
+    plt.figure()
+    A = result['filtered']
+    filter= result['filtered'] - A.mean()
+    N = 300*1000
+    freq1,power1 = signal.welch(filter[(0<=result['ts']) & (result['ts']<300)], fs=1000.0, window='hanning',nperseg=N)
+    
+    plt.plot(freq1,power1,"b")
+
+    freq2,power2 = signal.welch(filter[(300<=result['ts']) & (result['ts']<600)], fs=1000.0, window='hanning',nperseg=N)
+    
+    plt.plot(freq2,power2,"r")
+
+    plt.xlabel("Frequency[Hz]")
+    plt.ylabel("Power/frequency[dB/Hz]")
+    plt.xlim(0,10)
+    plt.show()
+
+    #fig, ax = plt.subplots() 
+    #N = 2**12
+    #fs = 1000
+    #f, t, Sxx = signal.spectrogram(filter,
+    #                               nperseg=N,
+    #                               #noverlap=N,
+    #                               detrend='linear')
+    ##ax[0].plot(result['ts'],result['filtered'])
+    #pc = ax.pcolormesh(t/fs, f, Sxx, norm=mpl.colors.LogNorm(vmin=Sxx.mean(), vmax=Sxx.max()), cmap='inferno')
+    #ax.set_ylim(0,0.5)
+    #ax.set_ylabel('Frequency')
+    #ax.set_xlabel('Time') 
+    ##fig.colorbar(pc)
+    #plt.show()
