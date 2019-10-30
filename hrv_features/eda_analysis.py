@@ -1,13 +1,7 @@
 # Import Package
-from biosppy.signals import eda
-from biosppy import plotting
 import biosppy.signals.tools as st
-
 import numpy as np
-import pandas as pd
-import matplotlib.pylab as plt
-from opensignalsreader import OpenSignalsReader
-
+import ledapy
 
 def EDA_FEATURES(eda,section):
     eda_features = {}
@@ -33,7 +27,7 @@ def EDA_FEATURES(eda,section):
 
     return eda_features
 
-def eda_analysis(signal=None,sampling_rate=1000,show=True):
+def eda_preprocess(signal,sampling_rate):
     # check inputs
     if signal is None:
         raise TypeError("Please specify an input signal.")
@@ -57,41 +51,40 @@ def eda_analysis(signal=None,sampling_rate=1000,show=True):
                               kernel='boxzen',
                               size=sm_size,
                               mirror=True)
+    return filtered
 
-    # get SCR info
-    onsets, peaks, amps = eda.basic_scr(signal=filtered,sampling_rate=sampling_rate)
-    amps = filtered[peaks.tolist()] - filtered[onsets.tolist()]
+def scr(signal,sampling_rate=1000.,result_type='phasicdata',downsamp = 4):
+    # check inputs
+    if signal is None:
+        raise TypeError("Please specify an input signal.")
 
+    # apply preprocessing
+    filtered = eda_preprocess(signal,sampling_rate)
+    
+    # caliculate parameters
+    # 最適化された結果を出力する
+    phasicdata = ledapy.runner.getResult(filtered, result_type, sampling_rate, downsample=downsamp, optimisation=2)
 
-    # get time vectors
-    length = len(signal)
-    T = (length - 1) / sampling_rate
-    ts = np.linspace(0, T, length, endpoint=False)
+    # create time stamps
+    length = len(phasicdata)
+    T = (length-1) / downsamp
+    ts = np.linspace(0, T, length, endpoint=True)
 
-    # plot
-    if show:
-
-        plotting.plot_eda(ts=ts,
-                          raw=signal,
-                          filtered=filtered,
-                          onsets=onsets,
-                          peaks=peaks,
-                          amplitudes=amps,
-                          path=None,
-                          show=True)
-
-    # output
-    args = (ts, filtered, onsets, peaks, amps)
-    names = ('ts', 'filtered', 'onsets', 'peaks', 'amplitudes')
-
-    return utils.ReturnTuple(args, names)
-
+    return {'ts':ts,
+            'src':phasicdata,
+            'filtered':filtered}
 
 
 if __name__ == '__main__':
-    path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-23\teraki\opensignals_dev_2019-10-23_16-59-10.txt"
+    from opensignalsreader import OpenSignalsReader
+    path = r"C:\Users\akito\Desktop\test.txt"
     arc = OpenSignalsReader(path)
-    eda_analysis(arc.signal('EDA'),show=True)
+    result = scr(arc.signal(['EDA']),sampling_rate=1000.)
+    import matplotlib.pyplot as plt
+    plt.figure()
+    plt.plot(result['ts'], result['src'])
+    plt.show()
+
 #    eda_filtered = eda.eda(arc.signal('EDA'),show=False)
 #    eda_data = eda.basic_scr(eda_filtered['filtered'], sampling_rate=1000.0)
 #    fig,axs = plt.subplots(2,1,sharex=True)

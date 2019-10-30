@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>util\resp_feature.py</StartupFile>
+    <StartupFile>eda_analysis.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -30,6 +30,13 @@
     </Compile>
     <Compile Include="frequency_domain.py" />
     <Compile Include="hrv_analysis.py" />
+    <Compile Include="ledapy\analyse.py" />
+    <Compile Include="ledapy\deconvolution.py" />
+    <Compile Include="ledapy\leda2.py" />
+    <Compile Include="ledapy\runner.py" />
+    <Compile Include="ledapy\snips.py" />
+    <Compile Include="ledapy\utils.py" />
+    <Compile Include="ledapy\__init__.py" />
     <Compile Include="util\cvxEDA.py" />
     <Compile Include="util\long_time_hrv_processing.py">
       <SubType>Code</SubType>
@@ -64,12 +71,20 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="ledapy\" />
+    <Folder Include="ledapy\__pycache__\" />
     <Folder Include="util\" />
     <Folder Include="opensignalsreader\" />
     <Folder Include="opensignalsreader\transfer_functions\" />
     <Folder Include="opensignalsreader\transfer_functions\__pycache__\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ledapy\__pycache__\analyse.cpython-36.pyc" />
+    <Content Include="ledapy\__pycache__\deconvolution.cpython-36.pyc" />
+    <Content Include="ledapy\__pycache__\leda2.cpython-36.pyc" />
+    <Content Include="ledapy\__pycache__\runner.cpython-36.pyc" />
+    <Content Include="ledapy\__pycache__\utils.cpython-36.pyc" />
+    <Content Include="ledapy\__pycache__\__init__.cpython-36.pyc" />
     <Content Include="opensignalsreader\transfer_functions\__pycache__\bit.cpython-36.pyc" />
     <Content Include="opensignalsreader\transfer_functions\__pycache__\__init__.cpython-36.pyc" />
   </ItemGroup>
