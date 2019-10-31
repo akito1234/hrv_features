@@ -44,14 +44,12 @@ def resp(signal=None, sampling_rate=1000., show=True):
     resp_rate : array
         Instantaneous respiration rate (Hz).
     """
-
     # check inputs
     if signal is None:
         raise TypeError("Please specify an input signal.")
 
     # ensure numpy
     signal = np.array(signal)
-
     sampling_rate = float(sampling_rate)
 
     # filter signal
@@ -130,12 +128,17 @@ if __name__ == '__main__':
 
 
     import matplotlib.pyplot as plt
-    plt.figure()
-    plt.plot(result['ts'],result['filtered'])
+    fig,axes = plt.subplots(2,1,sharex=True)
+    axes[0].plot(result['ts'],result['filtered'])
 
+    # gradient の算出
+    gradient = np.gradient(result['filtered'])
+    axes[1].plot(result['ts'] ,gradient)
     for ins,exp in zip(result['inspiration'], result['expiration']):
-        plt.axvline(ins*0.001,color= 'b')
-        plt.axvline(exp*0.001,color= 'r')
+        axes[0].axvline(ins*0.001,color= 'b')
+        axes[0].axvline(exp*0.001,color= 'r')
+        axes[1].axvline(ins*0.001,color= 'b')
+        axes[1].axvline(exp*0.001,color= 'r')
     plt.show()
     #import matplotlib.pyplot as plt
     #import matplotlib as mpl
