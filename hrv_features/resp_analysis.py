@@ -12,7 +12,6 @@ import pyhrv.tools as tools
 def RESP_FEATURES(resp_peaks):
     BRI = resp_peaks[1:] - resp_peaks[:-1]
     resp_features = {}
-
     #------時系列解析------#
     L = len(resp_peaks)   
     resp_features['BRI_Mean'] = np.mean(BRI)

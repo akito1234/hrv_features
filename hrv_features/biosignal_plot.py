@@ -11,6 +11,9 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 
+import eda_analysis
+
+
 def detrend(signal, Lambda):
   """applies a detrending filter.
    
@@ -54,19 +57,18 @@ def plot_signal(path):
     # 心拍データからピークを取り出す
     heart_rate_ts,heart_rate = signals.ecg.ecg(signal= arc.signal(['ECG']) , sampling_rate=1000.0, show=False)[5:7]
 
-
     fig,axes = plt.subplots(3,1,sharex=True,figsize = (16,9),subplot_kw=({"xticks":np.arange(0,1200,100)}) )
     axes[0].set_title(path)
     axes[0].plot(heart_rate_ts,heart_rate,'b')
     axes[0].set_xlim(0,1200)
     axes[0].set_ylabel("HR[bpm]")
 
-    axes[1].plot(arc.t,
-                 arc.signal(['EDA'])
-                 ,'b')
-    axes[1].set_ylim(0,25)
-    axes[1].set_ylabel('EDA[us]')
+    # 皮膚コンダクタンス SCRの描画
+    eda = eda_analysis.scr(arc.signal(['EDA']))
+    axes[1].plot(eda['ts'], eda['src'])
+    axes[1].set_ylabel('SCR[us]')
 
+    # 呼吸の描画
     resp_data = signals.resp.resp(arc.signal('RESP'),show=False)
     axes[2].plot(resp_data['resp_rate_ts'],
                  resp_data['resp_rate'],'b')
