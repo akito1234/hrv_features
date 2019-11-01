@@ -35,11 +35,14 @@ def detrend(signal, Lambda):
   signal_length = signal.shape[0]
 
   # observation matrix
+  # 単位行列を作成
   H = np.identity(signal_length) 
 
   # second-order difference matrix
   from scipy.sparse import spdiags
+
   ones = np.ones(signal_length)
+  
   minus_twos = -2*np.ones(signal_length)
   diags_data = np.array([ones, minus_twos, ones])
   diags_index = np.array([0, 1, 2])
@@ -108,29 +111,17 @@ def plot_hrv(path):
 
 if __name__ == '__main__':
     path = r"Z:\theme\mental_stress\03.Analysis\Analysis_BioSignal\RRI_tohma_2019-10-21.csv"
+    path2 = r"C:\Users\akito\Desktop\test_filter.csv"
     nn = np.loadtxt(path,delimiter=',')
-    filtered = detrend(nn,500)
-    tmStamp = np.cumsum(nn)
-    tmStamp -= tmStamp[0]
-    # RRIの補間処理
-    fs = 4
-    from scipy import signal,interpolate
-    f_interpol = interpolate.interp1d(tmStamp, filtered, 'cubic')
-    f1_interpol = interpolate.interp1d(tmStamp, nn, 'cubic')
-    t_interpol = np.arange(tmStamp[0], tmStamp[-1], 1000./fs)
-    nn_interpol = f_interpol(t_interpol)
+    kubios_filtered = np.loadtxt(path2,delimiter=',')
 
-    #detrend
-    nn_interpol = nn_interpol - np.mean(nn_interpol)
-    freq1, P1 = signal.welch(f1_interpol(t_interpol), fs)
-    freq2, P2 = signal.welch(nn_interpol, fs)
+
+    filtered = detrend(nn,500)
+    tmStamps = np.cumsum(nn)*0.001 #in seconds 
+    import matplotlib.pyplot as plt
     plt.figure()
-    plt.plot(freq1, P1,'b')
-    plt.plot(freq2, P2,'r')
-    plt.xlim(0,0.50)
-    #import matplotlib.pyplot as plt
-    #plt.figure()
-    #plt.plot(filtered,'r')
-    #plt.plot(data,'b')
+    plt.plot(tmStamps,filtered,'r')
+    plt.plot(tmStamps,(nn-filtered),'b')
+
     plt.show()
     #plt = plot_signal(path).savefig(r"C:\Users\akito\Desktop\stress\04.Figure\summary\kishida_2019-10-22.png")
