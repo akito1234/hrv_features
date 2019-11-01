@@ -107,5 +107,30 @@ def plot_hrv(path):
     return plt
 
 if __name__ == '__main__':
-    path = r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-22\kishida\opensignals_dev_2019-10-22_13-54-50.txt"
-    plt = plot_signal(path).savefig(r"C:\Users\akito\Desktop\stress\04.Figure\summary\kishida_2019-10-22.png")
+    path = r"Z:\theme\mental_stress\03.Analysis\Analysis_BioSignal\RRI_tohma_2019-10-21.csv"
+    nn = np.loadtxt(path,delimiter=',')
+    filtered = detrend(nn,500)
+    tmStamp = np.cumsum(nn)
+    tmStamp -= tmStamp[0]
+    # RRIの補間処理
+    fs = 4
+    from scipy import signal,interpolate
+    f_interpol = interpolate.interp1d(tmStamp, filtered, 'cubic')
+    f1_interpol = interpolate.interp1d(tmStamp, nn, 'cubic')
+    t_interpol = np.arange(tmStamp[0], tmStamp[-1], 1000./fs)
+    nn_interpol = f_interpol(t_interpol)
+
+    #detrend
+    nn_interpol = nn_interpol - np.mean(nn_interpol)
+    freq1, P1 = signal.welch(f1_interpol(t_interpol), fs)
+    freq2, P2 = signal.welch(nn_interpol, fs)
+    plt.figure()
+    plt.plot(freq1, P1,'b')
+    plt.plot(freq2, P2,'r')
+    plt.xlim(0,0.50)
+    #import matplotlib.pyplot as plt
+    #plt.figure()
+    #plt.plot(filtered,'r')
+    #plt.plot(data,'b')
+    plt.show()
+    #plt = plot_signal(path).savefig(r"C:\Users\akito\Desktop\stress\04.Figure\summary\kishida_2019-10-22.png")
