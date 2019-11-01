@@ -4,14 +4,14 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>util\resp_feature.py</StartupFile>
+    <StartupFile>resp_analysis.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>hrv_features</Name>
     <RootNamespace>hrv_features</RootNamespace>
-    <InterpreterId>Global|VisualStudio|Python 3.6 HRV</InterpreterId>
+    <InterpreterId>Global|VisualStudio|python-3.6.6.amd64</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -62,12 +62,6 @@
     <Compile Include="util\ecg_spectrogram.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="util\respiration.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="util\resp_feature.py">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ledapy\" />
@@ -88,7 +82,7 @@
     <Content Include="opensignalsreader\transfer_functions\__pycache__\__init__.cpython-36.pyc" />
   </ItemGroup>
   <ItemGroup>
-    <InterpreterReference Include="Global|VisualStudio|Python 3.6 HRV" />
+    <InterpreterReference Include="Global|VisualStudio|python-3.6.6.amd64" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

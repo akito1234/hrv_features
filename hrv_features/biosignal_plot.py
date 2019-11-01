@@ -1,17 +1,16 @@
-
-import pyhrv.frequency_domain as fd
+# import package
 import numpy as np
-from opensignalsreader import OpenSignalsReader
+import pandas as pd
+import seaborn as sns
 from biosppy import signals
 import matplotlib.pyplot as plt
-import pandas as pd
-# Import packages
-import neurokit as nk
-import pandas as pd
-import numpy as np
-import seaborn as sns
 
+# import local
 import eda_analysis
+import resp_analysis
+import pyhrv.frequency_domain as fd
+from opensignalsreader import OpenSignalsReader
+
 
 
 def detrend(signal, Lambda):
@@ -55,35 +54,37 @@ def plot_signal(path):
     arc = OpenSignalsReader(path)
 
     # 心拍データからピークを取り出す
-    heart_rate_ts,heart_rate = signals.ecg.ecg(signal= arc.signal(['ECG']) , sampling_rate=1000.0, show=False)[5:7]
+    ecg_result = signals.ecg.ecg(signal= arc.signal(['ECG']) , sampling_rate=1000.0, show=False)
+    # 皮膚コンダクタンス からSCRを取り出す
+    eda_result = eda_analysis.scr(arc.signal(['EDA']))
+    # 呼吸周波数を取り出す
+    resp_result = resp_analysis.resp(arc.signal('RESP'),show=False)
 
+    # 描画設定
     fig,axes = plt.subplots(3,1,sharex=True,figsize = (16,9),subplot_kw=({"xticks":np.arange(0,1200,100)}) )
     axes[0].set_title(path)
-    axes[0].plot(heart_rate_ts,heart_rate,'b')
+    # 心拍変動の描画    
+    axes[0].plot(ecg_result['heart_rate_ts'],ecg_result['heart_rate'],'b')
     axes[0].set_xlim(0,1200)
     axes[0].set_ylabel("HR[bpm]")
 
-    # 皮膚コンダクタンス SCRの描画
-    eda = eda_analysis.scr(arc.signal(['EDA']))
-    axes[1].plot(eda['ts'], eda['src'])
+    # 皮膚コンダクタンスの描画  
+    axes[1].plot(eda_result['ts'], eda_result['src'])
     axes[1].set_ylabel('SCR[us]')
 
-    # 呼吸の描画
-    resp_data = signals.resp.resp(arc.signal('RESP'),show=False)
-    axes[2].plot(resp_data['resp_rate_ts'],
-                 resp_data['resp_rate'],'b')
+    # 呼吸の描画    
+    axes[2].plot(resp_result['resp_rate_ts'],resp_result['resp_rate'],'b')
     axes[2].set_ylabel('RESP[Hz]')
     axes[2].set_ylim(0,0.5)
+
 
     for i in range(3):
         axes[i].axvspan(300,600,alpha=0.3,color="r",label="Stress")
         axes[i].axvspan(900,1200,alpha=0.3,color="b",label="Amusement")
-
     plt.legend()
+    plt.tight_layout()
     plt.xlabel("Time[s]")
-
     return plt
-
 
 def plot_hrv(path):
     df = pd.read_excel(path,index_col=0)
@@ -105,5 +106,6 @@ def plot_hrv(path):
     plt.grid()
     return plt
 
-path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-28\shibata\opensignals_dev_2019-10-28_13-50-02.txt"
-plt = plot_signal(path).show()
+if __name__ == '__main__':
+    path = r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-22\kishida\opensignals_dev_2019-10-22_13-54-50.txt"
+    plt = plot_signal(path).savefig(r"C:\Users\akito\Desktop\stress\04.Figure\summary\kishida_2019-10-22.png")

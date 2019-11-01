@@ -67,7 +67,7 @@ def scr(signal,sampling_rate=1000.,result_type='phasicdata',downsamp = 4):
 
     # create time stamps
     length = len(phasicdata)
-    T = (length-1) / downsamp
+    T = (length - 1) * downsamp / sampling_rate
     ts = np.linspace(0, T, length, endpoint=True)
 
     return {'ts':ts,
@@ -77,12 +77,13 @@ def scr(signal,sampling_rate=1000.,result_type='phasicdata',downsamp = 4):
 
 if __name__ == '__main__':
     from opensignalsreader import OpenSignalsReader
-    path = r"C:\Users\akito\Desktop\test.txt"
+    path = r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-29\opensignals_dev_2019-10-28_13-50-02.txt"
     arc = OpenSignalsReader(path)
     result = scr(arc.signal(['EDA']),sampling_rate=1000.)
     import matplotlib.pyplot as plt
-    plt.figure()
-    plt.plot(result['ts'], result['src'])
+    fig,axs = plt.subplots(2,1,sharex=False)
+    axs[0].plot(result['ts'],result['src'])
+    axs[1].plot(arc.t,arc.signal(['EDA']))
     plt.show()
 
 #    eda_filtered = eda.eda(arc.signal('EDA'),show=False)
