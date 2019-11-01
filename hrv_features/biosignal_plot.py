@@ -110,6 +110,7 @@ def plot_hrv(path):
     return plt
 
 if __name__ == '__main__':
+<<<<<<< HEAD
     path = r"Z:\theme\mental_stress\03.Analysis\Analysis_BioSignal\RRI_tohma_2019-10-21.csv"
     path2 = r"C:\Users\akito\Desktop\test_filter.csv"
     nn = np.loadtxt(path,delimiter=',')
@@ -125,3 +126,7 @@ if __name__ == '__main__':
 
     plt.show()
     #plt = plot_signal(path).savefig(r"C:\Users\akito\Desktop\stress\04.Figure\summary\kishida_2019-10-22.png")
+=======
+    path = r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-22\kishida\opensignals_dev_2019-10-22_13-54-50.txt"
+    plt = plot_signal(path).savefig(r"C:\Users\akito\Desktop\stress\04.Figure\summary\kishida_2019-10-22.png")
+>>>>>>> parent of aab26e9... RRI deterend analysis
