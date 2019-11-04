@@ -55,10 +55,11 @@ def resp(signal=None, sampling_rate=1000., show=True):
     zeros : array
         Indices of Respiration zero crossings.
     resp_rate_ts : array
-        Respiration rate time axis reference (seconds).
+        Inspiration rate time axis reference (seconds).
     resp_rate : array
         Instantaneous respiration rate (Hz).
     """
+
     # check inputs
     if signal is None:
         raise TypeError("Please specify an input signal.")
@@ -88,11 +89,21 @@ def resp(signal=None, sampling_rate=1000., show=True):
         rate_idx = []
         rate = []
     else:
+        # compute resp peaks between inspiration and expiration
+        peaks = []
+        for i in range(len(inspiration)-1):
+            cycle = filtered[inspiration[i]:inspiration[i+1]]
+            peaks.append(np.argmax(cycle) + inspiration[i])
+        # list to array
+        peaks = np.array(peaks)
+
+
         # compute respiration rate
         rate_idx = inspiration[1:]
         rate = sampling_rate * (1. / np.diff(inspiration))
 
         # physiological limits
+        # 0.35Hz以下のresp_rateは省かれる
         indx = np.nonzero(rate <= 0.35)
         rate_idx = rate_idx[indx]
         rate = rate[indx]
@@ -121,9 +132,8 @@ def resp(signal=None, sampling_rate=1000., show=True):
                            path=None,
                            show=True)
     # output
-    args = (ts, filtered, ts_rate, rate,inspiration, expiration)
-    names = ('ts', 'filtered', 'resp_rate_ts', 'resp_rate','inspiration', 'expiration')
-
+    args = (ts, filtered, ts_rate, rate,inspiration, expiration,peaks)
+    names = ('ts', 'filtered', 'resp_rate_ts', 'resp_rate','inspiration', 'expiration','peaks')
     return utils.ReturnTuple(args, names)
 
 def resp_psd(ts,filtered_signal):
@@ -133,27 +143,26 @@ def resp_psd(ts,filtered_signal):
     filter= filtered_signal - A.mean()
     N = 300*1000
     freq1,power1 = signal.welch(filter[(0<=ts) & (ts<300)], fs=1000.0, window='hanning',nperseg=N)
-    
     plt.plot(freq1,power1,"b")
-
     freq2,power2 = signal.welch(filter[(300<=ts) & (ts<600)], fs=1000.0, window='hanning',nperseg=N)
-    
     plt.plot(freq2,power2,"r")
-
     plt.xlabel("Frequency[Hz]")
     plt.ylabel("Power/frequency[dB/Hz]")
     plt.xlim(0,10)
     plt.show()
 
+
+
 if __name__ == '__main__':
-    path = r"C:\Users\akito\Desktop\test.txt"
+    path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-28\shibata\opensignals_dev_2019-10-28_13-50-02.txt"
     arc = OpenSignalsReader(path)
     result = resp(signal=arc.signal('RESP'), sampling_rate=1000., show=False)
 
     fig,axes = plt.subplots(2,1,sharex=True)
-    axes[0].plot(result['resp_rate_ts'],result['resp_rate'])
+    axes[0].plot(result['peaks'][1:]*0.001,np.diff(result['peaks'])*0.001)
     axes[1].plot(result['ts'],result['filtered'])
-    for ins,exp in zip(result['inspiration'], result['expiration']):
-        axes[1].axvline(ins*0.001,color= 'b')
-        axes[1].axvline(exp*0.001,color= 'r')
+    for ins,exp,peak in zip(result['inspiration'], result['expiration'], result['peaks']):
+        #axes[1].axvline(ins*0.001,color= 'b') 
+        #axes[1].axvline(exp*0.001,color= 'r')
+        axes[1].axvline(peak*0.001,color= 'g')
     plt.show()

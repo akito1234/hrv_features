@@ -77,9 +77,13 @@ def scr(signal,sampling_rate=1000.,result_type='phasicdata',downsamp = 4):
 
 if __name__ == '__main__':
     from opensignalsreader import OpenSignalsReader
-    path = r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-29\opensignals_dev_2019-10-28_13-50-02.txt"
+    path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-28\shibata\opensignals_dev_2019-10-28_13-50-02.txt"
     arc = OpenSignalsReader(path)
-    result = scr(arc.signal(['EDA']),sampling_rate=1000.)
+    result = scr(arc.signal(['EDA']),result_type='phasicdriver')
+
+    np.savetxt(r"Z:\theme\mental_stress\03.Analysis\Analysis_BioSignal\EDA\SCR_shibata_2019-10-28.csv"
+               ,np.c_[result['ts'],result['src']])
+
     import matplotlib.pyplot as plt
     fig,axs = plt.subplots(2,1,sharex=False)
     axs[0].plot(result['ts'],result['src'])
