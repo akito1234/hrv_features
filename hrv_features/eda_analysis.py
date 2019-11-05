@@ -76,19 +76,22 @@ def scr(signal,sampling_rate=1000.,result_type='phasicdata',downsamp = 4):
 
 
 if __name__ == '__main__':
-    from opensignalsreader import OpenSignalsReader
-    path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-28\shibata\opensignals_dev_2019-10-28_13-50-02.txt"
-    arc = OpenSignalsReader(path)
-    result = scr(arc.signal(['EDA']),result_type='phasicdriver')
+    #from opensignalsreader import OpenSignalsReader
+    #path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-28\shibata\opensignals_dev_2019-10-28_13-50-02.txt"
+    #arc = OpenSignalsReader(path)
+    #result = scr(arc.signal(['EDA']),result_type='phasicdriver')
 
-    np.savetxt(r"Z:\theme\mental_stress\03.Analysis\Analysis_BioSignal\EDA\SCR_shibata_2019-10-28.csv"
-               ,np.c_[result['ts'],result['src']])
+    #np.savetxt(r"Z:\theme\mental_stress\03.Analysis\Analysis_BioSignal\EDA\SCR_shibata_2019-10-28.csv"
+    #           ,np.c_[result['ts'],result['src']])
 
-    import matplotlib.pyplot as plt
-    fig,axs = plt.subplots(2,1,sharex=False)
-    axs[0].plot(result['ts'],result['src'])
-    axs[1].plot(arc.t,arc.signal(['EDA']))
-    plt.show()
+    #import matplotlib.pyplot as plt
+    #fig,axs = plt.subplots(2,1,sharex=False)
+    #axs[0].plot(result['ts'],result['src'])
+    #axs[1].plot(arc.t,arc.signal(['EDA']))
+    #plt.show()
+    data = np.loadtxt()
+
+
 
 #    eda_filtered = eda.eda(arc.signal('EDA'),show=False)
 #    eda_data = eda.basic_scr(eda_filtered['filtered'], sampling_rate=1000.0)

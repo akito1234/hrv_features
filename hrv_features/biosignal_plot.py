@@ -21,6 +21,7 @@ def plot_signal(path):
     ecg_result = signals.ecg.ecg(signal= arc.signal(['ECG']) , sampling_rate=1000.0, show=False)
     # 皮膚コンダクタンス からSCRを取り出す
     eda_result = eda_analysis.scr(arc.signal(['EDA']))
+
     # 呼吸周波数を取り出す
     resp_result = resp_analysis.resp(arc.signal('RESP'),show=False)
 
@@ -33,7 +34,7 @@ def plot_signal(path):
     axes[0].set_ylabel("HR[bpm]")
 
     # 皮膚コンダクタンスの描画  
-    axes[1].plot(eda_result['ts'], eda_result['src'])
+    axes[1].plot(eda_result['ts'], eda_result['filtered'])
     axes[1].set_ylabel('SCR[us]')
 
     # 呼吸の描画    
@@ -49,6 +50,44 @@ def plot_signal(path):
     plt.tight_layout()
     plt.xlabel("Time[s]")
     return plt
+
+def plot_raw(path):
+    arc = OpenSignalsReader(path)
+
+    # 心拍データからピークを取り出す
+    ecg_result = signals.ecg.ecg(signal= arc.signal(['ECG']) , sampling_rate=1000.0, show=False)
+    # 皮膚コンダクタンス からSCRを取り出す
+    eda_filtered = eda_analysis.eda_preprocess(arc.signal(['EDA']),1000.)
+
+    # 呼吸周波数を取り出す
+    resp_result = resp_analysis.resp(arc.signal('RESP'),show=False)
+
+    # 描画設定
+    fig,axes = plt.subplots(3,1,sharex=True,figsize = (16,9),subplot_kw=({"xticks":np.arange(0,1200,100)}) )
+    axes[0].set_title(path)
+    # 心拍変動の描画    
+    axes[0].plot(ecg_result['heart_rate_ts'],ecg_result['heart_rate'],'b')
+    axes[0].set_xlim(0,1200)
+    axes[0].set_ylabel("HR[bpm]")
+
+    # 皮膚コンダクタンスの描画  
+    axes[1].plot(arc.t,arc.signal(['EDA']))
+    axes[1].set_ylabel('[us]')
+    axes[1].set_ylim(0,25)
+    # 呼吸の描画    
+    axes[2].plot(arc.t,arc.signal(['RESP']))
+    axes[2].set_ylabel('RESP[Hz]')
+    axes[2].set_ylim(-50,50)
+
+    for i in range(3):
+        axes[i].axvspan(300,600,alpha=0.3,color="r",label="Stress")
+        axes[i].axvspan(900,1200,alpha=0.3,color="b",label="Amusement")
+    plt.legend()
+    plt.tight_layout()
+    plt.xlabel("Time[s]")
+    return plt
+
+
 
 def plot_hrv(path):
     df = pd.read_excel(path,index_col=0)
@@ -71,30 +110,7 @@ def plot_hrv(path):
     return plt
 
 if __name__ == '__main__':
-    path = r"C:\Users\akito\Desktop\test.txt"
-    nn = np.loadtxt(path,delimiter=',')
-    filtered = detrend(nn,500)
-    tmStamp = np.cumsum(nn)
-    tmStamp -= tmStamp[0]
-    # RRIの補間処理
-    fs = 4
-    from scipy import signal,interpolate
-    f_interpol = interpolate.interp1d(tmStamp, filtered, 'cubic')
-    f1_interpol = interpolate.interp1d(tmStamp, nn, 'cubic')
-    t_interpol = np.arange(tmStamp[0], tmStamp[-1], 1000./fs)
-    nn_interpol = f_interpol(t_interpol)
-
-    #detrend
-    nn_interpol = nn_interpol - np.mean(nn_interpol)
-    freq1, P1 = signal.welch(f1_interpol(t_interpol), fs)
-    freq2, P2 = signal.welch(nn_interpol, fs)
-    plt.figure()
-    plt.plot(freq1, P1,'b')
-    plt.plot(freq2, P2,'r')
-    plt.xlim(0,0.50)
-    #import matplotlib.pyplot as plt
-    #plt.figure()
-    #plt.plot(filtered,'r')
-    #plt.plot(data,'b')
+    path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-11\tohma\opensignals_dev_2019-10-11_17-29-23.txt"
+    plot_raw(path)
     plt.show()
     #plt = plot_signal(path).savefig(r"C:\Users\akito\Desktop\stress\04.Figure\summary\kishida_2019-10-22.png")

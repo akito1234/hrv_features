@@ -67,4 +67,5 @@ df = features(nni_data,
               resp_data,
               eda_data,
               emotion)
+
 df.to_excel(r"C:\Users\akito\Desktop\bio_features_teraki_2019-10-23_16-59-10.xlsx")
