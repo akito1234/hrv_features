@@ -89,9 +89,28 @@ if __name__ == '__main__':
     #axs[0].plot(result['ts'],result['src'])
     #axs[1].plot(arc.t,arc.signal(['EDA']))
     #plt.show()
-    data = np.loadtxt()
+
+    from opensignalsreader import OpenSignalsReader
+    path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-23\teraki\opensignals_dev_2019-10-23_16-59-10.txt"
+    arc = OpenSignalsReader(path)
+    eda = arc.signal('EDA')
+    np.savetxt(r"C:\Users\akito\Desktop\eda_test_teraki.csv",eda,delimiter=',')
 
 
+    #import matplotlib.pyplot as plt
+    #data = np.loadtxt(r"Z:\theme\mental_stress\03.Analysis\Analysis_BioSignal\EDA\SCR_kishida_2019-10-22.csv")
+    #ts = data[:,0]
+    #scr_signal = data[:,1]
+    ## SCR (skin conductance response)の1次微分を算出 
+    #scr_first_time_derivative = np.diff(scr_signal) / np.diff(ts)
+    ## 微分した値を符号関数に変換する
+    #scr_sgn = np.sign(scr_first_time_derivative)
+    #scr_sgn_difference = np.diff(scr_sgn)
+    #peaks = ts[2:][(scr_signal[2:] >= 0.20) & (scr_sgn_difference == -2)]
+    #plt.plot(ts ,scr_signal)
+    #for peak in peaks:
+    #    plt.axvline(peak,color= 'g')
+    #plt.show()
 
 #    eda_filtered = eda.eda(arc.signal('EDA'),show=False)
 #    eda_data = eda.basic_scr(eda_filtered['filtered'], sampling_rate=1000.0)
