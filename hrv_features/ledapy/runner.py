@@ -23,7 +23,7 @@ from . import analyse
 from . import deconvolution
 
 
-def getResult(raw_vector, result_type, sampling_rate, downsample=1, optimisation=0, pipeout=None):
+def getResult(raw_vector, sampling_rate, downsample=1, optimisation=0, pipeout=None):
     """
     Run main analysis: extract phasic driver (returned) and set all leda2 values
 
@@ -39,17 +39,30 @@ def getResult(raw_vector, result_type, sampling_rate, downsample=1, optimisation
     leda2.current.do_optimize = optimisation
     import_data(raw_vector, sampling_rate, downsample)
     deconvolution.sdeco(optimisation)
-    if result_type.lower() == 'phasicdata':
-        result = leda2.analysis.phasicData
-    elif result_type.lower() == 'phasicdriver':
-        result = leda2.analysis.driver
-    else:
-        raise ValueError('result_type not recognised (was ' + result_type + ')')
+    sc = leda2.data.conductance_smoothData
+    pathicData = leda2.analysis.phasicData
+    tonicData = leda2.analysis.tonicData
+    
+    #if result_type.lower() == 'phasicdata':
+    #    result = leda2.analysis.phasicData
+    #    pass
+    #elif result_type.lower() == 'phasicdriver':
+    #    result = leda2.analysis.driver
+    #elif result_type.lower() == 'tonicdata':
+    #    result = leda2.analysis.tonicData
+    #elif result_type.lower() == 'tonicdriver':
+    #    result = leda2.analysis.tonicDriver
+    #elif result_type.lower() == 'impulseonset':
+    #    result = leda2.analysis.onset
+    #elif result_type.lower() == 'impulsepeaktime':
+    #        result = leda2.analysis.peakTime
+    #else:
+    #    raise ValueError('result_type not recognised (was ' + result_type + ')')
     if pipeout is not None:
         pipeout.send(result)
         pipeout.close()
     else:
-        return result
+        return sc,pathicData,tonicData
 
 
 def import_data(raw_data, srate, downsample=1):

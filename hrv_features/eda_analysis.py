@@ -3,29 +3,18 @@ import biosppy.signals.tools as st
 import numpy as np
 import ledapy
 
-def EDA_FEATURES(eda,section):
+def scr_features(scr):
     eda_features = {}
-    onsets = eda[0]
-    peaks = eda[1]
-    amplitude = eda[2]
-    eda_filter = (peaks>= section[0]*1000) & (peaks <= section[1]*1000)
     # ピークの振幅
-    eda_features['SCR_Amplitude_Mean'] = np.mean(amplitude[eda_filter])
-    eda_features['SCR_Amplitude_Max']  = np.max(amplitude[eda_filter])
+    eda_features['scr_mean'] = np.mean(scr)
+    eda_features['scr_max']  = np.max(scr)
+    eda_features['scr_std'] = np.std(scr)
 
-    # SCR_Latency
-    SCR_Latency = onsets[eda_filter][1:] - onsets[eda_filter][:-1] 
-    eda_features['SCR_Latency'] = np.mean(SCR_Latency)
-
-    # SCR_PeakTime
-    SCR_PeakTime = peaks[eda_filter][1:] - peaks[eda_filter][:-1] 
-    eda_features['SCR_PeakTime'] = np.mean(SCR_PeakTime)
-
-    # SCR_RiseTimes
-    SCR_RiseTImes = peaks[eda_filter] - onsets[eda_filter]
-    eda_features['SCR_RiseTImes'] = np.mean(SCR_RiseTImes)
-
+    # convert to log scale
+    eda_features['scr_log_mean'] = np.log10(1 + np.mean(scr))
+    eda_features['scr_log_max']  = np.log10(1 + np.max(scr))
     return eda_features
+
 
 def eda_preprocess(signal,sampling_rate):
     # check inputs
@@ -53,7 +42,7 @@ def eda_preprocess(signal,sampling_rate):
                               mirror=True)
     return filtered
 
-def scr(signal,sampling_rate=1000.,result_type='phasicdata',downsamp = 4):
+def scr(signal,sampling_rate=1000.,downsamp = 4,plot=False):
     # check inputs
     if signal is None:
         raise TypeError("Please specify an input signal.")
@@ -61,22 +50,39 @@ def scr(signal,sampling_rate=1000.,result_type='phasicdata',downsamp = 4):
     # apply preprocessing
     filtered = eda_preprocess(signal,sampling_rate)
     
-    # caliculate parameters
-    # 最適化された結果を出力する
-    phasicdata = ledapy.runner.getResult(filtered, result_type, sampling_rate, downsample=downsamp, optimisation=2)
+    # caliculate parameters -> 最適化された結果を出力する
+    sc, pathicData, tonicData = ledapy.runner.getResult(filtered, sampling_rate, downsample=downsamp, optimisation=2)
 
     # create time stamps
-    length = len(phasicdata)
+    length = len(sc)
     T = (length - 1) * downsamp / sampling_rate
     ts = np.linspace(0, T, length, endpoint=True)
 
+    if plot:
+        fig, axes = plt.subplots(3,1)
+        axes[0].plot(scr_data['ts'],scr_data['sc'])
+        axes[1].plot(scr_data['ts'],scr_data['pathicData'])
+        axes[2].plot(scr_data['ts'],scr_data['tonicData'])
+        plt.show()
+
     return {'ts':ts,
-            'src':phasicdata,
-            'filtered':filtered}
+            'sc':sc,
+            'pathicData':pathicData,
+            'tonicData':tonicData}
 
 
 if __name__ == '__main__':
-    #from opensignalsreader import OpenSignalsReader
+    import matplotlib.pyplot as plt
+    from opensignalsreader import OpenSignalsReader
+    path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-23\shizuya\opensignals_dev_2019-10-23_14-09-52.txt"
+    arc = OpenSignalsReader(path)
+    scr_data = scr(arc.signal('EDA'))
+    fig, axes = plt.subplots(3,1)
+    axes[0].plot(scr_data['ts'],scr_data['sc'])
+    axes[1].plot(scr_data['ts'],scr_data['pathicData'])
+    axes[2].plot(scr_data['ts'],scr_data['tonicData'])
+    plt.show()
+
     #path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-28\shibata\opensignals_dev_2019-10-28_13-50-02.txt"
     #arc = OpenSignalsReader(path)
     #result = scr(arc.signal(['EDA']),result_type='phasicdriver')
@@ -90,28 +96,26 @@ if __name__ == '__main__':
     #axs[1].plot(arc.t,arc.signal(['EDA']))
     #plt.show()
 
-    from opensignalsreader import OpenSignalsReader
-    path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-23\teraki\opensignals_dev_2019-10-23_16-59-10.txt"
-    arc = OpenSignalsReader(path)
-    eda = arc.signal('EDA')
-    np.savetxt(r"C:\Users\akito\Desktop\eda_test_teraki.csv",eda,delimiter=',')
 
 
     #import matplotlib.pyplot as plt
     #data = np.loadtxt(r"Z:\theme\mental_stress\03.Analysis\Analysis_BioSignal\EDA\SCR_kishida_2019-10-22.csv")
     #ts = data[:,0]
     #scr_signal = data[:,1]
-    ## SCR (skin conductance response)の1次微分を算出 
-    #scr_first_time_derivative = np.diff(scr_signal) / np.diff(ts)
-    ## 微分した値を符号関数に変換する
-    #scr_sgn = np.sign(scr_first_time_derivative)
-    #scr_sgn_difference = np.diff(scr_sgn)
-    #peaks = ts[2:][(scr_signal[2:] >= 0.20) & (scr_sgn_difference == -2)]
-    #plt.plot(ts ,scr_signal)
-    #for peak in peaks:
-    #    plt.axvline(peak,color= 'g')
-    #plt.show()
+    #scr_signal = scr_signal - scr_signal[ts <= 300].mean()
 
+
+    ### SCR (skin conductance response)の1次微分を算出 
+    ##scr_first_time_derivative = np.diff(scr_signal) / np.diff(ts)
+
+    ## 微分した値を符号関数に変換する
+    #scr_sgn = np.sign(scr_signal)
+
+    #plt.plot(ts ,scr_signal)
+    #plt.plot(ts,scr_sgn)
+    #plt.show()
+    
+    #pass
 #    eda_filtered = eda.eda(arc.signal('EDA'),show=False)
 #    eda_data = eda.basic_scr(eda_filtered['filtered'], sampling_rate=1000.0)
 #    fig,axs = plt.subplots(2,1,sharex=True)

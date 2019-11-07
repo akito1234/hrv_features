@@ -133,7 +133,8 @@ def resp(signal=None, sampling_rate=1000., show=True):
                            show=True)
     # output
     args = (ts, filtered, ts_rate, rate,inspiration, expiration,peaks)
-    names = ('ts', 'filtered', 'resp_rate_ts', 'resp_rate','inspiration', 'expiration','peaks')
+    names = ('ts', 'filtered', 'resp_rate_ts', 'resp_rate',
+             'inspiration', 'expiration', 'peaks')
     return utils.ReturnTuple(args, names)
 
 def resp_psd(ts,filtered_signal):
@@ -162,7 +163,7 @@ if __name__ == '__main__':
     axes[0].plot(result['peaks'][1:]*0.001,np.diff(result['peaks'])*0.001)
     axes[1].plot(result['ts'],result['filtered'])
     for ins,exp,peak in zip(result['inspiration'], result['expiration'], result['peaks']):
-        #axes[1].axvline(ins*0.001,color= 'b') 
-        #axes[1].axvline(exp*0.001,color= 'r')
+        axes[1].axvline(ins*0.001,color= 'b') 
+        axes[1].axvline(exp*0.001,color= 'r')
         axes[1].axvline(peak*0.001,color= 'g')
     plt.show()

@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>eda_analysis.py</StartupFile>
+    <StartupFile>custom_frequency_domain.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -26,6 +26,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="convert_to_text.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="custom_frequency_domain.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="eda_analysis.py">
