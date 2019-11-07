@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-akito
-
-2019-11-01
-"""
 
 # Imports
 import numpy as np
@@ -11,25 +6,27 @@ import matplotlib.pyplot as plt
 from scipy import signal
 import biosppy.signals.tools as st
 from biosppy import plotting, utils
-
+import pyhrv.tools as tools
+import pyhrv.nonlinear as nl
 # local
 from opensignalsreader import OpenSignalsReader
 
-def RESP_FEATURES(resp_peaks):
-    BRI = resp_peaks[1:] - resp_peaks[:-1]
+def resp_features(resp_peaks):
+    bvp = tools.nn_intervals(resp_peaks.tolist())
     resp_features = {}
+
     #------時系列解析------#
-    L = len(resp_peaks)   
-    resp_features['BRI_Mean'] = np.mean(BRI)
-    resp_features['BRI_Max'] = np.max(BRI)
-    resp_features['BRI_Min'] = np.min(BRI)
-    resp_features['BRI_SDNN'] = np.std(BRI)
-    resp_features['BRI_SDSD'] = np.std(np.diff(BRI))
-    resp_features['BRI_rMSSD'] = np.sqrt((1/L) * sum(np.diff(BRI) ** 2))        
-    resp_features['BRI_MedianNN'] =np.median(BRI)
+    L = len(resp_peaks)
+    resp_features['bvp_mean'] = np.mean(bvp)
+    resp_features['bvp_max'] = np.max(bvp)
+    resp_features['bvp_min'] = np.min(bvp)
+    resp_features['bvp_sdnn'] = np.std(bvp)
+    resp_features['bvp_sdsd'] = np.std(np.diff(bvp))
+    resp_features['bvp_rmssd'] = np.sqrt((1/L) * sum(np.diff(bvp) ** 2))        
+    resp_features['bvp_median'] =np.median(bvp)
 
     #-----ポアンカレプロット-----#
-    _,resp_features['BRI_sd1'],resp_features['BRI_sd2'],resp_features['BRI_sd_ratio'],resp_features['BRI_ellipse_area']=nl.poincare(rpeaks=resp_peaks.astype(int).tolist(),show=False)
+    _,resp_features['bvp_sd1'],resp_features['bvp_sd2'],resp_features['bvp_sd_ratio'],resp_features['bvp_ellipse_area']=nl.poincare(rpeaks=resp_peaks.astype(int).tolist(),show=True)
     return resp_features
 
 
@@ -155,15 +152,25 @@ def resp_psd(ts,filtered_signal):
 
 
 if __name__ == '__main__':
-    path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-28\shibata\opensignals_dev_2019-10-28_13-50-02.txt"
+    path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-23\shizuya\opensignals_dev_2019-10-23_14-09-52.txt"
     arc = OpenSignalsReader(path)
     result = resp(signal=arc.signal('RESP'), sampling_rate=1000., show=False)
-
-    fig,axes = plt.subplots(2,1,sharex=True)
-    axes[0].plot(result['peaks'][1:]*0.001,np.diff(result['peaks'])*0.001)
-    axes[1].plot(result['ts'],result['filtered'])
-    for ins,exp,peak in zip(result['inspiration'], result['expiration'], result['peaks']):
-        axes[1].axvline(ins*0.001,color= 'b') 
-        axes[1].axvline(exp*0.001,color= 'r')
-        axes[1].axvline(peak*0.001,color= 'g')
+    plt.plot(result['inspiration'][1:],(result['inspiration'][1:] - result['expiration']))
     plt.show()
+    #resp_features = resp_features(result['peaks'][(result['peaks'] > 600000) & (result['peaks'] < 900000)])
+
+    #fig,axes = plt.subplots(2,1,sharex=True)
+    #axes[0].plot(result['peaks'][1:]*0.001,np.diff(result['peaks'])*0.001)
+    #axes[1].plot(result['ts'],result['filtered'])
+    #for ins,exp,peak in zip(result['inspiration'], result['expiration'], result['peaks']):
+    #    axes[1].axvline(ins*0.001,color= 'b') 
+    #    axes[1].axvline(exp*0.001,color= 'r')
+    #    axes[1].axvline(peak*0.001,color= 'g')
+    #plt.show()
+    #bvp = tools.nn_intervals(result['inspiration'].tolist())
+    #plt.plot(result['inspiration'][1:],bvp,'r')
+    #bvp = tools.nn_intervals(result['expiration'].tolist(),'g')
+    #plt.plot(result['expiration'][1:],bvp)
+    #bvp = tools.nn_intervals(result['peaks'].tolist())
+    #plt.plot(result['peaks'][1:],bvp,'b')
+    #plt.show()
