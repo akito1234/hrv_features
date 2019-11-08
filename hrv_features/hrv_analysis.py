@@ -9,11 +9,13 @@ Created on Mon Jun 10 11:58:24 2019
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-
-import frequency_domain as fd
 import pyhrv.time_domain as td
 import pyhrv.nonlinear as nl
 import pyhrv.tools as tools
+
+# local packages
+import custom_frequency_domain as fd
+from util import detrending
 
 def features(nni,emotion):
     for i,key in enumerate(emotion.keys()):
@@ -44,26 +46,21 @@ def parameter(nni):
     results = {}
 
     # -----------------周波数解析-------------------#
-    # Define input parameters for the 'welch_psd()' function
-    kwargs_welch = {'nfft': 2**10, 'detrend': True, 'window': 'hann'}
-    # Define input parameters for the 'lomb_psd()' function
-    kwargs_lomb = {'nfft': 2**8}
-    # Define input parameters for the 'ar_psd()' function
-    kwargs_ar = {'nfft': 2**10}
-    #freqDomain = fd.frequency_domain(nni=nni.astype(int).tolist()
-    #                                      ,show=False
-    #                                      ,kwargs_welch=kwargs_welch
-    #                                      ,kwargs_lomb=kwargs_lomb
-    #                                      ,kwargs_ar=kwargs_ar)
+    ## Define input parameters for the 'welch_psd()' function
+    #kwargs_welch = {'nfft': 2**10, 'detrend': True, 'window': 'hann'}
+    ## Define input parameters for the 'lomb_psd()' function
+    #kwargs_lomb = {'nfft': 2**8}
+    ## Define input parameters for the 'ar_psd()' function
+    #kwargs_ar = {'nfft': 2**10}
+    #freqDomain = fd.welch_psd(nni=nni.astype(int).tolist(),nfft= 2**10, detrend = True, window =  'hann',show=False)
+    
+    detrending_rri = detrending.detrend(nni, Lambda= 500)
+    ts = np.arange(0,len(detrending_rri)*0.25,step=0.25)
+    fs= 4
+    start= 300
+    duration = 300
+    freq_parameter = welch_psd(detrending_rri[(ts > start) &(ts <= (start + duration) )],fs = fs, nfft=2 ** 12)
 
-    freqDomain = fd.welch_psd(nni=nni.astype(int).tolist(),nfft= 2**10, detrend = True, window =  'hann',show=False)
-    #freqDomain = frequency_domain(
-    #    rri=nni,
-    #    fs=4.0,
-    #    method='welch',
-    #    interp_method='cubic',
-    #    detrend='linear'
-    #    )
     for key in freqDomain.keys():
         results[key] = freqDomain[key]
 

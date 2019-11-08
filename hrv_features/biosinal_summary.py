@@ -16,28 +16,38 @@ import hrv_analysis
 import resp_analysis
 import eda_analysis
 
-def features(ecg,resp,eda,emotion):
+def features(rri_peaks, resp_peaks, scr_data, emotion):
     for i,key in enumerate(emotion.keys()):
-        segment_bio_report = segments_parameter(ecg,resp,eda,emotion[key])
+        segment_bio_report = segments_parameter(rri_peaks, 
+                                                resp_peaks, 
+                                                scr_data,
+                                                emotion[key])
         if i == 0:
             df = pd.DataFrame([], columns=segment_bio_report.keys())
         df =  pd.concat([df, pd.DataFrame(segment_bio_report , index=[key])])
 
     return df
 
-def segments_parameter(_ecg,_resp,_eda,_section):
+def segments_parameter(_rri_peaks,_resp_peaks,_scr_data,_section):
     results = {}
+    # 呼吸，心拍，皮膚抵抗をセクションごとに分割する
+    ecg_item  = _rri_peaks[(_rri_peaks>=_section[0]*1000) & (_rri_peaks<=_section[1]*1000)]
+    
+    resp_item = _resp_peaks[(_resp_peaks>=_section[0]) & (_resp_peaks<=_section[1])]
+    
+    ts_filter = (_scr_data['ts']>=_section[0]) & (_scr_data['ts']<=_section[1])
+    scr_item  = {'sc':sc[ts_filter],
+                 'pathicData':pathicData[ts_filter],
+                 'tonicData':tonicData[ts_filter]}
 
     # 心拍変動をセクションごとに分ける
-    ecg_item =  _ecg[(_ecg*0.001>=_section[0]) & (_ecg*0.001<=_section[1])]
     ecg_features = hrv_analysis.parameter(ecg_item)
     
     # 呼吸をセクションごとに分ける
-    resp_item =  _resp[(_resp>=_section[0]) & (_resp<=_section[1])]
-    resp_features = resp_analysis.RESP_FEATURES(resp_item)
+    resp_features = resp_analysis.resp_features(resp_item)
 
     # 皮膚コンダクタンスをセクションごとに分ける
-    eda_features = eda_analysis.EDA_FEATURES(_eda,_section)
+    eda_features = eda_analysis.scr_features(scr_item)
 
     results.update(**ecg_features,**resp_features,**eda_features)
     return results
@@ -45,21 +55,24 @@ def segments_parameter(_ecg,_resp,_eda,_section):
 if __name__ == '__main__':
     from opensignalsreader import OpenSignalsReader
     path = r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-23\teraki\opensignals_dev_2019-10-23_16-59-10.txt"
+    
     # セクションを設定する
     emotion = {'Neutral1':[0,300]  ,'Stress':[300,600]
               ,'Neutral2':[600,900] ,'Ammusement':[900,1200]}
 
     arc = OpenSignalsReader(path)
+    
     # 心拍変動
-    ecg_data = signals.ecg.ecg(signal=arc.signal('ECG') , sampling_rate=1000.0, show=False)['rpeaks']
+    rri_peaks = signals.ecg.ecg(signal=arc.signal('ECG') , sampling_rate=1000.0, show=False)['rpeaks']
+    
     # 呼吸変動
-    resp_data = signals.resp.resp(signal=arc.signal('RESP'), sampling_rate=1000.0,show=False)['peaks']
+    resp_peaks = signals.resp.resp(signal=arc.signal('RESP'), sampling_rate=1000.0,show=False)['peaks']
+    
     # 皮膚コンダクタンス
-    eda_data = eda_analysis.scr(arc.signal('EDA'), sampling_rate=1000.0, downsamp = 4.)
+    scr_data = eda_analysis.scr(arc.signal('EDA'), sampling_rate=1000.0, downsamp = 4.)
 
-    df = features(ecg_data,
-                  resp_data,
-                  eda_data,
+    df = features(rri_peaks,
+                  resp_peaks,
+                  scr_data,
                   emotion)
-
     df.to_excel(r"C:\Users\akito\Desktop\bio_features_teraki_2019-10-23_16-59-10.xlsx")

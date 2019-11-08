@@ -27,6 +27,12 @@ def resp_features(resp_peaks):
 
     #-----ポアンカレプロット-----#
     _,resp_features['bvp_sd1'],resp_features['bvp_sd2'],resp_features['bvp_sd_ratio'],resp_features['bvp_ellipse_area']=nl.poincare(rpeaks=resp_peaks.astype(int).tolist(),show=True)
+
+    #------MultiScaleEntropy-----#
+    # 後で追加すること
+
+
+
     return resp_features
 
 
@@ -155,18 +161,18 @@ if __name__ == '__main__':
     path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-23\shizuya\opensignals_dev_2019-10-23_14-09-52.txt"
     arc = OpenSignalsReader(path)
     result = resp(signal=arc.signal('RESP'), sampling_rate=1000., show=False)
-    plt.plot(result['inspiration'][1:],(result['inspiration'][1:] - result['expiration']))
-    plt.show()
+    #plt.plot(result['inspiration'][1:],(result['inspiration'][1:] - result['expiration']))
+    #plt.show()
     #resp_features = resp_features(result['peaks'][(result['peaks'] > 600000) & (result['peaks'] < 900000)])
 
-    #fig,axes = plt.subplots(2,1,sharex=True)
-    #axes[0].plot(result['peaks'][1:]*0.001,np.diff(result['peaks'])*0.001)
-    #axes[1].plot(result['ts'],result['filtered'])
-    #for ins,exp,peak in zip(result['inspiration'], result['expiration'], result['peaks']):
-    #    axes[1].axvline(ins*0.001,color= 'b') 
-    #    axes[1].axvline(exp*0.001,color= 'r')
-    #    axes[1].axvline(peak*0.001,color= 'g')
-    #plt.show()
+    fig,axes = plt.subplots(2,1,sharex=True)
+    axes[0].plot(result['peaks'][1:]*0.001,np.diff(result['peaks'])*0.001)
+    axes[1].plot(result['ts'],result['filtered'])
+    for ins,exp,peak in zip(result['inspiration'], result['expiration'], result['peaks']):
+        axes[1].axvline(ins*0.001,color= 'b') 
+        axes[1].axvline(exp*0.001,color= 'r')
+        axes[1].axvline(peak*0.001,color= 'g')
+    plt.show()
     #bvp = tools.nn_intervals(result['inspiration'].tolist())
     #plt.plot(result['inspiration'][1:],bvp,'r')
     #bvp = tools.nn_intervals(result['expiration'].tolist(),'g')

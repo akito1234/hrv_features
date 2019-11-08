@@ -3,19 +3,7 @@ import biosppy.signals.tools as st
 import numpy as np
 import ledapy
 
-def scr_features(scr):
-    eda_features = {}
-    # ピークの振幅
-    eda_features['scr_mean'] = np.mean(scr)
-    eda_features['scr_max']  = np.max(scr)
-    eda_features['scr_std'] = np.std(scr)
-
-    # convert to log scale
-    eda_features['scr_log_mean'] = np.log10(1 + np.mean(scr))
-    eda_features['scr_log_max']  = np.log10(1 + np.max(scr))
-    return eda_features
-
-
+# 前処理
 def eda_preprocess(signal,sampling_rate):
     # check inputs
     if signal is None:
@@ -42,6 +30,7 @@ def eda_preprocess(signal,sampling_rate):
                               mirror=True)
     return filtered
 
+# CDA法によるskin conducatance responseの算出
 def scr(signal,sampling_rate=1000.,downsamp = 4,plot=False):
     # check inputs
     if signal is None:
@@ -70,18 +59,43 @@ def scr(signal,sampling_rate=1000.,downsamp = 4,plot=False):
             'pathicData':pathicData,
             'tonicData':tonicData}
 
+# 特徴量の算出
+def scr_features(scr_data):
+    eda_features = {}
+    for label in ['sc','tonicData','pathicData']:
+        scr_signal = scr_data[label]
+        # ピークの振幅
+        eda_features[label+'_mean'] = np.mean(scr_signal)
+        eda_features[label+'_max']  = np.max(scr_signal)
+        eda_features[label+'_std'] = np.std(scr_signal)
+
+        # convert to log scale
+        eda_features[label+'_log_mean'] = np.log10(1 + np.mean(scr_signal))
+        eda_features[label+'_log_max']  = np.log10(1 + np.max(scr_signal))
+    return eda_features
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     from opensignalsreader import OpenSignalsReader
-    path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-23\shizuya\opensignals_dev_2019-10-23_14-09-52.txt"
+
+    path = r"C:\Users\akito\Desktop\test.txt"
     arc = OpenSignalsReader(path)
-    scr_data = scr(arc.signal('EDA'))
-    fig, axes = plt.subplots(3,1)
-    axes[0].plot(scr_data['ts'],scr_data['sc'])
-    axes[1].plot(scr_data['ts'],scr_data['pathicData'])
-    axes[2].plot(scr_data['ts'],scr_data['tonicData'])
-    plt.show()
+
+    scr_data = scr(arc.signal('EDA'),
+                sampling_rate=sampling_rate,
+                downsamp = downsamp,
+                plot=plot)
+
+    scr_data = scr_features(scr_data)
+    
+    for a in scr_data.keys():
+        print(a,scr_data[a])
+    
+    #fig, axes = plt.subplots(3,1)
+    #axes[0].plot(scr_data['ts'],scr_data['sc'])
+    #axes[1].plot(scr_data['ts'],scr_data['pathicData'])
+    #axes[2].plot(scr_data['ts'],scr_data['tonicData'])
+    #plt.show()
 
     #path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-28\shibata\opensignals_dev_2019-10-28_13-50-02.txt"
     #arc = OpenSignalsReader(path)
@@ -114,24 +128,3 @@ if __name__ == '__main__':
     #plt.plot(ts ,scr_signal)
     #plt.plot(ts,scr_sgn)
     #plt.show()
-    
-    #pass
-#    eda_filtered = eda.eda(arc.signal('EDA'),show=False)
-#    eda_data = eda.basic_scr(eda_filtered['filtered'], sampling_rate=1000.0)
-#    fig,axs = plt.subplots(2,1,sharex=True)
-#    axs[0].plot(arc.t,eda_filtered['filtered'])
-#    for onset, peak in zip(eda_data['onsets'],eda_data['peaks']):
-#        axs[0].axvline(onset*0.001,color="r")
-#        axs[0].axvline(peak*0.001,color="b")
-#    onsets_amplitide = eda_filtered['filtered'][eda_data['onsets'].tolist()]
-#    axs[1].plot(eda_data['peaks']*0.001,eda_data['amplitudes']-onsets_amplitide)
-#    plt.show()
-
-#eda_output  = np.c_[eda_data['onsets'],eda_data['peaks'],(eda_data['amplitudes']-onsets_amplitide)]
-
-#np.savetxt(r"C:\Users\akito\Desktop\eda_tohma.csv"
-#            ,eda_output,delimiter=',')
-
-
-#    #for keys in EDA_FEATURES(eda_data):
-#    #    print(keys, EDA_FEATURES(eda_data)[keys])
