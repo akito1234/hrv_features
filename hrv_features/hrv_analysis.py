@@ -55,11 +55,7 @@ def parameter(nni):
     #freqDomain = fd.welch_psd(nni=nni.astype(int).tolist(),nfft= 2**10, detrend = True, window =  'hann',show=False)
     
     detrending_rri = detrending.detrend(nni, Lambda= 500)
-    ts = np.arange(0,len(detrending_rri)*0.25,step=0.25)
-    fs= 4
-    start= 300
-    duration = 300
-    freq_parameter = welch_psd(detrending_rri[(ts > start) &(ts <= (start + duration) )],fs = fs, nfft=2 ** 12)
+    freqDomain = fd.welch_psd(detrending_rri,fs = 4., nfft=2 ** 12,show=False)
 
     for key in freqDomain.keys():
         results[key] = freqDomain[key]
@@ -77,11 +73,7 @@ def parameter(nni):
         results[key] = nonlinearDomain[key]
 
     #不要なパラメータの削除
-    del_keylist = ['fft_bands'
-                  ,'fft_nfft','fft_window','fft_resampling_frequency','fft_interpolation'
-                  ,'fft_plot'
-                  #,'lomb_plot','ar_plot','lomb_bands','ar_bands'
-                  ,'nni_histogram','poincare_plot','dfa_plot']
+    del_keylist = ['nni_histogram','poincare_plot','dfa_plot']
     for del_keys in del_keylist:
         del results[del_keys]
 

@@ -83,8 +83,7 @@ if __name__ == '__main__':
 
     scr_data = scr(arc.signal('EDA'),
                 sampling_rate=sampling_rate,
-                downsamp = downsamp,
-                plot=plot)
+                downsamp = downsamp)
 
     scr_data = scr_features(scr_data)
     

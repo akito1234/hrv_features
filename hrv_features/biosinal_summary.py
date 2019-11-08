@@ -36,9 +36,9 @@ def segments_parameter(_rri_peaks,_resp_peaks,_scr_data,_section):
     resp_item = _resp_peaks[(_resp_peaks>=_section[0]) & (_resp_peaks<=_section[1])]
     
     ts_filter = (_scr_data['ts']>=_section[0]) & (_scr_data['ts']<=_section[1])
-    scr_item  = {'sc':sc[ts_filter],
-                 'pathicData':pathicData[ts_filter],
-                 'tonicData':tonicData[ts_filter]}
+    scr_item  = {'sc':_scr_data['sc'][ts_filter],
+                 'pathicData':_scr_data['pathicData'][ts_filter],
+                 'tonicData':_scr_data['tonicData'][ts_filter]}
 
     # 心拍変動をセクションごとに分ける
     ecg_features = hrv_analysis.parameter(ecg_item)
@@ -54,22 +54,20 @@ def segments_parameter(_rri_peaks,_resp_peaks,_scr_data,_section):
 
 if __name__ == '__main__':
     from opensignalsreader import OpenSignalsReader
-    path = r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-23\teraki\opensignals_dev_2019-10-23_16-59-10.txt"
+    path = r"C:\Users\akito\Desktop\test.txt"
     
     # セクションを設定する
-    emotion = {'Neutral1':[0,300]  ,'Stress':[300,600]
-              ,'Neutral2':[600,900] ,'Ammusement':[900,1200]}
-
+    #emotion = {'Neutral1':[0,300]  ,'Stress':[300,600]
+    #          ,'Neutral2':[600,900] ,'Ammusement':[900,1200]}
+    emotion = {'test':[0,100]}
     arc = OpenSignalsReader(path)
     
     # 心拍変動
-    rri_peaks = signals.ecg.ecg(signal=arc.signal('ECG') , sampling_rate=1000.0, show=False)['rpeaks']
-    
+    rri_peaks = signals.ecg.ecg(arc.signal('ECG') , sampling_rate=1000.0, show=False)['rpeaks']
     # 呼吸変動
-    resp_peaks = signals.resp.resp(signal=arc.signal('RESP'), sampling_rate=1000.0,show=False)['peaks']
-    
+    resp_peaks = resp_analysis.resp(arc.signal('RESP'), sampling_rate=1000.0,show=False)['peaks']  
     # 皮膚コンダクタンス
-    scr_data = eda_analysis.scr(arc.signal('EDA'), sampling_rate=1000.0, downsamp = 4.)
+    scr_data = eda_analysis.scr(arc.signal('EDA'), sampling_rate=1000.0, downsamp = 4)
 
     df = features(rri_peaks,
                   resp_peaks,
