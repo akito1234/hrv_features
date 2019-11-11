@@ -38,12 +38,10 @@ def segments_parameter(_nni,_section):
 #---------------------------------------------
 #心拍変動からパラメータを算出する
 #---------------------------------------------
-def parameter(nni):
-    # タイムスタンプの算出
-    tmStamps = np.cumsum(nni)*0.001 #in seconds 
-
+def parameter(rpeaks):
     #返り値を初期化
     results = {}
+    nni = tools.nn_intervals(rpeaks=rpeaks.tolist())
 
     # -----------------周波数解析-------------------#
     ## Define input parameters for the 'welch_psd()' function
@@ -53,7 +51,6 @@ def parameter(nni):
     ## Define input parameters for the 'ar_psd()' function
     #kwargs_ar = {'nfft': 2**10}
     #freqDomain = fd.welch_psd(nni=nni.astype(int).tolist(),nfft= 2**10, detrend = True, window =  'hann',show=False)
-    
     detrending_rri = detrending.detrend(nni, Lambda= 500)
     freqDomain = fd.welch_psd(detrending_rri,fs = 4., nfft=2 ** 12,show=False)
 
@@ -73,7 +70,7 @@ def parameter(nni):
         results[key] = nonlinearDomain[key]
 
     #不要なパラメータの削除
-    del_keylist = ['nni_histogram','poincare_plot','dfa_plot']
+    del_keylist = ['nni_histogram','poincare_plot','dfa_plot','fft_bands','sdnn_index','sdann']
     for del_keys in del_keylist:
         del results[del_keys]
 

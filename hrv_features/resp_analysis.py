@@ -26,7 +26,7 @@ def resp_features(resp_peaks):
     resp_features['bvp_median'] =np.median(bvp)
 
     #-----ポアンカレプロット-----#
-    _,resp_features['bvp_sd1'],resp_features['bvp_sd2'],resp_features['bvp_sd_ratio'],resp_features['bvp_ellipse_area']=nl.poincare(rpeaks=resp_peaks.astype(int).tolist(),show=True)
+    _,resp_features['bvp_sd1'],resp_features['bvp_sd2'],resp_features['bvp_sd_ratio'],resp_features['bvp_ellipse_area']=nl.poincare(rpeaks=resp_peaks.astype(int).tolist(),show=False)
 
     #------MultiScaleEntropy-----#
     # 後で追加すること

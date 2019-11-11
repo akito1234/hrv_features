@@ -12,6 +12,7 @@
     <Name>hrv_features</Name>
     <RootNamespace>hrv_features</RootNamespace>
     <InterpreterId>Global|VisualStudio|Python 3.6 HRV</InterpreterId>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,6 +44,9 @@
     <Compile Include="ledapy\snips.py" />
     <Compile Include="ledapy\utils.py" />
     <Compile Include="ledapy\__init__.py" />
+    <Compile Include="test.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="util\detrending.py">
       <SubType>Code</SubType>
     </Compile>
