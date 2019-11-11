@@ -7,13 +7,14 @@ import numpy as np
 import os
 from biosppy import signals
 
-# ファイルの関数を呼び出す
+# Import local packages
 import hrv_analysis
 import resp_analysis
 import eda_analysis
+from opensignalsreader import OpenSignalsReader
 
 
-def features(rri_peaks, resp_peaks, scr_data, emotion,keywords = None):
+def biosignal_features(rri_peaks, resp_peaks, scr_data, emotion,keywords = None):
     for i,key in enumerate(emotion.keys()):
         # セグメント内での特徴量算出
         segment_bio_report = {}
@@ -67,31 +68,11 @@ def segments_parameter(_rri_peaks,_resp_peaks,_scr_data,_section):
     results.update(**ecg_features,**resp_features,**eda_features)
     return results
 
-if __name__ == '__main__':
-    from opensignalsreader import OpenSignalsReader
-    #path_list = [r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-21\tohma\opensignals_201806130003_2019-10-21_15-16-48.txt",
-    #             r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-22\kishida\opensignals_dev_2019-10-22_13-54-50.txt",
-    #             r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-23\shizuya\opensignals_dev_2019-10-23_14-09-52.txt",
-    #             r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-23\teraki\opensignals_dev_2019-10-23_16-59-10.txt",
-    #             r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-29\shibata\opensignals_dev_2019-10-28_13-50-02.txt"
-    #             ]
-
-    path_list = [r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-11\kishida\opensignals_dev_2019-10-11_17-06-10.txt",
-                 r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-11\tohma\opensignals_dev_2019-10-11_17-29-23.txt",
-                 r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-14\kishida\opensignals_dev_2019-10-14_11-40-05.txt",
-                 r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-14\tohma\opensignals_dev_2019-10-14_12-09-33.txt"]
-
-    # セクションを設定する
-    emotion = {'Neutral1':[0,300],
-               'Stress':[300,600],
-               'Neutral2':[600,900],
-               #'Ammusement':[900,1200]
-               }
-
-
+# 生体信号から特徴量を算出し，dataframe型にまとめて返す
+def biosignal_summary(path_list,emotion_section=None):
     for i,path in enumerate(path_list):
         arc = OpenSignalsReader(path)
-        print(path + 'detected')
+        print(path + ' ....start')
 
         # 心拍変動
         rri_peaks = signals.ecg.ecg(arc.signal('ECG') , sampling_rate=1000.0, show=False)['rpeaks']
@@ -101,8 +82,8 @@ if __name__ == '__main__':
         scr_data = eda_analysis.scr(arc.signal('EDA'), sampling_rate=1000.0, downsamp = 4)
 
         # キーワードを設定
-        keyword = {'id':i ,
-                   'path_name':path}
+        keyword = {'id':i, 'path_name':path}
+
         df = pd.DataFrame([])
         df = features(rri_peaks,
                       resp_peaks,
@@ -115,4 +96,30 @@ if __name__ == '__main__':
         # ファイルを結合
         df_summary = pd.concat([df_summary,df],ignore_index=True)
 
+    return df_summary
+
+
+
+if __name__ == '__main__':
+    dict = r"C:\Users\akito\Desktop\stress\02.BiometricData"
+    #path_list = [r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-21\tohma\opensignals_201806130003_2019-10-21_15-16-48.txt",
+    #             r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-22\kishida\opensignals_dev_2019-10-22_13-54-50.txt",
+    #             r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-23\shizuya\opensignals_dev_2019-10-23_14-09-52.txt",
+    #             r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-23\teraki\opensignals_dev_2019-10-23_16-59-10.txt",
+    #             r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-29\shibata\opensignals_dev_2019-10-28_13-50-02.txt"
+    #             ]
+    # セクションを設定する
+    emotion = {'Neutral1':[0,300],
+            'Stress':[300,600],
+            'Neutral2':[600,900],
+            #'Ammusement':[900,1200]
+            }
+
+    path_list = [r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-11\kishida\opensignals_dev_2019-10-11_17-06-10.txt",
+                    r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-11\tohma\opensignals_dev_2019-10-11_17-29-23.txt",
+                    r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-14\kishida\opensignals_dev_2019-10-14_11-40-05.txt",
+                    r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-14\tohma\opensignals_dev_2019-10-14_12-09-33.txt"]
     df_summary.to_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets2.xlsx")
+
+
+

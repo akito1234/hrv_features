@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>biosinal_summary.py</StartupFile>
+    <StartupFile>biosignal_analysis.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -23,10 +23,13 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="biosignal_analysis.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="biosinal_summary.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="convert_to_text.py">
+    <Compile Include="util\convert_to_text.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="custom_frequency_domain.py">
@@ -44,9 +47,6 @@
     <Compile Include="ledapy\snips.py" />
     <Compile Include="ledapy\utils.py" />
     <Compile Include="ledapy\__init__.py" />
-    <Compile Include="test.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="util\detrending.py">
       <SubType>Code</SubType>
     </Compile>
@@ -56,7 +56,7 @@
     <Compile Include="biosignal_plot.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="neurokit_test.py">
+    <Compile Include="util\neurokit_test.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="opensignalsreader\opensignalsreader.py" />
@@ -71,7 +71,7 @@
     <Compile Include="resp_analysis.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="user_tools.py" />
+    <Compile Include="util\user_tools.py" />
     <Compile Include="util\ecg_spectrogram.py">
       <SubType>Code</SubType>
     </Compile>
