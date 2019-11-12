@@ -6,11 +6,20 @@ import matplotlib.pyplot as plt
 # ニュートラル状態を差分する
 #---------------------------------------------
 def correction_neutral_before(df_neutral,df_emotion):
-    correction_df = (df_emotion - df_neutral)
-    return correction_df
+
+    identical_parameter = ['id','emotion','user','date','path_name']
+
+    identical_df = df_emotion[identical_parameter]
+
+    #不要なパラメータのを除き，Neuralで補正
+    df_neutral_features = df_neutral.drop(identical_parameter, axis=1)
+    df_emotion_features = df_emotion.drop(identical_parameter, axis=1)
+    features_df = (df_emotion_features - df_neutral_features.values)
+    result = pd.concat([identical_df,features_df], axis=1,sort=False)
+    return result
 
 
-path = r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\biosignal_datasets.xlsx"
+path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets.xlsx"
 df = pd.read_excel(path)
 
 for i in range(df['id'].max() + 1):
@@ -31,6 +40,6 @@ for i in range(df['id'].max() + 1):
     if i == 0:
         df_summary = pd.DataFrame([], columns=df_item.columns)
     # ファイルを結合
-    df_summary = pd.concat([cor_stress, cor_ammusement,cor_neutral2],ignore_index=True)
+    df_summary = pd.concat([df_summary,cor_stress, cor_ammusement,cor_neutral2],ignore_index=True,sort=False)
 
-df_summary.to_excel(r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\biosignal_datasets_neutral_base.xlsx")
+df_summary.to_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets_neutral_base.xlsx")
