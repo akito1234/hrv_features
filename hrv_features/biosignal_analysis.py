@@ -62,7 +62,7 @@ def features_baseline(df,emotion_state=['Stress','Ammusement','Neutral2'],
 def features_barplot(df,columns=None,sort_order = ['Stress','Ammusement','Neutral2']):
     fig, axes = plt.subplots(1,len(columns))
     for i,column in enumerate(columns):
-        sns.barplot(x='emotion', y=column, data=df, ax=axes[i],order=sort_order, capsize=.1)
+        sns.barplot(x='emotion', y=column, data=df, ax=axes[i],order=sort_order, capsize=.1,color=["b","r"])
         
         
 
@@ -74,6 +74,8 @@ def K_S_test(df,emotion_status = ['Neutral2','Stress'], identical_parameter = ['
     if len(emotion_status) != 2:
         print('emotion_statusには感情名を2つ入れる')
         return False
+    result = {}
+
     for column in df.columns:
         # 関連コラムは飛ばす
         if identical_parameter.count(column) > 0:
@@ -83,11 +85,13 @@ def K_S_test(df,emotion_status = ['Neutral2','Stress'], identical_parameter = ['
         specimen_group_2 = df[ df['emotion'] == emotion_status[1]].drop(identical_parameter,axis=1)
 
         # K-S検定の実行
-        result = stats.ks_2samp(specimen_group_1[column].values, specimen_group_2[column].values)
-        result[0]  # 統計検定量
-        result[1]  # p-value
-        #print(result[0])
-        print('{} : {} '.format(column,result[1]))
+        p_value = stats.ks_2samp(specimen_group_1[column].values, specimen_group_2[column].values)[1]
+        result[column] = p_value
+
+        print('{} : {} '.format(column,p_value))
+
+    # convert to Dataframe
+    result = pd.DataFrame.from_dict(result, orient='index')
     return result
 
 
@@ -101,10 +105,7 @@ if __name__ == '__main__':
     # Excelファイルから特徴量データを取得
     path = r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\biosignal_datasets.xlsx"
     df = pd.read_excel(path)
-    df_features = features_baseline(df,emotion_state=['Neutral2','Stress'],baseline='Neutral1')
-    
-    # コルモゴロフ-スミルノフ検定
-    #K_S_test(df_features,emotion_status = ['Neutral2','Stress'])
+    df_features = features_baseline(df,emotion_state=['Neutral2','Stress','Ammusement'],baseline='Neutral1')
 
     # 描画設定
     columns = ['hr_mean',
@@ -112,7 +113,19 @@ if __name__ == '__main__':
                'fft_ratio',
                'pathicData_mean'
                ]
-    sns.pairplot(data=df_features, hue='emotion', vars=columns)
+
+
+    sns.pairplot(data=df_features, 
+                 hue='emotion',
+                 vars=columns
+                )
+    
+    # コルモゴロフ-スミルノフ検定
+    A = K_S_test(df_features,emotion_status = ['Stress','Ammusement'])
+    A.to_excel(r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\K_S_p_value3.xlsx")
+
+    
+
     #colorlist = ["b","r", "g"]
     #ax = sns.barplot(x='id', y=df['pathicData_mean'], hue='emotion', data=df[ df['emotion'] != 'Ammusement'],palette	= colorlist)
     #ax.legend().set_visible(False)
@@ -120,5 +133,5 @@ if __name__ == '__main__':
     #                 columns, 
     #                 sort_order = ['Stress','Neutral2'])
     plt.show()
-
+    plt.text((x1+x2)*.5, y+h, "ns", ha='center', va='bottom', color=col)
     #features_baseline(df).to_excel(r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\biosignal_datasets_neutral_base.xlsx",index=False)

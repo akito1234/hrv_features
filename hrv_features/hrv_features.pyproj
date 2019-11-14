@@ -29,6 +29,9 @@
     <Compile Include="biosinal_summary.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="test.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="util\convert_to_text.py">
       <SubType>Code</SubType>
     </Compile>
