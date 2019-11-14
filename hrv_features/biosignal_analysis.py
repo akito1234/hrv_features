@@ -44,7 +44,7 @@ def features_baseline(df,emotion_state=['Stress','Ammusement','Neutral2'],
         for state in emotion_state:
             # 各感情状態の特徴を取り出す
             emotion_df = df_item[ df_item['emotion']  == state]
-            if emotion_state is None:
+            if emotion_df.empty:
                 continue;
 
             # 各感情状態からベースラインを引く 
@@ -59,10 +59,13 @@ def features_baseline(df,emotion_state=['Stress','Ammusement','Neutral2'],
 #---------------------------------------------
 # Plot features list by using barplot
 #---------------------------------------------
-def features_barplot(df,columns=None,sort_order = []):
+def features_barplot(df,columns=None,sort_order = ['Stress','Ammusement','Neutral2']):
     fig, axes = plt.subplots(1,len(columns))
     for i,column in enumerate(columns):
         sns.barplot(x='emotion', y=column, data=df, ax=axes[i],order=sort_order, capsize=.1)
+        
+        
+
 
 #---------------------------------------------
 # コルモゴロフ-スミルノフ検定
@@ -91,21 +94,31 @@ def K_S_test(df,emotion_status = ['Neutral2','Stress'], identical_parameter = ['
 
 if __name__ == '__main__':
     import matplotlib as mpl
-    plt.style.use('ggplot') 
+    #plt.style.use('ggplot') 
     font = {'family' : 'meiryo'}
-    #plt.rcParams["font.size"] = 18
+    plt.rcParams["font.size"] = 18
 
     # Excelファイルから特徴量データを取得
-    path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_dataset_3min_duration.xlsx"
+    path = r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\biosignal_datasets.xlsx"
     df = pd.read_excel(path)
-    df_features = features_baseline(df,emotion_state=['Neutral2','Stress','Ammusement'],baseline='Neutral1')
+    df_features = features_baseline(df,emotion_state=['Neutral2','Stress'],baseline='Neutral1')
     
     # コルモゴロフ-スミルノフ検定
-    K_S_test(df_features,emotion_status = ['Neutral2','Stress'])
+    #K_S_test(df_features,emotion_status = ['Neutral2','Stress'])
 
     # 描画設定
-    #columns = ['hr_mean','bvp_mean','fft_ratio','pathicData_mean']
-    #features_barplot(df_features,columns, sort_order = ['Stress','Ammusement','Neutral2'])
-    #plt.show()
+    columns = ['hr_mean',
+               'bvp_mean',
+               'fft_ratio',
+               'pathicData_mean'
+               ]
+    sns.pairplot(data=df_features, hue='emotion', vars=columns)
+    #colorlist = ["b","r", "g"]
+    #ax = sns.barplot(x='id', y=df['pathicData_mean'], hue='emotion', data=df[ df['emotion'] != 'Ammusement'],palette	= colorlist)
+    #ax.legend().set_visible(False)
+    #features_barplot(df_features[ df_features['emotion'] != 'Ammusement'],
+    #                 columns, 
+    #                 sort_order = ['Stress','Neutral2'])
+    plt.show()
 
     #features_baseline(df).to_excel(r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\biosignal_datasets_neutral_base.xlsx",index=False)
