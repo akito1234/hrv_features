@@ -121,8 +121,8 @@ if __name__ == '__main__':
                 )
     
     # コルモゴロフ-スミルノフ検定
-    A = K_S_test(df_features,emotion_status = ['Stress','Ammusement'])
-    A.to_excel(r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\K_S_p_value3.xlsx")
+    A = K_S_test(df_features,emotion_status = ['Stress','Neutral2'])
+    A.to_excel(r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\K_S_p_value.xlsx")
 
     
 

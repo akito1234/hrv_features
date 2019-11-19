@@ -82,19 +82,19 @@ if __name__ == '__main__':
     arc = OpenSignalsReader(path)
 
     scr_data = scr(arc.signal('EDA'),
-                sampling_rate=sampling_rate,
-                downsamp = downsamp)
+                sampling_rate=1000,
+                downsamp = 4)
 
-    scr_data = scr_features(scr_data)
+    #scr_data = scr_features(scr_data)
     
-    for a in scr_data.keys():
-        print(a,scr_data[a])
+    #for a in scr_data.keys():
+    #    print(a,scr_data[a])
     
-    #fig, axes = plt.subplots(3,1)
-    #axes[0].plot(scr_data['ts'],scr_data['sc'])
-    #axes[1].plot(scr_data['ts'],scr_data['pathicData'])
-    #axes[2].plot(scr_data['ts'],scr_data['tonicData'])
-    #plt.show()
+    fig, axes = plt.subplots(3,1)
+    axes[0].plot(scr_data['ts'],scr_data['sc'])
+    axes[1].plot(scr_data['ts'],scr_data['pathicData'])
+    axes[2].plot(scr_data['ts'],scr_data['tonicData'])
+    plt.show()
 
     #path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-28\shibata\opensignals_dev_2019-10-28_13-50-02.txt"
     #arc = OpenSignalsReader(path)
