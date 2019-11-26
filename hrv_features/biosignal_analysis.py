@@ -62,7 +62,7 @@ def features_baseline(df,emotion_state=['Stress','Ammusement','Neutral2'],
 def features_barplot(df,columns=None,sort_order = ['Stress','Ammusement','Neutral2']):
     fig, axes = plt.subplots(1,len(columns))
     for i,column in enumerate(columns):
-        sns.barplot(x='emotion', y=column, data=df, ax=axes[i],order=sort_order, capsize=.1,color=["b","r"])
+        sns.barplot(x='emotion', y=column, data=df, ax=axes[i],order=sort_order, capsize=.1)
         
         
 
@@ -103,8 +103,10 @@ if __name__ == '__main__':
     plt.rcParams["font.size"] = 18
 
     # Excelファイルから特徴量データを取得
-    path = r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\biosignal_datasets.xlsx"
+    path = r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\実験結果 2019_11_19~21\biosignal_datasets_arousal_valence.xlsx"
     df = pd.read_excel(path)
+
+
     df_features = features_baseline(df,emotion_state=['Neutral2','Stress','Ammusement'],baseline='Neutral1')
 
     # 描画設定
@@ -114,15 +116,17 @@ if __name__ == '__main__':
                'pathicData_mean'
                ]
 
-
-    sns.pairplot(data=df_features, 
-                 hue='emotion',
-                 vars=columns
-                )
+    features_barplot(df_features[ df_features['emotion'] != 'Neutral2'],
+                     columns, 
+                     sort_order = ['Stress','Ammusement'])
+    #sns.pairplot(data=df_features, 
+    #             hue='emotion',
+    #             vars=columns
+    #            )
     
     # コルモゴロフ-スミルノフ検定
-    A = K_S_test(df_features,emotion_status = ['Stress','Neutral2'])
-    A.to_excel(r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\K_S_p_value.xlsx")
+    A = K_S_test(df_features,emotion_status = ['Stress','Ammusement'])
+    #A.to_excel(r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\実験結果 2019_11_19~21\K_S_p_value.xlsx")
 
     
 
@@ -133,5 +137,4 @@ if __name__ == '__main__':
     #                 columns, 
     #                 sort_order = ['Stress','Neutral2'])
     plt.show()
-    plt.text((x1+x2)*.5, y+h, "ns", ha='center', va='bottom', color=col)
     #features_baseline(df).to_excel(r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\biosignal_datasets_neutral_base.xlsx",index=False)

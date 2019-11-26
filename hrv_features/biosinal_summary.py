@@ -39,9 +39,10 @@ def biosignal_features(rri_peaks, resp_peaks, scr_data, emotion,keywords = None)
 
         if i == 0:
             df = pd.DataFrame([], columns=segment_bio_report.keys())
-        section_df = pd.DataFrame(segment_bio_report.values(), index=segment_bio_report.keys()).T
-        df =  pd.concat([df, section_df])
 
+        #section_df = pd.DataFrame(segment_bio_report.values(), index=segment_bio_report.keys()).
+        #df =  pd.concat([df, section_df])
+        df =  pd.concat([df, pd.DataFrame(segment_bio_report , index=[key])])
     return df
 
 def segments_parameter(_rri_peaks,_resp_peaks,_scr_data,_section):
@@ -101,35 +102,50 @@ def biosignal_summary(path_list,emotion=None):
 
 
 if __name__ == '__main__':
-    path_list1 = [r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-21\tohma\opensignals_201806130003_2019-10-21_15-16-48.txt",
-                 r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-22\kishida\opensignals_dev_2019-10-22_13-54-50.txt",
-                 r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-23\shizuya\opensignals_dev_2019-10-23_14-09-52.txt",
-                 r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-23\teraki\opensignals_dev_2019-10-23_16-59-10.txt",
-                 r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-29\shibata\opensignals_dev_2019-10-28_13-50-02.txt"
-                 ]
-    emotion1 = {'Neutral1':[120,300],
-                'Stress':[300,480],
-                'Neutral2':[720,900],
-                'Ammusement':[900,1080]}
-    df_1 = biosignal_summary(path_list1,emotion1)
-    df_1.to_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_dataset_3min_df1.xlsx")
 
-    # セクションを設定する
-    path_list2 = [r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-11\kishida\opensignals_dev_2019-10-11_17-06-10.txt",
-                  r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-11\tohma\opensignals_dev_2019-10-11_17-29-23.txt",
-                  r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-14\kishida\opensignals_dev_2019-10-14_11-40-05.txt",
-                  r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-14\tohma\opensignals_dev_2019-10-14_12-09-33.txt"]
-    emotion2 = {'Neutral1':[120,300],
-                'Stress':[300,480],
-                'Neutral2':[720,900]}
-    df_2 = biosignal_summary(path_list2,emotion2)
-    df_2.to_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_dataset_3min_df2.xlsx")
+    #path_list = [r"Z:\theme\mental_stress\02.BiometricData\2019-11-19\shibata\opensignals_201806130003_2019-11-19_14-34-44.txt",
+    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-19\shizuya\opensignals_201806130003_2019-11-19_16-38-07.txt",
+    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-19\takase\opensignals_device3_2019-11-19_16-38-30.txt",
+    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-20\takase\opensignals_device1_2019-11-20_15-37-40.txt",
+    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-20\teraki\opensignals_device2_2019-11-20_13-40-49_2.txt",
+    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-21\kaneko\opensignals_201806130003_2019-11-21_14-58-59.txt",
+    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-21\kaneko\opensignals_201806130003_2019-11-21_16-01-49.txt",
+    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-21\kaneko\opensignals_201806130003_2019-11-21_16-44-45.txt",
+    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-21\kishida\opensignals_device3_2019-11-21_14-56-56.txt",
+    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-21\kishida\opensignals_device3_2019-11-21_16-00-52.txt",
+    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-21\kojima\opensignals_device2_2019-11-21_14-59-07.txt",
+    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-21\kojima\opensignals_device2_2019-11-21_16-06-09.txt",
+    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-21\shibata\opensignals_device2_2019-11-21_16-51-13.txt",
+    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-21\tohma\opensignals_device3_2019-11-21_16-54-54.txt"
+    #             ]
+    path_list = [r"Z:\theme\mental_stress\02.BiometricData\2019-11-20\takase\opensignals_201808080162_2019-11-20_13-39-19_concat.txt",
+                 r"Z:\theme\mental_stress\02.BiometricData\2019-11-20\teraki\opensignals_device1_2019-11-20_14-40-26_concat.txt"
+                ]
+
+    emotion = {'Neutral1':[0,300],
+               'Stress':[300,600],
+               'Neutral2':[600,900],
+               'Ammusement':[900,1200]
+               }
+    df = biosignal_summary(path_list,emotion)
+    df.to_excel(r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\biosignal_datasets_arousal_valence2.xlsx")
+
+    ## セクションを設定する
+    #path_list2 = [r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-11\kishida\opensignals_dev_2019-10-11_17-06-10.txt",
+    #              r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-11\tohma\opensignals_dev_2019-10-11_17-29-23.txt",
+    #              r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-14\kishida\opensignals_dev_2019-10-14_11-40-05.txt",
+    #              r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-14\tohma\opensignals_dev_2019-10-14_12-09-33.txt"]
+    #emotion2 = {'Neutral1':[120,300],
+    #            'Stress':[300,480],
+    #            'Neutral2':[720,900]}
+    #df_2 = biosignal_summary(path_list2,emotion2)
+    #df_2.to_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_dataset_3min_df2.xlsx")
 
 
-    df_summary = pd.DataFrame([], columns=df_1.columns)
-    df_summary = pd.concat([df_1, df_2],ignore_index=True)
+    #df_summary = pd.DataFrame([], columns=df_1.columns)
+    #df_summary = pd.concat([df_1, df_2],ignore_index=True)
 
-    df_summary.to_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_dataset_3min_duration.xlsx")
+    #df_summary.to_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_dataset_3min_duration.xlsx")
 
 
 

@@ -51,7 +51,7 @@ def plot_signal(path):
     plt.xlabel("Time[s]")
     return plt
 
-def plot_raw(path):
+def plot_raw(path,emotion_section={"Stress":[300,600],"Amusement":[900,1200]}):
     arc = OpenSignalsReader(path)
 
     # 心拍データからピークを取り出す
@@ -80,8 +80,15 @@ def plot_raw(path):
     axes[2].set_ylim(-50,50)
 
     for i in range(3):
-        axes[i].axvspan(300,600,alpha=0.3,color="r",label="Stress")
-        axes[i].axvspan(900,1200,alpha=0.3,color="b",label="Amusement")
+        for key in emotion_section.keys():
+            if key == "Stress":
+                axes[i].axvspan(emotion_section[key][0], #start
+                                emotion_section[key][1], #end
+                                alpha=0.3,color="r",label="Stress")
+            elif key == "Amusement":
+                axes[i].axvspan(emotion_section[key][0], #start
+                                emotion_section[key][1], #end
+                                alpha=0.3,color="b",label="Amusement")
     plt.legend()
     plt.tight_layout()
     plt.xlabel("Time[s]")
@@ -110,7 +117,7 @@ def plot_hrv(path):
     return plt
 
 if __name__ == '__main__':
-    path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-11\tohma\opensignals_dev_2019-10-11_17-29-23.txt"
-    plot_raw(path)
-    plt.show()
-    #plt = plot_signal(path).savefig(r"C:\Users\akito\Desktop\stress\04.Figure\summary\kishida_2019-10-22.png")
+    path = r"Z:\theme\mental_stress\02.BiometricData\2019-11-20\teraki\opensignals_device2_2019-11-20_13-40-49.txt"
+    plt = plot_raw(path,emotion_section={"Amusement":[300,600],"Stress":[900,1200]})
+    #plt.show()
+    plt.savefig(r"Z:\theme\mental_stress\04.Figure\raw\teraki_2019-11-20_13-40-49_RawData.png")

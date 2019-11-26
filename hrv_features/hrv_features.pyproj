@@ -59,6 +59,9 @@
     <Compile Include="biosignal_plot.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="util\modify_log.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="util\neurokit_test.py">
       <SubType>Code</SubType>
     </Compile>

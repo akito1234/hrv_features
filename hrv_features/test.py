@@ -12,10 +12,11 @@ from biosppy import signals
 import matplotlib.pyplot as plt
 import numpy as np
 
-path = r"Z:\theme\rppg_filter_test\raw\biosignal_nofiltered_nolight.txt"
+path = r"Z:\theme\mental_stress\02.BiometricData\2019-11-19\shibata\opensignals_201806130003_2019-11-19_14-34-44.txt"
 
 # Read OpenSignals file and plot all signals
-arc = OpenSignalsReader(path)
+arc = OpenSignalsReader(path).plot()
+plt.show()
 # 計測開始時刻の抽出
 sign_button = np.diff(np.sign(arc.signal("RAW")))
 onsets     = np.nonzero( sign_button<0 )[0]
@@ -29,5 +30,5 @@ filter_ecg = arc.signal('ECG')[arc.t > start]
 signal, rpeaks = signals.ecg.ecg(signal=filter_ecg , sampling_rate=1000.0, show=False)[1:3]
 
 # 結果をエクスポート
-np.savetxt(r"Z:\theme\rppg_filter_test\rri\ecg\RRI_nofiltered_nolight.csv"
-           ,rpeaks, delimiter=',' )
+#np.savetxt(r"Z:\theme\rppg_filter_test\rri\ecg\RRI_nofiltered_nolight.csv"
+#           ,rpeaks, delimiter=',' )
