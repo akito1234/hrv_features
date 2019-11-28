@@ -18,7 +18,7 @@ def correction_neutral_before(df_neutral,df_emotion,identical_parameter):
     #不要なパラメータのを除き，Neuralで補正
     df_neutral_features = df_neutral.drop(identical_parameter, axis=1)
     df_emotion_features = df_emotion.drop(identical_parameter, axis=1)
-    features_df = (df_emotion_features-df_neutral_features.values)
+    features_df = (df_emotion_features/df_neutral_features.values)
 
     result = pd.concat([identical_df,features_df], axis=1,sort=False)
     return result
@@ -99,10 +99,16 @@ def K_S_test(df,emotion_status = ['Neutral2','Stress'], identical_parameter = ['
         p_value = stats.ks_2samp(specimen_group_1[column].values, specimen_group_2[column].values)[1]
         result[column] = p_value
 
-        print('{} : {} '.format(column,p_value))
+        #
 
     ## convert to Dataframe
     #result = pd.DataFrame.from_dict(result, orient='index')
+
+    # sort by p values
+    sort_result = dict(sorted(result.items(), key=lambda x:x[1]))
+    for key in sort_result.keys():
+        print('{} : {} '.format(key,sort_result[key]))
+
     return result
 
 
@@ -121,27 +127,34 @@ if __name__ == '__main__':
 
     # 描画設定
     columns = ['hr_mean',
-               'bvp_mean',
-               'fft_ratio',
-               'pathicData_mean'
+               'fft_abs_hf',
+               'fft_abs_hf',
+               'fft_ratio'
                ]
+    #features_barplot(df_features[~df['id'].isin([2,3,11,14])],columns,emotion_status = ['Neutral2','Stress'])
+    #2,3,11,14,
 
-    features_barplot(df_features[~df['id'].isin([5,11,13])],columns,emotion_status = ['Ammusement','Stress'])
-
-
+    #16,17,18,19,20,21,22,23,24
     #sns.pairplot(data=df_features, 
     #             hue='emotion',
     #             vars=columns
     #            )
     
     # コルモゴロフ-スミルノフ検定
-    #A = K_S_test(df_features,emotion_status = ['Stress','Ammusement'])
+    A = K_S_test(df_features[~df['id'].isin([2,8,9,11])],emotion_status = ['Neutral2','Stress'])
+    result = pd.DataFrame.from_dict(A, orient='index').to_excel(r"Z:\00_個人用\東間\02.discussion\20191128\filter_K_S_value.xlsx")
 
-    colorlist = ["b","r","g","y"]
-    #ax = sns.barplot(x='id', y=df['fft_ratio'], hue='emotion', 
-    #                 data=df#[ (df['emotion'] != 'Stress') & (df['emotion'] != 'Ammusement')]
-    #                 ,palette= colorlist)
-    #ax.legend()#.set_visible(False)
+    A = K_S_test(df_features[~df['id'].isin([])],emotion_status = ['Neutral2','Stress'])
+    result = pd.DataFrame.from_dict(A, orient='index').to_excel(r"Z:\00_個人用\東間\02.discussion\20191128\nonfilter_K_S_value.xlsx")
+
+   # colorlist = ["b","r","g","y"]
+   # ax = sns.barplot(x='id', y=df['fft_ratio'], hue='emotion', 
+   #                  data=df[~(df['emotion']=='Ammusement') & (~df['id'].isin([16,17,18,19,20,21,22,23,24]))],
+   #                  hue_order=['Neutral1','Stress','Neutral2'],palette= colorlist)
+   # ax.legend(loc="upper center", 
+  	#	bbox_to_anchor=(0.5,-0.07), # 描画領域の少し下にBboxを設定
+			#ncol=3						# 2列
+			#)
     #features_barplot(df_features[ df_features['emotion'] != 'Ammusement'],
     #                 columns, 
     #                 sort_order = ['Stress','Neutral2'])

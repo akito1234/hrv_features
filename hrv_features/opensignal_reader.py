@@ -16,10 +16,11 @@ import pandas as pd
 import hrv_analysis as hf
 
 
-path = r"Z:\theme\mental_stress\02.BiometricData\2019-11-19\takase\opensignals_device3_2019-11-19_16-38-30.txt"
+path = r"Z:\theme\emotion\disgust_contentment\20190802\log\opensignals_device1_device2_device3_17-25-22_converted.txt"
 # Read OpenSignals file and plot all signals
 arc = OpenSignalsReader(path)
 ecg = arc.signal('ECG')
+
 
 
 # 心拍データからピークを取り出す
