@@ -127,30 +127,41 @@ if __name__ == '__main__':
 
     # 描画設定
     columns = ['hr_mean',
-               'fft_abs_hf',
+               'fft_abs_lf',
                'fft_abs_hf',
                'fft_ratio'
                ]
-    #features_barplot(df_features[~df['id'].isin([2,3,11,14])],columns,emotion_status = ['Neutral2','Stress'])
+    #features_barplot(df_features[~df_features['id'].isin([16,17,18,19,20,21,22,23,24])],columns,emotion_status = ['Ammusement','Stress'])
     #2,3,11,14,
 
     #16,17,18,19,20,21,22,23,24
-    #sns.pairplot(data=df_features, 
+    #sns.pairplot(data=df_features[df_features['emotion'].isin(['Ammusement','Stress'])], 
     #             hue='emotion',
     #             vars=columns
     #            )
     
     # コルモゴロフ-スミルノフ検定
-    A = K_S_test(df_features[~df['id'].isin([2,8,9,11])],emotion_status = ['Neutral2','Stress'])
-    result = pd.DataFrame.from_dict(A, orient='index').to_excel(r"Z:\00_個人用\東間\02.discussion\20191128\filter_K_S_value.xlsx")
+    #A = K_S_test(df_features[~df['id'].isin([16,17,18,19,20,21,22,23,24])],emotion_status = ['Neutral2','Stress'])
+    #B = K_S_test(df_features[~df['id'].isin([16,17,18,19,20,21,22,23,24])],emotion_status = ['Neutral2','Ammusement'])
+    #C = K_S_test(df_features[~df['id'].isin([16,17,18,19,20,21,22,23,24])],emotion_status = ['Ammusement','Stress'])
+    #resultA = pd.DataFrame.from_dict(A, orient='index')
+    #resultB = pd.DataFrame.from_dict(B, orient='index')
+    #resultC = pd.DataFrame.from_dict(C, orient='index')
+    #result = pd.concat([resultA,resultB,resultC], axis=1)
+    #result.to_excel(r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\実験結果 2019_11_19~21\K_S_value_filter.xlsx")
 
-    A = K_S_test(df_features[~df['id'].isin([])],emotion_status = ['Neutral2','Stress'])
-    result = pd.DataFrame.from_dict(A, orient='index').to_excel(r"Z:\00_個人用\東間\02.discussion\20191128\nonfilter_K_S_value.xlsx")
 
-   # colorlist = ["b","r","g","y"]
-   # ax = sns.barplot(x='id', y=df['fft_ratio'], hue='emotion', 
-   #                  data=df[~(df['emotion']=='Ammusement') & (~df['id'].isin([16,17,18,19,20,21,22,23,24]))],
-   #                  hue_order=['Neutral1','Stress','Neutral2'],palette= colorlist)
+
+    #colorlist = ["b","r","g","y"]
+    #hue_order=['Neutral1','Stress','Neutral2'],palette= colorlist
+    column = 'fft_ratio'
+    replace_df = df_features.replace({'Neutral1':"N1", 'Neutral2':"N2", "Stress":"St", "Ammusement":"Am"})
+    ax = sns.catplot(x='emotion', y=column, col="user", col_wrap=2,
+                     data=replace_df#[~(df['emotion']=='Ammusement') & (~df['id'].isin([16,17,18,19,20,21,22,23,24]))],
+                     , aspect=1.2,order = ['N2','St','Am'], kind = 'bar'
+                     )
+    plt.savefig(r"Z:\theme\mental_stress\04.Figure\physiological_parameter_stress_neutral\2019-11-19~21\{}_subjet_independence.png".format(column))
+
    # ax.legend(loc="upper center", 
   	#	bbox_to_anchor=(0.5,-0.07), # 描画領域の少し下にBboxを設定
 			#ncol=3						# 2列
