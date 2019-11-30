@@ -18,7 +18,7 @@ def correction_neutral_before(df_neutral,df_emotion,identical_parameter):
     #不要なパラメータのを除き，Neuralで補正
     df_neutral_features = df_neutral.drop(identical_parameter, axis=1)
     df_emotion_features = df_emotion.drop(identical_parameter, axis=1)
-    features_df = (df_emotion_features-df_neutral_features.values)
+    features_df = (df_emotion_features/df_neutral_features.values)
 
     result = pd.concat([identical_df,features_df], axis=1,sort=False)
     return result
@@ -99,10 +99,16 @@ def K_S_test(df,emotion_status = ['Neutral2','Stress'], identical_parameter = ['
         p_value = stats.ks_2samp(specimen_group_1[column].values, specimen_group_2[column].values)[1]
         result[column] = p_value
 
-        print('{} : {} '.format(column,p_value))
+        #
 
     ## convert to Dataframe
     #result = pd.DataFrame.from_dict(result, orient='index')
+
+    # sort by p values
+    sort_result = dict(sorted(result.items(), key=lambda x:x[1]))
+    for key in sort_result.keys():
+        print('{} : {} '.format(key,sort_result[key]))
+
     return result
 
 
@@ -113,41 +119,55 @@ if __name__ == '__main__':
     plt.rcParams["font.size"] = 18
 
     # Excelファイルから特徴量データを取得
-    #path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets.xlsx"
-    path = r"C:\Users\akito\Desktop\disgust_contentments_3.xlsx"
+    path = r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\実験結果 2019_11_19~21\biosignal_datasets_arousal_valence.xlsx"
     df = pd.read_excel(path)
 
     # 正規化 (個人差補正)
     df_features = features_baseline(df,emotion_state=['Neutral2','Stress','Ammusement'],baseline='Neutral1')
 
     # 描画設定
-    columns = [#'hr_mean',
-               #'bvp_mean',
-               'fft_ratio',
-               'pathicData_mean'
+    columns = ['hr_mean',
+               'fft_abs_lf',
+               'fft_abs_hf',
+               'fft_ratio'
                ]
+    #features_barplot(df_features[~df_features['id'].isin([16,17,18,19,20,21,22,23,24])],columns,emotion_status = ['Ammusement','Stress'])
+    #2,3,11,14,
 
-    #features_barplot(df_features[~df['id'].isin([5,11,13])],columns,emotion_status = ['Stress', 'Ammusement'],annotation=False)
-    #[~df['id'].isin([5,11,13])]
-    
-    #sns.pairplot(data=df_features, 
+    #16,17,18,19,20,21,22,23,24
+    #sns.pairplot(data=df_features[df_features['emotion'].isin(['Ammusement','Stress'])], 
     #             hue='emotion',
     #             vars=columns
     #            )
     
     # コルモゴロフ-スミルノフ検定
-    A = K_S_test(df_features,emotion_status = ['Ammusement','Neutral2'])
-    #result_path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\K_S_value3.xlsx"
-    #pd.DataFrame.from_dict(A, orient='index').to_excel(result_path)
+    #A = K_S_test(df_features[~df['id'].isin([16,17,18,19,20,21,22,23,24])],emotion_status = ['Neutral2','Stress'])
+    #B = K_S_test(df_features[~df['id'].isin([16,17,18,19,20,21,22,23,24])],emotion_status = ['Neutral2','Ammusement'])
+    #C = K_S_test(df_features[~df['id'].isin([16,17,18,19,20,21,22,23,24])],emotion_status = ['Ammusement','Stress'])
+    #resultA = pd.DataFrame.from_dict(A, orient='index')
+    #resultB = pd.DataFrame.from_dict(B, orient='index')
+    #resultC = pd.DataFrame.from_dict(C, orient='index')
+    #result = pd.concat([resultA,resultB,resultC], axis=1)
+    #result.to_excel(r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\実験結果 2019_11_19~21\K_S_value_filter.xlsx")
 
 
-    colorlist = ["b","r","g","y"]
-    ax = sns.barplot(x='id', y=df['fft_ratio'], hue='emotion', 
-                     data=df[~(df['emotion'] == 'Ammusement')]
-                     ,palette= colorlist)
-    ax.legend()#.set_visible(False)
+
+    #colorlist = ["b","r","g","y"]
+    #hue_order=['Neutral1','Stress','Neutral2'],palette= colorlist
+    column = 'fft_ratio'
+    replace_df = df_features.replace({'Neutral1':"N1", 'Neutral2':"N2", "Stress":"St", "Ammusement":"Am"})
+    ax = sns.catplot(x='emotion', y=column, col="user", col_wrap=2,
+                     data=replace_df#[~(df['emotion']=='Ammusement') & (~df['id'].isin([16,17,18,19,20,21,22,23,24]))],
+                     , aspect=1.2,order = ['N2','St','Am'], kind = 'bar'
+                     )
+    plt.savefig(r"Z:\theme\mental_stress\04.Figure\physiological_parameter_stress_neutral\2019-11-19~21\{}_subjet_independence.png".format(column))
+
+   # ax.legend(loc="upper center", 
+  	#	bbox_to_anchor=(0.5,-0.07), # 描画領域の少し下にBboxを設定
+			#ncol=3						# 2列
+			#)
     #features_barplot(df_features[ df_features['emotion'] != 'Ammusement'],
     #                 columns, 
     #                 sort_order = ['Stress','Neutral2'])
     plt.show()
-    features_baseline(df).to_excel(r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\biosignal_datasets_neutral_base.xlsx",index=False)
+    #features_baseline(df).to_excel(r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\biosignal_datasets_neutral_base.xlsx",index=False)

@@ -80,6 +80,9 @@
     <Compile Include="resp_analysis.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="util\question_analysis.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="util\user_tools.py" />
     <Compile Include="util\ecg_spectrogram.py">
       <SubType>Code</SubType>
