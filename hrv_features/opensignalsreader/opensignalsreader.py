@@ -67,7 +67,7 @@ class OpenSignalsReader():
 
     """
 
-    def __init__(self, os_file=None, show=False, raw=False, multidevice=1):
+    def __init__(self, os_file=None, show=False, raw=False, multidevice=0):
         # Member variables (acquisition metadata)
         self.file = None
         self.file_name = None

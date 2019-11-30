@@ -114,7 +114,7 @@ if __name__ == '__main__':
 
     # Excelファイルから特徴量データを取得
     #path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets.xlsx"
-    path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets_arousal_valence.xlsx"
+    path = r"C:\Users\akito\Desktop\disgust_contentments_3.xlsx"
     df = pd.read_excel(path)
 
     # 正規化 (個人差補正)

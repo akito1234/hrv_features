@@ -16,7 +16,7 @@ import pandas as pd
 import hrv_analysis as hf
 
 
-path = r"D:\disgust_contentment\20190802\log\opensignals_device1_device2_device3_2019-08-02_17-15-43.txt"
+path = r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-11-21\kishida\opensignals_device3_2019-11-21_14-56-56.txt"
 fig,axes = plt.subplots(3,1)
 
 kind = "EDA"
