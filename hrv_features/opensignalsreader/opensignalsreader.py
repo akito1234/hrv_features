@@ -67,7 +67,7 @@ class OpenSignalsReader():
 
     """
 
-    def __init__(self, os_file=None, show=False, raw=False):
+    def __init__(self, os_file=None, show=False, raw=False, multidevice=1):
         # Member variables (acquisition metadata)
         self.file = None
         self.file_name = None
@@ -82,6 +82,8 @@ class OpenSignalsReader():
         self.labels = dict()
         self.digital = dict()
         self.info = dict()
+        self.multidevice = multidevice
+        self.multidevice_num = None
         self._converted_signals = dict()
         self._raw_signals = dict()
         self._sensor_channels = dict()
@@ -136,8 +138,9 @@ class OpenSignalsReader():
         """
         # Load metadata
         data = json.loads(self.file.readline().replace('#', ''))
-        data = data[list(data.keys())[0]]
-        #data = data[str(data.keys()[0])]
+        #data = data[list(data.keys())[0]]
+        self.multidevice_num  = len(list(data.keys())) - 1
+        data = data[list(data.keys())[self.multidevice]]
 
         if data['device'] != 'biosignalsplux':
             # Load data if the acquisition device has been a BITalino
@@ -197,7 +200,6 @@ class OpenSignalsReader():
         n = np.size(self.sensors)
         sensors = []
         self._resolutions = [int(x) for x in self.info['resolution'] if int(x) in [6, 8, 10, 12, 16]]
-
         for sensor in self.sensors:
             inc = 1
 
@@ -206,9 +208,12 @@ class OpenSignalsReader():
                     inc += 1
                 sensor += str(inc)
             self.sampling_resolution.update({sensor: self._resolutions[-n]})
-            self._raw_signals.update({sensor: data[:, -n]})
-            self._converted_signals.update({sensor: self._convert_data(sensor, data[:, -n])})
 
+            # modify the n row to adapt multidevice records
+            sensor_n = n + (self.multidevice_num - self.multidevice)* (5 + np.size(self.sensors)) 
+
+            self._raw_signals.update({sensor: data[:, -sensor_n]})
+            self._converted_signals.update({sensor: self._convert_data(sensor, data[:, -sensor_n])})
             n -= 1
             sensors.append(sensor)
 

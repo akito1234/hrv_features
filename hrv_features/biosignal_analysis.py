@@ -113,37 +113,41 @@ if __name__ == '__main__':
     plt.rcParams["font.size"] = 18
 
     # Excelファイルから特徴量データを取得
-    path = r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\実験結果 2019_11_19~21\biosignal_datasets_arousal_valence.xlsx"
+    #path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets.xlsx"
+    path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets_arousal_valence.xlsx"
     df = pd.read_excel(path)
 
     # 正規化 (個人差補正)
     df_features = features_baseline(df,emotion_state=['Neutral2','Stress','Ammusement'],baseline='Neutral1')
 
     # 描画設定
-    columns = ['hr_mean',
-               'bvp_mean',
+    columns = [#'hr_mean',
+               #'bvp_mean',
                'fft_ratio',
                'pathicData_mean'
                ]
 
-    features_barplot(df_features[~df['id'].isin([5,11,13])],columns,emotion_status = ['Ammusement','Stress'])
-
-
+    #features_barplot(df_features[~df['id'].isin([5,11,13])],columns,emotion_status = ['Stress', 'Ammusement'],annotation=False)
+    #[~df['id'].isin([5,11,13])]
+    
     #sns.pairplot(data=df_features, 
     #             hue='emotion',
     #             vars=columns
     #            )
     
     # コルモゴロフ-スミルノフ検定
-    #A = K_S_test(df_features,emotion_status = ['Stress','Ammusement'])
+    A = K_S_test(df_features,emotion_status = ['Ammusement','Neutral2'])
+    #result_path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\K_S_value3.xlsx"
+    #pd.DataFrame.from_dict(A, orient='index').to_excel(result_path)
+
 
     colorlist = ["b","r","g","y"]
-    #ax = sns.barplot(x='id', y=df['fft_ratio'], hue='emotion', 
-    #                 data=df#[ (df['emotion'] != 'Stress') & (df['emotion'] != 'Ammusement')]
-    #                 ,palette= colorlist)
-    #ax.legend()#.set_visible(False)
+    ax = sns.barplot(x='id', y=df['fft_ratio'], hue='emotion', 
+                     data=df[~(df['emotion'] == 'Ammusement')]
+                     ,palette= colorlist)
+    ax.legend()#.set_visible(False)
     #features_barplot(df_features[ df_features['emotion'] != 'Ammusement'],
     #                 columns, 
     #                 sort_order = ['Stress','Neutral2'])
     plt.show()
-    #features_baseline(df).to_excel(r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\biosignal_datasets_neutral_base.xlsx",index=False)
+    features_baseline(df).to_excel(r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\biosignal_datasets_neutral_base.xlsx",index=False)
