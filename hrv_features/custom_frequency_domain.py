@@ -11,15 +11,15 @@ import spectrum
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy as sp
-from scipy.signal import welch, lombscargle
-from gatspy.periodic import LombScargleFast
-from astropy.stats import LombScargle 
+from scipy.signal import welch#, lombscargle
+#from gatspy.periodic import LombScargleFast
+from astropy.timeseries import LombScargle 
 import biosppy
 from biosppy import utils
 
 # Local imports/HRV toolbox imports
 import pyhrv.tools as tools
-
+import pyhrv
 
 # Surpress Lapack bug 0038 warning from scipy (may occur with older versions of the packages above)
 warnings.filterwarnings(action="ignore", module="scipy")
@@ -210,37 +210,40 @@ def lomb_psd(nni=None,
     t -= t[0]
 
     #--------------RRIのフィルタ書く------------------------#
-    #
+    # Check valid interval limits; returns interval without modifications
+    #　0.30sの閾値
+    #　補間方法について検討
     #
     #-------------------------------------------------------#
 
 
 
 
-    #-------------------SCIPYを使用--------------------#
-    # Lomb-Scargle法を用いてPSDを算出する
-    # 周波数分解能を設定
-    frequencies = np.linspace(0,0.41,nfft)
-    # Compute angular frequencies
-    a_frequencies = np.asarray(2 * np.pi / frequencies)
-    # Power spectral density
-    powers = np.asarray(lombscargle(t, nn, a_frequencies, normalize=True,precenter=False))
+    ##-------------------SCIPYを使用--------------------#
+    ## Lomb-Scargle法を用いてPSDを算出する
+    ## 周波数分解能を設定
+    #frequencies = np.linspace(0,0.41,nfft)
+    ## Compute angular frequencies
+    #a_frequencies = np.asarray(2 * np.pi / frequencies)
+    ## Power spectral density
+    #powers = np.asarray(lombscargle(t, nn, a_frequencies, normalize=True,precenter=False))
     
-    # Fix power = inf at f=0
-    powers[0] = 0
+    ## Fix power = inf at f=0
+    #powers[0] = 0
     
 
-    #-----------------gatspyを使用---------------------#
-    fmin = 0
-    fmax = 0.41
-    df = (fmax - fmin) / nfft
+    ##-----------------gatspyを使用---------------------#
+    #fmin = 0
+    #fmax = 0.41
+    #df = (fmax - fmin) / nfft
 
-    model = LombScargleFast().fit(t, nn, 1E-1)
-    power = model.score_frequency_grid(fmin, df, nfft)
-    freqs = fmin + df * np.arange(nfft)
+    #model = LombScargleFast().fit(t, nn, 1E-1)
+    #power = model.score_frequency_grid(fmin, df, nfft)
+    #freqs = fmin + df * np.arange(nfft)
 
     #---------------astropyを使用-----------------#
-    as_frequency, as_pgram = LombScargle(t*0.001, nn).autopower()
+    frequencies, powers = LombScargle(t*0.001, nn, normalization='psd').autopower()
+
 
     # これなに？
     # Apply moving average filter
@@ -249,17 +252,16 @@ def lomb_psd(nni=None,
 
 	# Define metadata
     meta = utils.ReturnTuple((nfft, ma_size, ), ('lomb_nfft', 'lomb_ma'))
-    plt.subplot(3, 1, 1)
-    #plt.plot(t,nn, 'b+')
-    #plt.subplot(2, 1, 2)
-    plt.plot(frequencies, powers* 10**6)
-    plt.subplot(3, 1, 2)
-    plt.plot(freqs, power* 10**6)
-
-    plt.subplot(3, 1, 3)
-    plt.plot(as_frequency, as_pgram)
+    
+    # power spectraumを取得
+    # ms^2 to s^2
+	#powers = powers * 10**6
+    import matplotlib.pyplot as plt
+    plt.plot(frequencies, powers)
     plt.xlim(0,0.5)
     plt.show()
+    
+
     pass
 
 if __name__ == '__main__':
