@@ -9,12 +9,17 @@ from util import detrending
 import warnings
 import spectrum
 import numpy as np
+import matplotlib.pyplot as plt
 import scipy as sp
-from scipy.signal import welch
+from scipy.signal import welch, lombscargle
+from gatspy.periodic import LombScargleFast
+from astropy.stats import LombScargle 
 import biosppy
 from biosppy import utils
+
 # Local imports/HRV toolbox imports
 import pyhrv.tools as tools
+
 
 # Surpress Lapack bug 0038 warning from scipy (may occur with older versions of the packages above)
 warnings.filterwarnings(action="ignore", module="scipy")
@@ -31,10 +36,6 @@ def welch_psd(detrend_nni = None,
 	"""Computes a Power Spectral Density (PSD) estimation from the NNI series using the Welch’s method
 	and computes all frequency domain parameters from this PSD according to the specified frequency bands.
 
-	References: [Electrophysiology1996], [Umberto2017], [Welch2017]
-	Docs:		https://pyhrv.readthedocs.io/en/latest kwa/_pages/api/frequency.html#welch-s-method-welch-psd
-
-	Parameters
 	----------
 	nni : array
 		NN-Intervals in [ms] or [s]
@@ -142,11 +143,132 @@ def welch_psd(detrend_nni = None,
 
 		# Output
 		return tools.join_tuples(params, figure, meta), frequencies, (powers / 10 ** 6)
+
+def lomb_psd(nni=None,
+		     rpeaks=None,
+		     fbands=None,
+		     nfft=2**10,
+		     ma_size=None,
+		     show=True,
+		     show_param=True,
+		     legend=True,
+		     mode='normal'):
+    """
+    Computes a Power Spectral Density (PSD) estimation from the NNI series using the Lomb-Scargle Periodogram
+	and computes all frequency domain parameters from this PSD according to the specified frequency bands.
+    Parameters
+	----------
+	rpeaks : array
+		R-peak locations in [ms] or [s]
+	nni : array
+		NN-Intervals in [ms] or [s]
+	fbands : dict, optional
+		Dictionary with frequency bands (2-element tuples or list)
+		Value format:	(lower_freq_band_boundary, upper_freq_band_boundary)
+		Keys:	'ulf'	Ultra low frequency		(default: none) optional
+				'vlf'	Very low frequency		(default: (0.003Hz, 0.04Hz))
+				'lf'	Low frequency			(default: (0.04Hz - 0.15Hz))
+				'hf'	High frequency			(default: (0.15Hz - 0.4Hz))´
+	nfft : int, optional
+		Number of points computed for the FFT result (default: 2**8)
+	ma_size : int, optional
+		Window size of the optional moving average filter (default: None)
+	show : bool, optional
+		If true, show PSD plot (default: True)
+	show_param : bool, optional
+		If true, list all computed PSD parameters next to the plot (default: True)
+	legend : bool, optional
+		If true, add a legend with frequency bands to the plot (default: True)
+
+	Returns
+	-------
+	results : biosppy.utils.ReturnTuple object
+		All results of the Lomb-Scargle PSD estimation (see list and keys below)
+
+	Returned Parameters & Keys
+	--------------------------
+	..	Peak frequencies of all frequency bands in [Hz] (key: 'lomb_peak')
+	..	Absolute powers of all frequency bands in [ms^2][(key: 'lomb_abs')
+	..	Relative powers of all frequency bands [%] (key: 'lomb_rel')
+	..	Logarithmic powers of all frequency bands [-] (key: 'lomb_log')
+	..	Normalized powers of all frequency bands [-] (key: 'lomb_norms')
+	..	LF/HF ratio [-] (key: 'lomb_ratio')
+	..	Total power over all frequency bands in [ms^2] (key: 'lomb_total')
+	.. 	Number of PSD samples (key: 'lomb_nfft')
+	.. 	Moving average filter order (key: 'lomb_ma')
+
+    """
+
+    # 引数を確認し，nnを取り出す
+    nn = tools.check_input(nni, rpeaks)
+
+    # 周波数バンドを取得
+    fbands = fd._check_freq_bands(fbands)
+    
+    # タイムスタンプを取得
+    t = np.cumsum(nn)
+    t -= t[0]
+
+    #--------------RRIのフィルタ書く------------------------#
+    #
+    #
+    #-------------------------------------------------------#
+
+
+
+
+    #-------------------SCIPYを使用--------------------#
+    # Lomb-Scargle法を用いてPSDを算出する
+    # 周波数分解能を設定
+    frequencies = np.linspace(0,0.41,nfft)
+    # Compute angular frequencies
+    a_frequencies = np.asarray(2 * np.pi / frequencies)
+    # Power spectral density
+    powers = np.asarray(lombscargle(t, nn, a_frequencies, normalize=True,precenter=False))
+    
+    # Fix power = inf at f=0
+    powers[0] = 0
+    
+
+    #-----------------gatspyを使用---------------------#
+    fmin = 0
+    fmax = 0.41
+    df = (fmax - fmin) / nfft
+
+    model = LombScargleFast().fit(t, nn, 1E-1)
+    power = model.score_frequency_grid(fmin, df, nfft)
+    freqs = fmin + df * np.arange(nfft)
+
+    #---------------astropyを使用-----------------#
+    as_frequency, as_pgram = LombScargle(t*0.001, nn).autopower()
+
+    # これなに？
+    # Apply moving average filter
+    if ma_size is not None:
+        powers = biosppy.signals.tools.smoother(powers, size=ma_size)['signal']
+
+	# Define metadata
+    meta = utils.ReturnTuple((nfft, ma_size, ), ('lomb_nfft', 'lomb_ma'))
+    plt.subplot(3, 1, 1)
+    #plt.plot(t,nn, 'b+')
+    #plt.subplot(2, 1, 2)
+    plt.plot(frequencies, powers* 10**6)
+    plt.subplot(3, 1, 2)
+    plt.plot(freqs, power* 10**6)
+
+    plt.subplot(3, 1, 3)
+    plt.plot(as_frequency, as_pgram)
+    plt.xlim(0,0.5)
+    plt.show()
+    pass
+
 if __name__ == '__main__':
-    rri = np.loadtxt(r"Z:\theme\mental_stress\03.Analysis\Analysis_BioSignal\ECG\RRI_kishida_2019-10-22.csv",delimiter=",")
-    detrending_rri = detrending.detrend(rri, Lambda= 500)
-    ts = np.arange(0,len(detrending_rri)*0.25,step=0.25)
-    fs= 4
-    start= 300
-    duration = 300
-    freq_parameter = welch_psd(detrending_rri[(ts > start) &(ts <= (start + duration) )],fs = fs, nfft=2 ** 12)
+    rri = np.loadtxt(r"Z:\theme\mental_stress\03.Analysis\Analysis_BioSignal\ECG\RRI_kojima_2019-11-21_14-59-07.csv",delimiter=",")
+    #detrending_rri = detrending.detrend(rri, Lambda= 500)
+    #ts = np.arange(0,len(detrending_rri)*0.25,step=0.25)
+    #fs= 4
+    #start= 300
+    #duration = 300
+    #freq_parameter = welch_psd(detrending_rri[(ts > start) &(ts <= (start + duration) )],fs = fs, nfft=2 ** 12)
+
+    lomb_psd(nni=rri)

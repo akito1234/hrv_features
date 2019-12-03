@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>biosignal_analysis.py</StartupFile>
+    <StartupFile>custom_frequency_domain.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -60,9 +60,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="biosignal_plot.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="util\modify_log.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="util\neurokit_test.py">
