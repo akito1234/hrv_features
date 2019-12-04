@@ -342,16 +342,18 @@ def ar_psd(nni=None,
     return tools.join_tuples(params, figure)
     pass
 
+
+
+
 # Wavelet変換による周波数解析
-def wavelet(nni=None,
-		     rpeaks=None,
-		     fbands=None,
-		     nfft=2**10,
-		     ma_size=None,
-		     show=True,
-		     show_param=True,
-		     legend=True,
-		     mode='normal'):
+def wavelet(nni = None,
+            rpeaks=None,
+            fs = 4.,
+			fbands=None,
+            detrend=True,
+			show=True,
+			show_param=True,
+			legend=True):
     
     # Check input
     nn = tools.check_input(nni, rpeaks)
@@ -365,14 +367,42 @@ def wavelet(nni=None,
     #　補間方法について検討
     #
     #-------------------------------------------------------#
+    
     nn_interpol = detrending.resample_to_4Hz(nni,fs);
     if detrend:
         nn_interpol = detrending.detrend(nn_interpol,Lambda=500)
-
-
-    r  = pycwt.cwt_f(nni,freqs,Fs,pycwt.Morlet(omega0))
+    freqs = np.arange(0.0001,0.50,0.001)
+    omega0 = 8
+    r  = pycwt.cwt_f(nn_interpol,freqs,fs,pycwt.Morlet(omega0))
     rr = np.abs(r)
-    pass
+
+
+    #plt.plot(freqs,rr)
+    #plt.xscale('log')
+    #plt.show()
+
+    t_interpol = np.arange(0, len(nn_interpol)/fs, 1./fs)
+
+    plt.rcParams['figure.figsize'] = (10, 6)
+    fig = plt.figure()
+    ax1 = fig.add_axes([0.1, 0.75, 0.7, 0.2])
+    ax2 = fig.add_axes([0.1, 0.1, 0.7, 0.60], sharex=ax1)
+    ax3 = fig.add_axes([0.83, 0.1, 0.03, 0.6])
+
+    ax1.plot(t_interpol,nn_interpol, 'k')
+
+    img = ax2.imshow(np.flipud(rr),
+                    extent=[0, 300,freqs[0], freqs[-1]], 
+                    aspect='auto') 
+    twin_ax = ax2
+    twin_ax.set_yscale('log')
+    #twin_ax.set_xlim(0, 30)
+    twin_ax.set_ylim(0, 0.50)
+    ax2.tick_params(which='both', labelleft=False, left=False)
+    twin_ax.tick_params(which='both', labelleft=True, left=True, labelright=False)
+    fig.colorbar(img, cax=ax3)
+    plt.show()
+
     pass
 
 if __name__ == '__main__':
@@ -385,4 +415,4 @@ if __name__ == '__main__':
     #freq_parameter = welch_psd(detrending_rri[(ts > start) &(ts <= (start + duration) )],fs = fs, nfft=2 ** 12)
     #welch_psd(rri,detrend=False)
     #lomb_psd(nni=rri)
-    ar_psd(nni=rri)
+    wavelet(nni=rri)
