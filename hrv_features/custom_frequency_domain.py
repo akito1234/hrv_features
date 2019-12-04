@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import scipy as sp
 from scipy.signal import welch
 from astropy.timeseries import LombScargle 
+from swan import pycwt
 import biosppy
 from biosppy import utils
 
@@ -94,7 +95,7 @@ def welch_psd(nni = None,
 		window=window,
         detrend="constant",
 		nperseg=nfft,
-		#nfft=nfft,
+		nfft=nfft,
 		scaling='density')
 
 	if mode not in ['normal', 'dev', 'devplot']:
@@ -148,8 +149,6 @@ def lomb_psd(nni=None,
 		     legend=True,
 		     mode='normal'):
     """
-    Computes a Power Spectral Density (PSD) estimation from the NNI series using the Lomb-Scargle Periodogram
-	and computes all frequency domain parameters from this PSD according to the specified frequency bands.
     Parameters
 	----------
 	rpeaks : array
@@ -206,11 +205,11 @@ def lomb_psd(nni=None,
     #--------------RRIのフィルタ書く------------------------#
     # Check valid interval limits; returns interval without modifications
     #　0.30sの閾値
-    #　補間方法について検討
+    #　補間方法について検討中
     #
     #-------------------------------------------------------#
 
-    # Caliculate power spektrum by using astropy lib
+    # astropy ライブラリを使った周波数解析
     frequencies, powers = LombScargle(t*0.001, nn, normalization='psd').autopower()
 
     # これなに？
@@ -223,7 +222,7 @@ def lomb_psd(nni=None,
     
     # power spectraumを取得
     # ms^2 to s^
-    powers = powers * 10**6
+    #powers = powers * 10**6
     
     # Compute frequency parameters
     params, freq_i = fd._compute_parameters('lomb', frequencies, powers, fbands)
@@ -237,6 +236,111 @@ def lomb_psd(nni=None,
 
 
 
+# Yule–Walkerの自己回帰モデル
+def ar_psd(nni=None,
+		   rpeaks=None,
+		   fbands=None,
+		   nfft=2**10,
+           detrend=True,
+		   order=16,
+           fs=4,
+		   show=True,
+		   show_param=True,
+		   legend=True,
+		   mode='normal'):
+    """
+    Parameters
+	----------
+	rpeaks : array
+		R-peak locations in [ms] or [s]
+	nni : array
+		NN-Intervals in [ms] or [s]
+	fbands : dict, optional
+		Dictionary with frequency bands (2-element tuples or list)
+		Value format:	(lower_freq_band_boundary, upper_freq_band_boundary)
+		Keys:	'ulf'	Ultra low frequency		(default: none) optional
+				'vlf'	Very low frequency		(default: (0.003Hz, 0.04Hz))
+				'lf'	Low frequency			(default: (0.04Hz - 0.15Hz))
+				'hf'	High frequency			(default: (0.15Hz - 0.4Hz))´
+	nfft : int, optional
+		Number of points computed for the entire AR result (default: 2**12)
+	order : int, optional
+		Autoregressive model order (default: 16)
+	show : bool, optional
+		If true, show PSD plot (default: True)
+	show_param : bool, optional
+		If true, list all computed PSD parameters next to the plot (default: True)
+	legend : bool, optional
+		If true, add a legend with frequency bands to the plot (default: True)
+
+	Returns
+	-------
+	results : biosppy.utils.ReturnTuple object
+		All results of the Autoregressive PSD estimation (see list and keys below)
+
+	Returned Parameters & Keys
+	--------------------------
+	..	Peak frequencies of all frequency bands in [Hz] (key: 'ar_peak')
+	..	Absolute powers of all frequency bands in [ms^2][(key: 'ar_abs')
+	..	Relative powers of all frequency bands [%] (key: 'ar_rel')
+	..	Logarithmic powers of all frequency bands [-] (key: 'ar_log')
+	..	Normalized powers of all frequency bands [-] (key: 'ar_norms')
+	..	LF/HF ratio [-] (key: 'ar_ratio')
+	..	Total power over all frequency bands in [ms^2] (key: 'ar_total')
+	..	Interpolation method (key: 'ar_interpolation')
+	..	Resampling frequency (key: 'ar_resampling_frequency')
+	.. 	AR model order (key: 'ar_order')
+	.. 	Number of PSD samples (key: 'ar_nfft')
+    """
+
+
+    # Check input
+    nn = tools.check_input(nni, rpeaks)
+
+	# Verify or set default frequency bands
+    fbands = fd._check_freq_bands(fbands)
+
+    #--------------RRIのフィルタ書く------------------------#
+    # Check valid interval limits; returns interval without modifications
+    #　0.30sの閾値
+    #　補間方法について検討
+    #
+    #-------------------------------------------------------#
+    nn_interpol = detrending.resample_to_4Hz(nni,fs);
+    if detrend:
+        nn_interpol = detrending.detrend(nn_interpol,Lambda=500)
+    
+    # deternd means
+    nn_interpol = nn_interpol - np.mean(nn_interpol)
+
+
+    # Compute autoregressive PSD
+    ar = spectrum.pyule(data=nn_interpol,
+                        order=order,
+                        NFFT=nfft,
+                        sampling=fs,
+                        scale_by_freq=False)
+
+    
+	# Get frequencies and powers
+    frequencies = np.asarray(ar.frequencies())
+    powers = np.asarray(ar.psd)
+    
+    #psd = np.asarray(ar.psd)
+    #powers = np.asarray(10 * np.log10(psd) * 10**3) 	# * 10**3 to compensate with ms^2 to s^2 conversion
+    #													# in the upcoming steps
+    
+
+    # Compute frequency parameters
+    params, freq_i = fd._compute_parameters('ar', frequencies, powers, fbands)
+
+	# Plot PSD
+    figure = fd._plot_psd('ar', frequencies, powers, freq_i, params, show, show_param, legend)
+    figure = utils.ReturnTuple((figure, ), ('ar_plot', ))
+
+	# Complete output
+    return tools.join_tuples(params, figure)
+    pass
 
 # Wavelet変換による周波数解析
 def wavelet(nni=None,
@@ -248,6 +352,26 @@ def wavelet(nni=None,
 		     show_param=True,
 		     legend=True,
 		     mode='normal'):
+    
+    # Check input
+    nn = tools.check_input(nni, rpeaks)
+
+	# Verify or set default frequency bands
+    fbands = fd._check_freq_bands(fbands)
+
+    #--------------RRIのフィルタ書く------------------------#
+    # Check valid interval limits; returns interval without modifications
+    #　0.30sの閾値
+    #　補間方法について検討
+    #
+    #-------------------------------------------------------#
+    nn_interpol = detrending.resample_to_4Hz(nni,fs);
+    if detrend:
+        nn_interpol = detrending.detrend(nn_interpol,Lambda=500)
+
+
+    r  = pycwt.cwt_f(nni,freqs,Fs,pycwt.Morlet(omega0))
+    rr = np.abs(r)
     pass
     pass
 
@@ -259,5 +383,6 @@ if __name__ == '__main__':
     #start= 300
     #duration = 300
     #freq_parameter = welch_psd(detrending_rri[(ts > start) &(ts <= (start + duration) )],fs = fs, nfft=2 ** 12)
-    welch_psd(rri)
+    #welch_psd(rri,detrend=False)
     #lomb_psd(nni=rri)
+    ar_psd(nni=rri)
