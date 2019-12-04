@@ -11,8 +11,7 @@ import spectrum
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy as sp
-from scipy.signal import welch#, lombscargle
-#from gatspy.periodic import LombScargleFast
+from scipy.signal import welch
 from astropy.timeseries import LombScargle 
 import biosppy
 from biosppy import utils
@@ -23,11 +22,11 @@ import pyhrv
 
 # Surpress Lapack bug 0038 warning from scipy (may occur with older versions of the packages above)
 warnings.filterwarnings(action="ignore", module="scipy")
-def welch_psd(detrend_nni = None,
+def welch_psd(nni = None,
               fs = 4.,
 			  fbands=None,
 			  nfft=2**10,
-			  detrend=True,
+              detrend=True,
 			  window='hamming',
 			  show=True,
 			  show_param=True,
@@ -84,26 +83,19 @@ def welch_psd(detrend_nni = None,
 	# Verify or set default frequency bands
 	fbands = fd._check_freq_bands(fbands)
 
-	nn_interpol = detrend_nni
-    # Subtract mean value from each sample for surpression of DC-offsets
+	nn_interpol = detrending.resample_to_4Hz(nni,fs);
 	if detrend:
-		nn_interpol = nn_interpol - np.mean(nn_interpol)
+		nn_interpol = detrending.detrend(nn_interpol,Lambda=500)
 
-	# Adapt 'nperseg' according to the total duration of the NNI series (5min threshold = 300000ms)
-	if (len(nn_interpol)/fs) < 300:
-		nperseg = nfft
-	else:
-		nperseg = 300
-
-	# Compute power spectral density estimation (where the magic happens)
+    # Compute power spectral density estimation (where the magic happens)
 	frequencies, powers = welch(
 		x=nn_interpol,
 		fs=fs,
 		window=window,
+        detrend="constant",
 		nperseg=nfft,
-		nfft=nfft,
-		scaling='density'
-	)
+		#nfft=nfft,
+		scaling='density')
 
 	if mode not in ['normal', 'dev', 'devplot']:
 		warnings.warn("Unknown mode '%s'. Will proceed with 'normal' mode." % mode, stacklevel=2)
@@ -144,6 +136,8 @@ def welch_psd(detrend_nni = None,
 		# Output
 		return tools.join_tuples(params, figure, meta), frequencies, (powers / 10 ** 6)
 
+
+# Lomb - Scargle法による周波数解析
 def lomb_psd(nni=None,
 		     rpeaks=None,
 		     fbands=None,
@@ -216,34 +210,8 @@ def lomb_psd(nni=None,
     #
     #-------------------------------------------------------#
 
-
-
-
-    ##-------------------SCIPYを使用--------------------#
-    ## Lomb-Scargle法を用いてPSDを算出する
-    ## 周波数分解能を設定
-    #frequencies = np.linspace(0,0.41,nfft)
-    ## Compute angular frequencies
-    #a_frequencies = np.asarray(2 * np.pi / frequencies)
-    ## Power spectral density
-    #powers = np.asarray(lombscargle(t, nn, a_frequencies, normalize=True,precenter=False))
-    
-    ## Fix power = inf at f=0
-    #powers[0] = 0
-    
-
-    ##-----------------gatspyを使用---------------------#
-    #fmin = 0
-    #fmax = 0.41
-    #df = (fmax - fmin) / nfft
-
-    #model = LombScargleFast().fit(t, nn, 1E-1)
-    #power = model.score_frequency_grid(fmin, df, nfft)
-    #freqs = fmin + df * np.arange(nfft)
-
-    #---------------astropyを使用-----------------#
+    # Caliculate power spektrum by using astropy lib
     frequencies, powers = LombScargle(t*0.001, nn, normalization='psd').autopower()
-
 
     # これなに？
     # Apply moving average filter
@@ -254,14 +222,33 @@ def lomb_psd(nni=None,
     meta = utils.ReturnTuple((nfft, ma_size, ), ('lomb_nfft', 'lomb_ma'))
     
     # power spectraumを取得
-    # ms^2 to s^2
-	#powers = powers * 10**6
-    import matplotlib.pyplot as plt
-    plt.plot(frequencies, powers)
-    plt.xlim(0,0.5)
-    plt.show()
+    # ms^2 to s^
+    powers = powers * 10**6
     
+    # Compute frequency parameters
+    params, freq_i = fd._compute_parameters('lomb', frequencies, powers, fbands)
 
+    # Plot parameters
+    figure = fd._plot_psd('lomb', frequencies, powers, freq_i, params, show, show_param, legend)
+    figure = utils.ReturnTuple((figure, ), ('lomb_plot', ))
+
+    # Complete output
+    return tools.join_tuples(params, figure, meta)
+
+
+
+
+# Wavelet変換による周波数解析
+def wavelet(nni=None,
+		     rpeaks=None,
+		     fbands=None,
+		     nfft=2**10,
+		     ma_size=None,
+		     show=True,
+		     show_param=True,
+		     legend=True,
+		     mode='normal'):
+    pass
     pass
 
 if __name__ == '__main__':
@@ -272,5 +259,5 @@ if __name__ == '__main__':
     #start= 300
     #duration = 300
     #freq_parameter = welch_psd(detrending_rri[(ts > start) &(ts <= (start + duration) )],fs = fs, nfft=2 ** 12)
-
-    lomb_psd(nni=rri)
+    welch_psd(rri)
+    #lomb_psd(nni=rri)

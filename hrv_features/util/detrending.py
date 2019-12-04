@@ -5,7 +5,7 @@ from scipy.sparse import spdiags
 from scipy import signal,interpolate
 
 # トレンド除去
-def detrend(raw_rri, Lambda):
+def detrend(rri, Lambda):
   """applies a detrending filter.
    
   This code is based on the following article "An advanced detrending method with application
@@ -14,7 +14,8 @@ def detrend(raw_rri, Lambda):
   Parameters
   ----------
   rri: numpy.ndarray
-    The rri where you want to remove the trend.
+    The rri where you want to remove the trend. 
+    ***  This rri needs resampling  ***
   Lambda: int
     The smoothing parameter.
 
@@ -24,7 +25,6 @@ def detrend(raw_rri, Lambda):
     The detrended rri.
   
   """
-  rri = resample_to_4Hz(raw_rri)
   rri_length = rri.shape[0]
 
   # observation matrix
