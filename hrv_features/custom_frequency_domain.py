@@ -371,7 +371,7 @@ def wavelet(nni = None,
     nn_interpol = detrending.resample_to_4Hz(nni,fs);
     if detrend:
         nn_interpol = detrending.detrend(nn_interpol,Lambda=500)
-    freqs = np.arange(0.0001,0.50,0.001)
+    freqs = np.arange(0.001,1,0.025)
     omega0 = 8
     r  = pycwt.cwt_f(nn_interpol,freqs,fs,pycwt.Morlet(omega0))
     rr = np.abs(r)
@@ -383,30 +383,19 @@ def wavelet(nni = None,
 
     t_interpol = np.arange(0, len(nn_interpol)/fs, 1./fs)
 
-    plt.rcParams['figure.figsize'] = (10, 6)
-    fig = plt.figure()
-    ax1 = fig.add_axes([0.1, 0.75, 0.7, 0.2])
-    ax2 = fig.add_axes([0.1, 0.1, 0.7, 0.60], sharex=ax1)
-    ax3 = fig.add_axes([0.83, 0.1, 0.03, 0.6])
 
-    ax1.plot(t_interpol,nn_interpol, 'k')
+    plt.imshow(rr,aspect='auto',extent=(t_interpol[0],t_interpol[-1],
+                                                  freqs[0],freqs[-1]))
 
-    img = ax2.imshow(np.flipud(rr),
-                    extent=[0, 300,freqs[0], freqs[-1]], 
-                    aspect='auto') 
-    twin_ax = ax2
-    twin_ax.set_yscale('log')
-    #twin_ax.set_xlim(0, 30)
-    twin_ax.set_ylim(0, 0.50)
-    ax2.tick_params(which='both', labelleft=False, left=False)
-    twin_ax.tick_params(which='both', labelleft=True, left=True, labelright=False)
-    fig.colorbar(img, cax=ax3)
+    plt.xlabel('Time[s]')
+    plt.ylabel('Frequency[Hz]')
+
     plt.show()
 
     pass
 
 if __name__ == '__main__':
-    rri = np.loadtxt(r"Z:\theme\mental_stress\03.Analysis\Analysis_BioSignal\ECG\RRI_kojima_2019-11-21_14-59-07.csv",delimiter=",")
+    rri = np.loadtxt(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_BioSignal\ECG\RRI_kaneko_2019-11-21_16-01-49.csv",delimiter=",")
     #detrending_rri = detrending.detrend(rri, Lambda= 500)
     #ts = np.arange(0,len(detrending_rri)*0.25,step=0.25)
     #fs= 4
