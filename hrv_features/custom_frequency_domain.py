@@ -2,24 +2,25 @@
 # 注意　nfft = 2**14
 # frequency_domainを変更したバージョン
 
-import frequency_domain as fd
-from util import detrending
 
-# Imports
+# Imports basic library
 import warnings
-import spectrum
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy as sp
-from scipy.signal import welch
-from astropy.timeseries import LombScargle 
+from scipy import signal,interpolate
+from astropy.timeseries import LombScargle
+import spectrum
 from swan import pycwt
-import biosppy
-from biosppy import utils
+
+# Import local Folder
+import frequency_domain as fd
+from util import detrending
 
 # Local imports/HRV toolbox imports
 import pyhrv.tools as tools
 import pyhrv
+import biosppy
+
 
 # Surpress Lapack bug 0038 warning from scipy (may occur with older versions of the packages above)
 warnings.filterwarnings(action="ignore", module="scipy")
@@ -84,12 +85,18 @@ def welch_psd(nni = None,
 	# Verify or set default frequency bands
 	fbands = fd._check_freq_bands(fbands)
 
+    # 外れ値をスプライン補間
+	nni = _artefact_correction(nni,threshold=0.25)
+
+	#　4Hzでリサンプリング
 	nn_interpol = detrending.resample_to_4Hz(nni,fs);
+
+    # 平滑化
 	if detrend:
 		nn_interpol = detrending.detrend(nn_interpol,Lambda=500)
 
     # Compute power spectral density estimation (where the magic happens)
-	frequencies, powers = welch(
+	frequencies, powers = signal.welch(
 		x=nn_interpol,
 		fs=fs,
 		window=window,
@@ -110,7 +117,7 @@ def welch_psd(nni = None,
 
 		# Plot PSD
 		figure = fd._plot_psd('fft', frequencies, powers, freq_i, params, show, show_param, legend)
-		figure = utils.ReturnTuple((figure, ), ('fft_plot', ))
+		figure = biosppy.utils.ReturnTuple((figure, ), ('fft_plot', ))
 
 		# Output
 		return tools.join_tuples(params)
@@ -119,7 +126,7 @@ def welch_psd(nni = None,
 	# Returns frequency parameters and frequency & power series/array; does not create a plot figure nor plot the data
 	elif mode == 'dev':
 		# Compute frequency parameters
-		params, _ = _compute_parameters('fft', frequencies, powers, fbands)
+		params, _ = fd._compute_parameters('fft', frequencies, powers, fbands)
 
 		# Output
 		return tools.join_tuples(params, meta), frequencies, (powers / 10 ** 6)
@@ -132,10 +139,11 @@ def welch_psd(nni = None,
 
 		# Plot PSD
 		figure = _plot_psd('fft', frequencies, powers, freq_i, params, show, show_param, legend)
-		figure = utils.ReturnTuple((figure, ), ('fft_plot', ))
+		figure = biosppy.utils.ReturnTuple((figure, ), ('fft_plot', ))
 
 		# Output
 		return tools.join_tuples(params, figure, meta), frequencies, (powers / 10 ** 6)
+
 
 
 # Lomb - Scargle法による周波数解析
@@ -202,23 +210,19 @@ def lomb_psd(nni=None,
     t = np.cumsum(nn)
     t -= t[0]
 
-    #--------------RRIのフィルタ書く------------------------#
-    # Check valid interval limits; returns interval without modifications
-    #　0.30sの閾値
-    #　補間方法について検討中
-    #
-    #-------------------------------------------------------#
+    # 外れ値をスプライン補間
+    nn = _artefact_correction(nn,threshold=0.25)
+
 
     # astropy ライブラリを使った周波数解析
     frequencies, powers = LombScargle(t*0.001, nn, normalization='psd').autopower()
 
-    # これなに？
     # Apply moving average filter
     if ma_size is not None:
         powers = biosppy.signals.tools.smoother(powers, size=ma_size)['signal']
 
 	# Define metadata
-    meta = utils.ReturnTuple((nfft, ma_size, ), ('lomb_nfft', 'lomb_ma'))
+    meta = biosppy.utils.ReturnTuple((nfft, ma_size, ), ('lomb_nfft', 'lomb_ma'))
     
     # power spectraumを取得
     # ms^2 to s^
@@ -229,11 +233,11 @@ def lomb_psd(nni=None,
 
     # Plot parameters
     figure = fd._plot_psd('lomb', frequencies, powers, freq_i, params, show, show_param, legend)
-    figure = utils.ReturnTuple((figure, ), ('lomb_plot', ))
+    figure = biosppy.utils.ReturnTuple((figure, ), ('lomb_plot', ))
 
     # Complete output
-    return tools.join_tuples(params, figure, meta)
-
+    #return tools.join_tuples(params, figure, meta)
+    return params
 
 
 # Yule–Walkerの自己回帰モデル
@@ -299,20 +303,19 @@ def ar_psd(nni=None,
 
 	# Verify or set default frequency bands
     fbands = fd._check_freq_bands(fbands)
+    
+    # 外れ値をスプライン補間
+    nni = _artefact_correction(nni,threshold=0.25)
 
-    #--------------RRIのフィルタ書く------------------------#
-    # Check valid interval limits; returns interval without modifications
-    #　0.30sの閾値
-    #　補間方法について検討
-    #
-    #-------------------------------------------------------#
+    # 4Hzでリサンプリング
     nn_interpol = detrending.resample_to_4Hz(nni,fs);
+
+    # 平滑化
     if detrend:
         nn_interpol = detrending.detrend(nn_interpol,Lambda=500)
     
     # deternd means
     nn_interpol = nn_interpol - np.mean(nn_interpol)
-
 
     # Compute autoregressive PSD
     ar = spectrum.pyule(data=nn_interpol,
@@ -320,30 +323,21 @@ def ar_psd(nni=None,
                         NFFT=nfft,
                         sampling=fs,
                         scale_by_freq=False)
-
     
 	# Get frequencies and powers
     frequencies = np.asarray(ar.frequencies())
     powers = np.asarray(ar.psd)
-    
-    #psd = np.asarray(ar.psd)
-    #powers = np.asarray(10 * np.log10(psd) * 10**3) 	# * 10**3 to compensate with ms^2 to s^2 conversion
-    #													# in the upcoming steps
-    
 
     # Compute frequency parameters
     params, freq_i = fd._compute_parameters('ar', frequencies, powers, fbands)
 
 	# Plot PSD
     figure = fd._plot_psd('ar', frequencies, powers, freq_i, params, show, show_param, legend)
-    figure = utils.ReturnTuple((figure, ), ('ar_plot', ))
+    figure = biosppy.utils.ReturnTuple((figure, ), ('ar_plot', ))
 
 	# Complete output
-    return tools.join_tuples(params, figure)
-    pass
-
-
-
+    #return tools.join_tuples(params, figure)
+    return params
 
 # Wavelet変換による周波数解析
 def wavelet(nni = None,
@@ -357,51 +351,72 @@ def wavelet(nni = None,
     
     # Check input
     nn = tools.check_input(nni, rpeaks)
-
 	# Verify or set default frequency bands
     fbands = fd._check_freq_bands(fbands)
 
-    #--------------RRIのフィルタ書く------------------------#
-    # Check valid interval limits; returns interval without modifications
-    #　0.30sの閾値
-    #　補間方法について検討
-    #
-    #-------------------------------------------------------#
-    
+    # 外れ値をスプライン補間
+    nni = _artefact_correction(nni,threshold=0.25)
+
+    # 4Hzでリサンプリング
     nn_interpol = detrending.resample_to_4Hz(nni,fs);
+
+    # 平滑化
     if detrend:
         nn_interpol = detrending.detrend(nn_interpol,Lambda=500)
+
     freqs = np.arange(0.001,1,0.025)
     omega0 = 8
     r  = pycwt.cwt_f(nn_interpol,freqs,fs,pycwt.Morlet(omega0))
     rr = np.abs(r)
-
-
-    #plt.plot(freqs,rr)
-    #plt.xscale('log')
-    #plt.show()
-
     t_interpol = np.arange(0, len(nn_interpol)/fs, 1./fs)
-
-
-    plt.imshow(rr,aspect='auto',extent=(t_interpol[0],t_interpol[-1],
-                                                  freqs[0],freqs[-1]))
-
+    plt.imshow(rr,aspect='auto',extent=(t_interpol[0],t_interpol[-1], freqs[0],freqs[-1]))
     plt.xlabel('Time[s]')
     plt.ylabel('Frequency[Hz]')
-
     plt.show()
-
     pass
 
+
+def _artefact_correction(nni=None,threshold=0.25):
+    """
+    RRI時系列と平均値の差分を算出し，閾値を使って外れ値を取り除く
+    Kubios
+    ------
+    threshold level
+    
+    very low : 0.45sec
+    low : 0.35sec
+    medium : 0.25sec
+    strong : 0.15sec
+    very strong : .05sec
+    """
+    
+    # タイムスタンプを取得
+    ts = np.cumsum(nni)
+    ts -= ts[0]
+
+
+    # median filter
+    median_nni = signal.medfilt(nni, 5)
+    detrend_nni = nni - median_nni
+    
+
+    # 閾値より大きく外れたデータを取得
+    index_outlier = np.where(np.abs(detrend_nni) > (threshold*1000))[0]
+    print("{} point detected".format(index_outlier.size))
+
+    if index_outlier.size > 0:
+        # 閾値を超えれば，スプライン関数で補間
+        flag = np.ones(len(nni), dtype=bool)
+        flag[index_outlier.tolist()] = False
+        nni_spline = interpolate.interp1d(ts[flag],nni[flag], 'cubic')
+        spline_nni = nni_spline(ts)
+
+    return spline_nni
+
+
+
 if __name__ == '__main__':
-    rri = np.loadtxt(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_BioSignal\ECG\RRI_kaneko_2019-11-21_16-01-49.csv",delimiter=",")
-    #detrending_rri = detrending.detrend(rri, Lambda= 500)
-    #ts = np.arange(0,len(detrending_rri)*0.25,step=0.25)
-    #fs= 4
-    #start= 300
-    #duration = 300
-    #freq_parameter = welch_psd(detrending_rri[(ts > start) &(ts <= (start + duration) )],fs = fs, nfft=2 ** 12)
-    #welch_psd(rri,detrend=False)
-    #lomb_psd(nni=rri)
-    wavelet(nni=rri)
+    rri = np.loadtxt(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_BioSignal\ECG\RRI_kishida_2019-11-21_16-00-52.csv",delimiter=",")
+    print(welch_psd(rri))
+    print(lomb_psd(nni=rri))
+    print(ar_psd(nni=rri))

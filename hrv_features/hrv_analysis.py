@@ -44,15 +44,8 @@ def parameter(rpeaks):
     nni = tools.nn_intervals(rpeaks=rpeaks.tolist())
 
     # -----------------周波数解析-------------------#
-    ## Define input parameters for the 'welch_psd()' function
-    #kwargs_welch = {'nfft': 2**10, 'detrend': True, 'window': 'hann'}
-    ## Define input parameters for the 'lomb_psd()' function
-    #kwargs_lomb = {'nfft': 2**8}
-    ## Define input parameters for the 'ar_psd()' function
-    #kwargs_ar = {'nfft': 2**10}
-    #freqDomain = fd.welch_psd(nni=nni.astype(int).tolist(),nfft= 2**10, detrend = True, window =  'hann',show=False)
-    detrending_rri = detrending.detrend(nni, Lambda= 500)
-    freqDomain = fd.welch_psd(detrending_rri,fs = 4., nfft=2 ** 12,show=False)
+    detrending_rri = detrending.resample_to_4Hz(nni,sample_rate=4.)
+    freqDomain = fd.welch_psd(detrending_rri,nfft=2 ** 12, show=False)
 
     for key in freqDomain.keys():
         results[key] = freqDomain[key]
