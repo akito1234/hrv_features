@@ -112,30 +112,10 @@ def correction_neutral_before(df_neutral,df_emotion):
 
 
 #-----------------------------------------------------------------------
-# 一定時間ごとのRRI
-#-----------------------------------------------------------------------
-def segumentation_rri(nni,sample_time=300,time_step=30):
-    time_inter = sample_time * 1000 # 標本数
-    time_step = time_step * 1000 # ステップ時間
-
-    # タイムスタンプの算出
-    tmStamps = np.cumsum(nni) #in seconds 
-
-    # 5sごとにデータを取り出す
-    start_time = np.arange(start = 0,
-                           stop  = tmStamps[-1]-time_inter,
-                           step  = time_step)
-    list = []
-    for i,start in enumerate(start_time):
-        end = start + time_inter
-        nni_item = nni[(tmStamps>= start) & (tmStamps <=end)];
-        list.append(nni_item)
-        
-    return list
-#-----------------------------------------------------------------------
 # 一定時間ごとの特徴量
 #-----------------------------------------------------------------------
 def segumentation_features(nni,sample_time=300,time_step=30):
+    # 一定時間ごとのRRIを取得する
     rri_list = segumentation_rri(nni,sample_time,time_step)
 
     for i,rri_item in enumerate(rri_list):
@@ -149,12 +129,87 @@ def segumentation_features(nni,sample_time=300,time_step=30):
 
     return df
 
+#-----------------------------------------------------------------------
+# 一定時間ごとのRRI
+#-----------------------------------------------------------------------
+def segumentation_rri(nni,sample_time=300,time_step=30):
+    time_inter = sample_time * 1000 # 標本数
+    time_step = time_step * 1000 # ステップ時間
+
+    # タイムスタンプの算出
+    tmStamps = np.cumsum(nni) #in seconds 
+    tmStamps -= tmStamps[0]
+
+    # timeStepごとにデータを取り出す
+    start_time = np.arange(start = 0,
+                           stop  = tmStamps[-1]-time_inter,
+                           step  = time_step)
+    list = []
+    for i,start in enumerate(start_time):
+        end = start + time_inter
+        nni_item = nni[(tmStamps>= start) & (tmStamps <=end)];
+        list.append(nni_item)
+        
+    return list
+
+
+#-----------------------------------------------------------------------
+# 一定時間ごとの特徴量　Freq Analysis
+# 時間短縮のため作成，後で消しておく
+#-----------------------------------------------------------------------
+def segumentation_freq_features(nni,sample_time=300,time_step=30):
+    # 一定時間ごとのRRIを取得する
+    rri_list = segumentation_rri(nni,sample_time,time_step)
+
+    for i,rri_item in enumerate(rri_list):
+        dict_parameters = freqparameter(rri_item)
+        time = sample_time + time_step * i;
+        print("{} sec".format(time), end=" ")
+        if i == 0:
+            df = pd.DataFrame([], columns=dict_parameters.keys())
+
+        df =  pd.concat([df, pd.DataFrame(dict_parameters, index=[time])])
+
+    return df
+
+#---------------------------------------------
+#心拍変動からパラメータを算出する　Freq Analysis
+# 時間短縮のため作成，後で消しておく
+#---------------------------------------------
+def freqparameter(nni):
+    #返り値を初期化
+    results = {}
+
+    # -----------------周波数解析-------------------#
+    welch_freqDomain = fd.welch_psd(nni, nfft=2 ** 10, show=False)
+    ar_freqDomain = fd.ar_psd(nni, nfft=2 ** 10, show=False)
+    lomb_freqDomain = fd.lomb_psd(nni, nfft=2 ** 10, show=False)
+
+    for key in welch_freqDomain.keys():
+        results[key] = welch_freqDomain[key]
+
+    for key in ar_freqDomain.keys():
+        results[key] = ar_freqDomain[key]
+
+    for key in lomb_freqDomain.keys():
+        results[key] = lomb_freqDomain[key]
+
+    #不要なパラメータの削除
+    del_keylist = ['fft_bands','ar_bands','lomb_bands']
+    for del_keys in del_keylist:
+        del results[del_keys]
+
+    #パラメータの変換
+    results = modify_tuple_to_float(results)
+
+    return results
 
 if __name__ == '__main__':
-    path= r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_BioSignal\RRI_kishida_kubios_2019-10-11.csv"
+    path= r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_BioSignal\ECG\RRI_kaneko_2019-11-21_14-58-59.csv"
     rri = np.loadtxt(path,delimiter=',')
-    A = segumentation_features(rri,sample_time=120,time_step=30)
-    A.to_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\features_kishida_2019-10-11_120s_windows_pre.xlsx")
+    print(path)
+    A = segumentation_freq_features(rri,sample_time=300,time_step=30)
+    A.to_excel(r"C:\Users\akito\Desktop\kishida_test_300s.xlsx")
     pass
     ##感情ラベルの時間を定義する
     #emotion = {'Neutral1':[600,900]  ,'Contentment':[900,1200]

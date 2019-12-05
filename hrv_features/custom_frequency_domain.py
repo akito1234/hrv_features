@@ -402,16 +402,16 @@ def _artefact_correction(nni=None,threshold=0.25):
 
     # 閾値より大きく外れたデータを取得
     index_outlier = np.where(np.abs(detrend_nni) > (threshold*1000))[0]
-    print("{} point detected".format(index_outlier.size))
+    #print("{} point detected".format(index_outlier.size))
 
     if index_outlier.size > 0:
         # 閾値を超えれば，スプライン関数で補間
         flag = np.ones(len(nni), dtype=bool)
         flag[index_outlier.tolist()] = False
         nni_spline = interpolate.interp1d(ts[flag],nni[flag], 'cubic')
-        spline_nni = nni_spline(ts)
+        nni = nni_spline(ts)
 
-    return spline_nni
+    return nni
 
 
 
