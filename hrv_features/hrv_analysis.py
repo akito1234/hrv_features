@@ -164,7 +164,7 @@ def segumentation_freq_features(nni,sample_time=300,time_step=30):
     for i,rri_item in enumerate(rri_list):
         dict_parameters = freqparameter(rri_item)
         time = sample_time + time_step * i;
-        print("{} sec".format(time), end=" ")
+        print("{} sec".format(time))
         if i == 0:
             df = pd.DataFrame([], columns=dict_parameters.keys())
 
@@ -208,8 +208,8 @@ if __name__ == '__main__':
     path= r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_BioSignal\ECG\RRI_kaneko_2019-11-21_14-58-59.csv"
     rri = np.loadtxt(path,delimiter=',')
     print(path)
-    A = segumentation_freq_features(rri,sample_time=300,time_step=30)
-    A.to_excel(r"C:\Users\akito\Desktop\kishida_test_300s.xlsx")
+    A = segumentation_freq_features(rri,sample_time=60,time_step=15)
+    A.to_excel(r"C:\Users\akito\Desktop\kaneko_test_60s.xlsx")
     pass
     ##感情ラベルの時間を定義する
     #emotion = {'Neutral1':[600,900]  ,'Contentment':[900,1200]
