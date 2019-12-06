@@ -119,48 +119,48 @@ if __name__ == '__main__':
     plt.rcParams["font.size"] = 18
 
     # Excelファイルから特徴量データを取得
-    path = r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\実験結果 2019_11_19~21\biosignal_datasets_arousal_valence.xlsx"
-    df = pd.read_excel(path)
+    path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\Frequency_Domain.xlsx"
+    df = pd.read_excel(path,index_col=0)
 
     # 正規化 (個人差補正)
-    df_features = features_baseline(df,emotion_state=['Neutral2','Stress','Ammusement'],baseline='Neutral1')
+    #df_features = features_baseline(df,emotion_state=['Neutral2','Stress','Ammusement'],baseline='Neutral1')
 
     # 描画設定
-    columns = ['hr_mean',
-               'fft_abs_lf',
-               'fft_abs_hf',
+    columns = [#'hr_mean',
+               'fft_norm_lf',
+               'fft_norm_hf',
                'fft_ratio'
                ]
     #features_barplot(df_features[~df_features['id'].isin([16,17,18,19,20,21,22,23,24])],columns,emotion_status = ['Ammusement','Stress'])
     #2,3,11,14,
 
     #16,17,18,19,20,21,22,23,24
-    #sns.pairplot(data=df_features[df_features['emotion'].isin(['Ammusement','Stress'])], 
-    #             hue='emotion',
-    #             vars=columns
-    #            )
+    sns.pairplot(data=df[df['emotion'].isin(['Stress','Neutral1'])], 
+                 hue='emotion',
+                 vars=columns
+                )
     
     # コルモゴロフ-スミルノフ検定
-    #A = K_S_test(df_features[~df['id'].isin([16,17,18,19,20,21,22,23,24])],emotion_status = ['Neutral2','Stress'])
-    #B = K_S_test(df_features[~df['id'].isin([16,17,18,19,20,21,22,23,24])],emotion_status = ['Neutral2','Ammusement'])
-    #C = K_S_test(df_features[~df['id'].isin([16,17,18,19,20,21,22,23,24])],emotion_status = ['Ammusement','Stress'])
-    #resultA = pd.DataFrame.from_dict(A, orient='index')
-    #resultB = pd.DataFrame.from_dict(B, orient='index')
-    #resultC = pd.DataFrame.from_dict(C, orient='index')
-    #result = pd.concat([resultA,resultB,resultC], axis=1)
-    #result.to_excel(r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\実験結果 2019_11_19~21\K_S_value_filter.xlsx")
+    A = K_S_test(df[~df['id'].isin([])],emotion_status = ['Neutral2','Stress'], identical_parameter = ['id','emotion','path_name'])
+    B = K_S_test(df[~df['id'].isin([])],emotion_status = ['Neutral2','Amusement'], identical_parameter = ['id','emotion','path_name'])
+    C = K_S_test(df[~df['id'].isin([])],emotion_status = ['Amusement','Stress'], identical_parameter = ['id','emotion','path_name'])
+    resultA = pd.DataFrame.from_dict(A, orient='index')
+    resultB = pd.DataFrame.from_dict(B, orient='index')
+    resultC = pd.DataFrame.from_dict(C, orient='index')
+    result = pd.concat([resultA,resultB,resultC], axis=1)
+    #result.to_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\K_S_value_FreqDomain.xlsx")
 
 
 
     #colorlist = ["b","r","g","y"]
     #hue_order=['Neutral1','Stress','Neutral2'],palette= colorlist
-    column = 'fft_ratio'
-    replace_df = df_features.replace({'Neutral1':"N1", 'Neutral2':"N2", "Stress":"St", "Ammusement":"Am"})
-    ax = sns.catplot(x='emotion', y=column, col="user", col_wrap=2,
-                     data=replace_df#[~(df['emotion']=='Ammusement') & (~df['id'].isin([16,17,18,19,20,21,22,23,24]))],
-                     , aspect=1.2,order = ['N2','St','Am'], kind = 'bar'
-                     )
-    plt.savefig(r"Z:\theme\mental_stress\04.Figure\physiological_parameter_stress_neutral\2019-11-19~21\{}_subjet_independence.png".format(column))
+    #column = 'fft_ratio'
+    #replace_df = df_features.replace({'Neutral1':"N1", 'Neutral2':"N2", "Stress":"St", "Ammusement":"Am"})
+    #ax = sns.catplot(x='emotion', y=column, col="user", col_wrap=2,
+    #                 data=replace_df#[~(df['emotion']=='Ammusement') & (~df['id'].isin([16,17,18,19,20,21,22,23,24]))],
+    #                 , aspect=1.2,order = ['N2','St','Am'], kind = 'bar'
+    #                 )
+    #plt.savefig(r"Z:\theme\mental_stress\04.Figure\physiological_parameter_stress_neutral\2019-11-19~21\{}_subjet_independence.png".format(column))
 
    # ax.legend(loc="upper center", 
   	#	bbox_to_anchor=(0.5,-0.07), # 描画領域の少し下にBboxを設定

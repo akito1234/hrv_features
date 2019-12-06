@@ -417,6 +417,8 @@ def _artefact_correction(nni=None,threshold=0.25):
 
 if __name__ == '__main__':
     rri = np.loadtxt(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_BioSignal\ECG\RRI_kishida_2019-11-21_16-00-52.csv",delimiter=",")
-    print(welch_psd(rri))
-    print(lomb_psd(nni=rri))
-    print(ar_psd(nni=rri))
+    #print(welch_psd(rri))
+    #print(lomb_psd(nni=rri))
+    #print(ar_psd(nni=rri))
+
+    wavelet(rri)
