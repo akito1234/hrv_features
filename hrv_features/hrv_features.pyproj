@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>test.py</StartupFile>
+    <StartupFile>Support_Vector_Classifier_.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -27,6 +27,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="biosinal_summary.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Support_Vector_Classifier_.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ecg_peaks_detection.py">

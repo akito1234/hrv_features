@@ -119,35 +119,36 @@ if __name__ == '__main__':
     plt.rcParams["font.size"] = 18
 
     # Excelファイルから特徴量データを取得
-    path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\Frequency_Domain.xlsx"
-    df = pd.read_excel(path,index_col=0)
+    path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets_arousal_valence.xlsx"
+    df = pd.read_excel(path)
 
     # 正規化 (個人差補正)
-    #df_features = features_baseline(df,emotion_state=['Neutral2','Stress','Ammusement'],baseline='Neutral1')
+    df_features = features_baseline(df,emotion_state=['Neutral2','Stress','Amusement'],baseline='Neutral1')
 
     # 描画設定
-    columns = [#'hr_mean',
-               'fft_norm_lf',
-               'fft_norm_hf',
-               'fft_ratio'
+    columns = ['hr_mean',
+               'bvp_sdnn'
+               #'fft_norm_lf',
+               #'fft_norm_hf',
+               #'fft_ratio'
                ]
     #features_barplot(df_features[~df_features['id'].isin([16,17,18,19,20,21,22,23,24])],columns,emotion_status = ['Ammusement','Stress'])
     #2,3,11,14,
 
     #16,17,18,19,20,21,22,23,24
-    sns.pairplot(data=df[df['emotion'].isin(['Stress','Neutral1'])], 
+    sns.pairplot(data = df_features[df_features['emotion'].isin(['Stress','Amusement'])], 
                  hue='emotion',
                  vars=columns
                 )
     
     # コルモゴロフ-スミルノフ検定
-    A = K_S_test(df[~df['id'].isin([])],emotion_status = ['Neutral2','Stress'], identical_parameter = ['id','emotion','path_name'])
-    B = K_S_test(df[~df['id'].isin([])],emotion_status = ['Neutral2','Amusement'], identical_parameter = ['id','emotion','path_name'])
-    C = K_S_test(df[~df['id'].isin([])],emotion_status = ['Amusement','Stress'], identical_parameter = ['id','emotion','path_name'])
-    resultA = pd.DataFrame.from_dict(A, orient='index')
-    resultB = pd.DataFrame.from_dict(B, orient='index')
-    resultC = pd.DataFrame.from_dict(C, orient='index')
-    result = pd.concat([resultA,resultB,resultC], axis=1)
+    #A = K_S_test(df[~df['id'].isin([])],emotion_status = ['Neutral2','Stress'], identical_parameter = ['id','emotion','path_name'])
+    #B = K_S_test(df[~df['id'].isin([])],emotion_status = ['Neutral2','Amusement'], identical_parameter = ['id','emotion','path_name'])
+    #C = K_S_test(df[~df['id'].isin([])],emotion_status = ['Amusement','Stress'], identical_parameter = ['id','emotion','path_name'])
+    #resultA = pd.DataFrame.from_dict(A, orient='index')
+    #resultB = pd.DataFrame.from_dict(B, orient='index')
+    #resultC = pd.DataFrame.from_dict(C, orient='index')
+    #result = pd.concat([resultA,resultB,resultC], axis=1)
     #result.to_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\K_S_value_FreqDomain.xlsx")
 
 
