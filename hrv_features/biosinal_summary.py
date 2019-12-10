@@ -137,36 +137,23 @@ def biosignal_multi_summary(path_list,emotion=None):
     return df_summary
 
 if __name__ == '__main__':
-
-    #path_list = [r"Z:\theme\mental_stress\02.BiometricData\2019-11-19\shibata\opensignals_201806130003_2019-11-19_14-34-44.txt",
-    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-19\shizuya\opensignals_201806130003_2019-11-19_16-38-07.txt",
-    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-19\takase\opensignals_device3_2019-11-19_16-38-30.txt",
-    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-20\takase\opensignals_device1_2019-11-20_15-37-40.txt",
-    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-20\teraki\opensignals_device2_2019-11-20_13-40-49_2.txt",
-    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-21\kaneko\opensignals_201806130003_2019-11-21_14-58-59.txt",
-    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-21\kaneko\opensignals_201806130003_2019-11-21_16-01-49.txt",
-    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-21\kaneko\opensignals_201806130003_2019-11-21_16-44-45.txt",
-    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-21\kishida\opensignals_device3_2019-11-21_14-56-56.txt",
-    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-21\kishida\opensignals_device3_2019-11-21_16-00-52.txt",
-    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-21\kojima\opensignals_device2_2019-11-21_14-59-07.txt",
-    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-21\kojima\opensignals_device2_2019-11-21_16-06-09.txt",
-    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-21\shibata\opensignals_device2_2019-11-21_16-51-13.txt",
-    #             r"Z:\theme\mental_stress\02.BiometricData\2019-11-21\tohma\opensignals_device3_2019-11-21_16-54-54.txt"
-    #             ]
-    #path_list = [r"C:\Users\akito\Desktop\Hashimoto\disgust_contentment\02.BiometricData\2019-08-07\opensignals_Device1_Device2_Device3_2019-08-07_12-22-49.txt",
-    #             r"C:\Users\akito\Desktop\Hashimoto\disgust_contentment\02.BiometricData\2019-08-07\opensignals_Device1_Device2_Device3_2019-08-07_13-28-14.txt",
-    #             r"C:\Users\akito\Desktop\Hashimoto\disgust_contentment\02.BiometricData\2019-08-22\opensignals_device1_device2_device3_2019-08-22_13-42-54.txt",
-    #             r"C:\Users\akito\Desktop\Hashimoto\disgust_contentment\02.BiometricData\2019-08-22\opensignals_device1_device2_device3_2019-08-22_15-31-20.txt",
-    #            ]
-    path_list = [r"Z:\theme\mental_stress\02.BiometricData\2019-10-14\kojima\opensignals_201806130003_2019-10-14_20-29-40.txt"]
-
+    path_list = [
+        r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\moriyama\opensignals_201808080163_2019-12-05_14-44-44.txt",
+        r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\moriyama\opensignals_201808080163_2019-12-05_16-03-59.txt",
+        r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\otsuka\opensignals_device2_2019-12-05_14-32-48.txt",
+        r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\otsuka\opensignals_device2_2019-12-05_16-01-19.txt",
+        r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\tozyo\opensignals_device1_2019-12-05_14-45-10.txt",
+        r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\tozyo\opensignals_device1_2019-12-05_16-02-47.txt"
+        ]
+ 
     emotion = {'Neutral1':[0,300],
                'Stress':[300,600],
-               'Neutral2':[600,900]
+               'Neutral2':[600,900],
+               'Amusement':[900,1200]
                }
 
     df = biosignal_summary(path_list,emotion)
-    df.to_excel(r"C:\Users\akito\Desktop\kojima_2019-10-14.xlsx")
+    df.to_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_2019-12-5.xlsx")
 
     ## セクションを設定する
     #path_list2 = [r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-11\kishida\opensignals_dev_2019-10-11_17-06-10.txt",
