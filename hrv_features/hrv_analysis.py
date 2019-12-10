@@ -102,13 +102,6 @@ def modify_tuple_to_float(parameter_list):
     return results
 
 
-#---------------------------------------------
-# ニュートラル状態を差分する
-#---------------------------------------------
-def correction_neutral_before(df_neutral,df_emotion):
-    correction_df = (df_emotion - df_neutral)
-    return df
-    pass
 
 
 #-----------------------------------------------------------------------
@@ -204,24 +197,101 @@ def freqparameter(nni):
 
     return results
 
+#---------------------------------------------
+# Neutrl状態から差分を算出する
+#---------------------------------------------
+#def biosignal_features(df, emotion,keywords = None):
+#    for i,key in enumerate(emotion.keys()):
+#        # セグメント内での特徴量算出
+#        segment_bio_report = {}
+#        if keywords is not None:
+#            segment_bio_report.update(keywords)
+
+#        #bio_parameter = segments_parameter(rri_peaks, 
+#        #                                   resp_peaks, 
+#        #                                   scr_data,
+#        #                                   emotion[key])
+
+#        print("----------------"+key+"--------------------")
+        
+#        segment_bio_report.update({'emotion':key})
+#        segment_bio_report.update(bio_parameter)
+
+#        if i == 0:
+#            df = pd.DataFrame([], columns=segment_bio_report.keys())
+
+#        df =  pd.concat([df, pd.DataFrame(segment_bio_report , index=[key])])
+#    return df
+def neutral_detrend(df, emotion, keywords= None,base = "Neutral1"):
+    # ベースラインを算出
+    df_base = df[ (df.index > emotion[base][0]) & (df.index <= emotion[base][1]) ].mean()
+    # 帰り値の初期化
+    result = pd.DataFrame()
+    
+    for i,key in enumerate(emotion.keys()):
+        # セクションごとの特徴量
+        df_item = df[(df.index > emotion[key][0]) & (df.index <= emotion[key][1])]
+        df_item = df_item - df_base.values
+        
+        # 各特徴量でゼロ以上となる点の平均値を算出する
+        df_bool = (df_item >= 0)
+        series_abs = (df_item * df_bool).mean()
+        
+        if keywords is not None:
+            for key2 in keywords:
+                series_abs[key2] = keywords[key2]
+        
+        # 感情ラベルを追加
+        series_abs['emotion'] = key
+        result = pd.concat([result, series_abs], axis=1)
+    return result
+
+
+
 if __name__ == '__main__':
-    path= r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_BioSignal\ECG\RRI_kaneko_2019-11-21_14-58-59.csv"
-    rri = np.loadtxt(path,delimiter=',')
-    print(path)
-    A = segumentation_freq_features(rri,sample_time=60,time_step=15)
-    A.to_excel(r"C:\Users\akito\Desktop\kaneko_test_60s.xlsx")
-    pass
-    ##感情ラベルの時間を定義する
-    #emotion = {'Neutral1':[600,900]  ,'Contentment':[900,1200]
-    #          ,'Neutral2':[1380,1680] ,'Disgust':[1680,1980]
-    #          }
-    #nni = np.loadtxt(path,delimiter=',')
-    #df = features(nni,emotion)
+    import os
 
-    ##ニュートラル補正
-    #df_2 = (df.loc[['Contentment','Disgust']] - df.loc[['Neutral1','Neutral2']].values)
-    ##df_Contentment = df.loc[['Contentment']] - df.loc[['Neutral2']].values
+    #path= r"C:\Users\akito\Desktop\stress\ecg_list\RRI_tohma_2019-11-21_16-54-54.csv"
+    #rri = np.loadtxt(path,delimiter=',')
+    #print(path)
+    #A = segumentation_freq_features(rri,sample_time=60,time_step=15)
+    #fname = os.path.splitext(os.path.basename(path))[0]
+    #A.to_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features_TimeVaries\60s\{}.xlsx".format(fname))
+    
 
-    #df_2.to_excel(r"Z:\theme\hrv_daily_fluctuation\05_Analysis\Analysis_Features\Analysis_Features_Labels\neutral_first_second\tohma_2019-09-26_emotion.xlsx")
 
+    #import os
+    #dict = r"C:\Users\akito\Desktop\stress\ecg_list"
+    #path_list = os.listdir(dict)
+    #for i,path in enumerate(path_list):
+    #    abs_path = os.path.join(dict,path)
+    #    rri = np.loadtxt(abs_path,delimiter=',')
+        
+    #    print(path)
+        
+    #    A = segumentation_freq_features(rri,sample_time=60,time_step=15)
+    #    fname = os.path.splitext(os.path.basename(path))[0]
+    #    A.to_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features_TimeVaries\60s\{}.xlsx".format(fname))
+
+    emotion = {'Neutral1':[0,300],
+               'Stress':[300,600],
+               'Neutral2':[600,900],
+               'Amusement':[900,1200]}
+    dict =r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features_TimeVaries\60s"
+    path_list = os.listdir(dict)
+    for i,path in enumerate(path_list):
+        # キーワードを設定
+        keyword = {'id':i, 'path_name':path}
+        abs_path = os.path.join(dict,path)
+
+        df = pd.read_excel(abs_path, index_col=0)
+        result = neutral_detrend(df, emotion, keywords=keyword, base = "Neutral1")
+
+        if i == 0:
+            df_summary = pd.DataFrame([], columns=result.index)
+
+        # ファイルを結合
+        df_summary = pd.concat([df_summary,result.T],ignore_index=True)
+
+    df_summary.to_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\Frequency_Domain.xlsx")
     pass
