@@ -16,7 +16,7 @@ import pandas as pd
 import hrv_analysis as hf
 
 
-path = r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\moriyama\opensignals_201808080163_2019-12-05_14-44-44.txt"
+path = r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shizuya\opensignals_device2_2019-12-12_11-15-27.txt"
 
 # Read OpenSignals file and plot all signals
 arc = OpenSignalsReader(path)
@@ -32,6 +32,6 @@ nni = tools.nn_intervals(rpeaks.tolist())
 #result = hf.segumentation_features(nni,sample_time=120,time_step=30)
 
 # 結果をエクスポート
-np.savetxt(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_BioSignal\ECG\RRI_moriyama_2019-12-05_14-44-44.csv"
+np.savetxt(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_BioSignal\ECG\RRI_shizuya_2019-12-12_11-15-27.csv"
            ,nni, delimiter=',' )
 #result.to_excel(r"Z:\theme\mental_stress\03.Analysis\Analysis_Features\features_shizuya_2019-10-23_120s_windows.xlsx")

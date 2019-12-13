@@ -44,8 +44,7 @@ def parameter(rpeaks):
     nni = tools.nn_intervals(rpeaks=rpeaks.tolist())
 
     # -----------------周波数解析-------------------#
-    detrending_rri = detrending.resample_to_4Hz(nni,sample_rate=4.)
-    freqDomain = fd.welch_psd(detrending_rri,nfft=2 ** 12, show=False)
+    freqDomain = fd.welch_psd(nni,nfft=2 ** 10, show=False)
 
     for key in freqDomain.keys():
         results[key] = freqDomain[key]

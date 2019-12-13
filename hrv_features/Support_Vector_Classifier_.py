@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import numpy as np
 import pandas as pd
 from sklearn import preprocessing
 from sklearn.neighbors import KNeighborsClassifier
@@ -7,15 +8,19 @@ from sklearn.model_selection import train_test_split, cross_val_score, Stratifie
 
 # local packages
 from biosignal_analysis import features_baseline
-import mglearn
 
 # 描画
 import matplotlib.pyplot as plt
 
+
+
+
+
+
 # ---------------------------------
 # 学習データをインポート
 #----------------------------------
-dataset = pd.read_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets_arousal_valence.xlsx")
+dataset = pd.read_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\実験結果 2019_11_19~21\biosignal_datasets_arousal_valence.xlsx")
 # AmusementとStressを判別したいため，Neutral2を取り除く
 dataset = dataset[~dataset["emotion"].isin(['Neutral2'])]
 
@@ -45,8 +50,8 @@ X_test_scaled = scaler.transform(X_test)
 
 print("-----Strat Machine learning-----")
 print("Info: \n train data num: {} \n test data num: {}".format(X_train.shape[0],X_test.shape[0]))
-print("feature label : \n {}".format(feature_label))
-print("emotion label : \n Amusement, Stress")
+print("\n feature label : \n {}".format(feature_label))
+print("\n emotion label : \n Amusement, Stress")
 
 
 # ---------------------------------
@@ -65,14 +70,18 @@ kfold = StratifiedKFold(n_splits=6, shuffle=True,random_state=0)
 loo = LeaveOneOut()
 # 交差検証で，スケール合わせる方法が分からない
 features_scaled = scaler.transform(features)
-scores = cross_val_score(linear_SVM,features_scaled,targets, cv=loo)
+scores = cross_val_score(linear_SVM,features_scaled,targets, cv=kfold)
 
 print("Cross-Varidation score: \n{}".format(scores))
 print("Cross-Varidation score mean: \n {}".format(scores.mean()))
 
 plt.figure(figsize=(12,7))
 plt.title("emotion recognition plot")
+plt.scatter(features_scaled[(targets==0),0],features_scaled[(targets==0),1])
+plt.scatter(features_scaled[(targets==1),0],features_scaled[(targets==1),1])
 
-
+clf = linear_SVM.fit(features_scaled,targets)
+y = np.dot(clf.coef_ , features_scaled.T )+ clf.intercept_
+plt.plot(features_scaled[:,0],y.T)
 
 plt.show()

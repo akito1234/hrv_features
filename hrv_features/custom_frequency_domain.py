@@ -25,6 +25,7 @@ import biosppy
 # Surpress Lapack bug 0038 warning from scipy (may occur with older versions of the packages above)
 warnings.filterwarnings(action="ignore", module="scipy")
 def welch_psd(nni = None,
+              rpeaks=None,
               fs = 4.,
 			  fbands=None,
 			  nfft=2**10,
@@ -81,7 +82,8 @@ def welch_psd(nni = None,
 	..	Spectral window used for PSD estimation of the Welch's method (key: 'fft_spectral_window)'
 
 	"""
-
+    # 引数を確認し，nnを取り出す
+	nni = tools.check_input(nni, rpeaks)
 	# Verify or set default frequency bands
 	fbands = fd._check_freq_bands(fbands)
 

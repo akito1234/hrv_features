@@ -117,7 +117,7 @@ def plot_hrv(path):
     return plt
 
 if __name__ == '__main__':
-    path = r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\tozyo\opensignals_device1_2019-12-05_16-02-47.txt"
+    path = r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shizuya\opensignals_device2_2019-12-12_11-15-27.txt"
     plt = plot_raw(path,emotion_section={"Stress":[300,600],"Amusement":[900,1200]})
-    #plt.show()
-    plt.savefig(r"Z:\theme\mental_arithmetic\05.Figure\raw\tozyo_2019-12-05_16-02-47_RawData.png")
+    plt.show()
+    #plt.savefig(r"Z:\theme\mental_arithmetic\05.Figure\raw\tozyo_2019-12-05_16-02-47_RawData.png")

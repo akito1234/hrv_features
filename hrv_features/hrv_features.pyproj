@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Support_Vector_Classifier_.py</StartupFile>
+    <StartupFile>opensignal_reader.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -29,35 +29,6 @@
     <Compile Include="biosinal_summary.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="mglearn\datasets.py" />
-    <Compile Include="mglearn\make_blobs.py" />
-    <Compile Include="mglearn\plots.py" />
-    <Compile Include="mglearn\plot_2d_separator.py" />
-    <Compile Include="mglearn\plot_agglomerative.py" />
-    <Compile Include="mglearn\plot_animal_tree.py" />
-    <Compile Include="mglearn\plot_cross_validation.py" />
-    <Compile Include="mglearn\plot_dbscan.py" />
-    <Compile Include="mglearn\plot_decomposition.py" />
-    <Compile Include="mglearn\plot_grid_search.py" />
-    <Compile Include="mglearn\plot_helpers.py" />
-    <Compile Include="mglearn\plot_improper_preprocessing.py" />
-    <Compile Include="mglearn\plot_interactive_tree.py" />
-    <Compile Include="mglearn\plot_kmeans.py" />
-    <Compile Include="mglearn\plot_kneighbors_regularization.py" />
-    <Compile Include="mglearn\plot_knn_classification.py" />
-    <Compile Include="mglearn\plot_knn_regression.py" />
-    <Compile Include="mglearn\plot_linear_regression.py" />
-    <Compile Include="mglearn\plot_linear_svc_regularization.py" />
-    <Compile Include="mglearn\plot_metrics.py" />
-    <Compile Include="mglearn\plot_nmf.py" />
-    <Compile Include="mglearn\plot_nn_graphs.py" />
-    <Compile Include="mglearn\plot_pca.py" />
-    <Compile Include="mglearn\plot_rbf_svm_parameters.py" />
-    <Compile Include="mglearn\plot_ridge.py" />
-    <Compile Include="mglearn\plot_scaling.py" />
-    <Compile Include="mglearn\plot_tree_nonmonotonous.py" />
-    <Compile Include="mglearn\tools.py" />
-    <Compile Include="mglearn\__init__.py" />
     <Compile Include="Support_Vector_Classifier_.py">
       <SubType>Code</SubType>
     </Compile>
@@ -123,7 +94,6 @@
   <ItemGroup>
     <Folder Include="ledapy\" />
     <Folder Include="ledapy\__pycache__\" />
-    <Folder Include="mglearn\" />
     <Folder Include="util\" />
     <Folder Include="opensignalsreader\" />
     <Folder Include="opensignalsreader\transfer_functions\" />
