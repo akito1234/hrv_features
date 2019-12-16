@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn import preprocessing
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import LinearSVC
-from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold,LeaveOneOut
+from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold,LeaveOneOut,GroupKFold
 
 # local packages
 from biosignal_analysis import features_baseline
@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 # ---------------------------------
 # 学習データをインポート
 #----------------------------------
-dataset = pd.read_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\実験結果 2019_11_19~21\biosignal_datasets_arousal_valence.xlsx")
+dataset = pd.read_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets.xlsx")
 # AmusementとStressを判別したいため，Neutral2を取り除く
 dataset = dataset[~dataset["emotion"].isin(['Neutral2'])]
 
@@ -35,7 +35,8 @@ df = features_baseline(dataset,emotion_state=['Stress','Amusement'],baseline='Ne
 target_label = "emotion"
 targets = preprocessing.LabelEncoder().fit_transform(df[target_label])
 feature_label = ["nni_mean"
-                 ,"bvp_mean"
+                 #,"bvp_mean"
+                 ,"bvp_sdnn"
                  ]
 features = df.loc[:,feature_label]
 
@@ -60,28 +61,51 @@ print("\n emotion label : \n Amusement, Stress")
 # KNN
 knn = KNeighborsClassifier(n_neighbors=6)
 # linear svm 
-linear_SVM = LinearSVC(penalty='l2', loss='hinge', dual=True, tol=1e-3, C=10)
+linear_SVM = LinearSVC(penalty='l2', loss='hinge', dual=True, tol=1e-3, C=2.,max_iter=2000)
 
 # ---------------------------------
 # モデル評価
 #----------------------------------
 # 交差検証
+# 層化K分割交差検証
 kfold = StratifiedKFold(n_splits=6, shuffle=True,random_state=0)
+# 1つ抜き交差検証
 loo = LeaveOneOut()
+# グループ付き交差検証
+subjects = preprocessing.LabelEncoder().fit_transform(df["subject"])
+
+
 # 交差検証で，スケール合わせる方法が分からない
 features_scaled = scaler.transform(features)
-scores = cross_val_score(linear_SVM,features_scaled,targets, cv=kfold)
+scores = cross_val_score(linear_SVM, features_scaled,targets, 
+                         subjects,cv=GroupKFold(n_splits=10) 
+                         )
 
 print("Cross-Varidation score: \n{}".format(scores))
 print("Cross-Varidation score mean: \n {}".format(scores.mean()))
 
-plt.figure(figsize=(12,7))
-plt.title("emotion recognition plot")
-plt.scatter(features_scaled[(targets==0),0],features_scaled[(targets==0),1])
-plt.scatter(features_scaled[(targets==1),0],features_scaled[(targets==1),1])
+#plt.figure(figsize=(12,7))
+#plt.title("emotion recognition plot")
+#plt.scatter(features_scaled[(targets==0),0],features_scaled[(targets==0),1])
+#plt.scatter(features_scaled[(targets==1),0],features_scaled[(targets==1),1])
 
 clf = linear_SVM.fit(features_scaled,targets)
-y = np.dot(clf.coef_ , features_scaled.T )+ clf.intercept_
-plt.plot(features_scaled[:,0],y.T)
 
+
+
+# 可視化の準備
+xmin, xmax, ymin, ymax = (features_scaled[:,0].min()-1, features_scaled[:,0].max()+1,
+                            features_scaled[:,1].min()-1, features_scaled[:,1].max()+1)    
+x_ = np.arange(xmin, xmax, 0.01)
+y_ = np.arange(ymin, ymax, 0.01)
+xx, yy = np.meshgrid(x_, y_)
+
+
+# 予測
+zz = clf.predict(np.stack([xx.ravel(), yy.ravel()], axis=1)
+                ).reshape(xx.shape)
+
+# 可視化
+plt.pcolormesh(xx, yy, zz, cmap="winter", alpha=0.1, shading="gouraud")
+plt.scatter(features_scaled[:, 0], features_scaled[:, 1], c=targets, edgecolors='k', cmap="winter")
 plt.show()

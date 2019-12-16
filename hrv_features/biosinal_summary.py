@@ -4,6 +4,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import datetime
 import os
 from biosppy import signals
 
@@ -15,28 +16,21 @@ from opensignalsreader import OpenSignalsReader
 
 
 def biosignal_features(rri_peaks,
-                      resp_peaks, 
+                       resp_peaks, 
                        scr_data,
-                      emotion,keywords = None):
+                       emotion,keywords = None):
     for i,key in enumerate(emotion.keys()):
         # セグメント内での特徴量算出
         segment_bio_report = {}
         if keywords is not None:
             segment_bio_report.update(keywords)
-            ## 被験者の名前を取得se            
-            #a = os.path.split(path).split('/')
-            #subject = os.path.split(path)[-2]
-
-            ## タイムラインを取得
-            #date = os.path.basename(path).split('_')[2]
-            #time = os.path.basename(path).split('_')[3][:-3]
 
 
         bio_parameter = segments_parameter(rri_peaks, 
                                            resp_peaks, 
                                            scr_data,
                                            emotion[key])
-        print("----------------"+key+"--------------------")
+        print(key+"... done")
         segment_bio_report.update({'emotion':key})
         segment_bio_report.update(bio_parameter)
 
@@ -75,8 +69,22 @@ def segments_parameter(_rri_peaks,_resp_peaks,
 # 生体信号から特徴量を算出し，dataframe型にまとめて返す
 def biosignal_summary(path_list,emotion=None):
     for i,path in enumerate(path_list):
-        arc = OpenSignalsReader(path)
         print(path + ' ....start')
+
+        # ファイル名およぶフォルダ名を取得
+        dict = os.path.dirname(path)
+        fname = os.path.splitext(os.path.basename(path))[0]
+
+        # pathから名前と日付に変換する
+        user = dict.split("\\")[-1]
+        day, time = fname.split("_")[-2:]
+        date = datetime.datetime.strptime(day+" "+time, '%Y-%m-%d %H-%M-%S')
+
+        # キーワードを設定
+        keyword = {'id':i, 'path_name':path,
+                   'user':user,'date':date}
+
+        arc = OpenSignalsReader(path)
 
         # 心拍変動
         rri_peaks = signals.ecg.ecg(arc.signal('ECG') , sampling_rate=1000.0, show=False)['rpeaks']
@@ -84,9 +92,6 @@ def biosignal_summary(path_list,emotion=None):
         resp_peaks = resp_analysis.resp(arc.signal('RESP'), sampling_rate=1000.0,show=False)['peaks']  
         # 皮膚コンダクタンス
         scr_data = eda_analysis.scr(arc.signal('EDA'), sampling_rate=1000.0, downsamp = 4)
-
-        # キーワードを設定
-        keyword = {'id':i, 'path_name':path}
 
         df = pd.DataFrame([])
         df = biosignal_features(rri_peaks,
@@ -138,25 +143,39 @@ def biosignal_multi_summary(path_list,emotion=None):
 
 if __name__ == '__main__':
     path_list = [
-        r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\moriyama\opensignals_201808080162_2019-12-10_15-09-14.txt",
-        r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\moriyama\opensignals_device2_2019-12-10_16-40-48.txt",
-        r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\otsuka\opensignals_device3_2019-12-10_14-52-41.txt",
-        r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\otsuka\opensignals_device3_2019-12-10_16-08-42.txt",
-        r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\otsuka\opensignals_device3_2019-12-10_16-39-25.txt",
-        r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\tozyo\opensignals_201806130003_2019-12-10_14-54-49.txt",
-        r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\tozyo\opensignals_201806130003_2019-12-10_16-10-31.txt",
-        r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\tozyo\opensignals_201806130003_2019-12-10_16-37-56.txt"
+        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-11\kaneko\opensignals_device1_2019-12-11_15-18-00.txt",
+        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-11\kaneko\opensignals_device1_2019-12-11_16-17-56.txt",
+        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-11\kishida\opensignals_device3_2019-12-11_13-46-45.txt",
+        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-11\tohma\opensignals_201808080162_2019-12-11_15-22-53.txt",
+        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-11\tohma\opensignals_device2_2019-12-11_17-00-24.txt",
+        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\kishida\opensignals_201808080163_2019-12-12_17-50-27.txt",
+        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\kishida\opensignals_201808080163_2019-12-12_18-17-30.txt",
+        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\kojima\opensignals_device3_2019-12-12_13-42-47.txt",
+        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\kojima\opensignals_device3_2019-12-12_14-40-14.txt",
+        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shibata\opensignals_201808080162_2019-12-12_16-00-17.txt",
+        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shibata\opensignals_201808080162_2019-12-12_17-18-11.txt",
+        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shibata\opensignals_201808080162_2019-12-12_19-20-02.txt"#,
+        #
+        #
+        #
+        r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shizuya\opensignals_device2_2019-12-12_11-15-27.txt"#,
+        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shizuya\opensignals_device2_2019-12-12_13-19-00.txt",
+        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shizuya\opensignals_201808080162_2019-12-12_14-57-19.txt",
+        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\tohma\opensignals_device3_2019-12-12_16-46-59.txt",
+        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\tohma\opensignals_201806130003_2019-12-12_19-36-46.txt"
         ]
  
     emotion = {'Neutral1':[0,300],
                'Stress':[300,600],
                'Neutral2':[600,900],
-               'Amusement':[900,1200]
+               'Amusement':[900,1250]
                }
 
-    df = biosignal_summary(path_list,emotion)
-    df.to_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_2019-12-10.xlsx")
 
+
+    df = biosignal_summary(path_list,emotion)
+    df.to_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_2019-12-12_4.xlsx")
+    print(df)
     ## セクションを設定する
     #path_list2 = [r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-11\kishida\opensignals_dev_2019-10-11_17-06-10.txt",
     #              r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-11\tohma\opensignals_dev_2019-10-11_17-29-23.txt",

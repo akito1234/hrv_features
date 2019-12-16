@@ -404,7 +404,7 @@ def _artefact_correction(nni=None,threshold=0.25):
 
     # 閾値より大きく外れたデータを取得
     index_outlier = np.where(np.abs(detrend_nni) > (threshold*1000))[0]
-    #print("{} point detected".format(index_outlier.size))
+    print("{} point detected".format(index_outlier.size))
 
     if index_outlier.size > 0:
         # 閾値を超えれば，スプライン関数で補間
@@ -418,9 +418,21 @@ def _artefact_correction(nni=None,threshold=0.25):
 
 
 if __name__ == '__main__':
-    rri = np.loadtxt(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_BioSignal\ECG\RRI_kishida_2019-11-21_16-00-52.csv",delimiter=",")
+    path = r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shizuya\opensignals_device2_2019-12-12_11-15-27.txt"
+    from opensignalsreader import OpenSignalsReader
+    from biosppy import signals as sn
+    # Read OpenSignals file and plot all signals
+    arc = OpenSignalsReader(path)
+    # peak detection
+    signals, rpeaks= sn.ecg.ecg(signal= arc.signal("ECG"), sampling_rate=1000.0, show=False)[1:3]
+    # peaks to nni
+    nni = tools.nn_intervals(rpeaks[rpeaks >= 900000].tolist())
+
+
+    #nni = np.loadtxt(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_BioSignal\ECG\RRI_kishida_2019-11-21_16-00-52.csv",delimiter=",")
     #print(welch_psd(rri))
     #print(lomb_psd(nni=rri))
     #print(ar_psd(nni=rri))
-
-    wavelet(rri)
+    a = _artefact_correction(nni=nni,threshold=0.25)
+    print(a)
+    #wavelet(rri)
