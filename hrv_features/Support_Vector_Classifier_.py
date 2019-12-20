@@ -14,7 +14,10 @@ import matplotlib.pyplot as plt
 
 
 
+def get_Questionnaire(path):
+    df = pd.read_excel(path,sheet_name="questionnaire")
 
+    pass
 
 
 # ---------------------------------
@@ -72,7 +75,12 @@ kfold = StratifiedKFold(n_splits=6, shuffle=True,random_state=0)
 # 1つ抜き交差検証
 loo = LeaveOneOut()
 # グループ付き交差検証
-subjects = preprocessing.LabelEncoder().fit_transform(df["subject"])
+le = preprocessing.LabelEncoder()
+a = le.fit(df["subject"].unique())
+print(df["subject"].unique())
+print(le.transform(df["subject"].unique()))
+subjects = le.transform(df["subject"])
+
 
 
 # 交差検証で，スケール合わせる方法が分からない

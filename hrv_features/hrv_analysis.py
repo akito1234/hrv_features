@@ -44,10 +44,18 @@ def parameter(rpeaks):
     nni = tools.nn_intervals(rpeaks=rpeaks.tolist())
 
     # -----------------周波数解析-------------------#
-    freqDomain = fd.welch_psd(nni,nfft=2 ** 10, show=False)
-
-    for key in freqDomain.keys():
-        results[key] = freqDomain[key]
+    # welch method
+    welch_freqDomain = fd.welch_psd(nni,nfft=2 ** 10, show=False)
+    for key in welch_freqDomain.keys():
+        results[key] = welch_freqDomain[key]
+    # ar method
+    ar_freqDomain = fd.ar_psd(nni,nfft=2 ** 10, show=False)
+    for key in ar_freqDomain.keys():
+        results[key] = ar_freqDomain[key]
+    # lomb method
+    lomb_freqDomain = fd.lomb_psd(nni,nfft=2 ** 8, show=False)
+    for key in lomb_freqDomain.keys():
+        results[key] = lomb_freqDomain[key]
 
     # -----------------時系列解析-------------------#
     timeDomain = td.time_domain(nni)
@@ -62,7 +70,7 @@ def parameter(rpeaks):
         results[key] = nonlinearDomain[key]
 
     #不要なパラメータの削除
-    del_keylist = ['nni_histogram','poincare_plot','dfa_plot','fft_bands','sdnn_index','sdann']
+    del_keylist = ['nni_histogram','poincare_plot','dfa_plot','fft_bands','ar_bands','lomb_bands','sdnn_index','sdann']
     for del_keys in del_keylist:
         del results[del_keys]
 
@@ -175,7 +183,7 @@ def freqparameter(nni):
     # -----------------周波数解析-------------------#
     welch_freqDomain = fd.welch_psd(nni, nfft=2 ** 10, show=False)
     ar_freqDomain = fd.ar_psd(nni, nfft=2 ** 10, show=False)
-    lomb_freqDomain = fd.lomb_psd(nni, nfft=2 ** 10, show=False)
+    lomb_freqDomain = fd.lomb_psd(nni, nfft=2 ** 8, show=False)
 
     for key in welch_freqDomain.keys():
         results[key] = welch_freqDomain[key]
@@ -221,6 +229,8 @@ def freqparameter(nni):
 
 #        df =  pd.concat([df, pd.DataFrame(segment_bio_report , index=[key])])
 #    return df
+
+
 def neutral_detrend(df, emotion, keywords= None,base = "Neutral1"):
     # ベースラインを算出
     df_base = df[ (df.index > emotion[base][0]) & (df.index <= emotion[base][1]) ].mean()
@@ -245,37 +255,63 @@ def neutral_detrend(df, emotion, keywords= None,base = "Neutral1"):
         result = pd.concat([result, series_abs], axis=1)
     return result
 
+def freqDomain_base_analysis(pathlist,emotion,base="Neutral1"):
+    for i,path in enumerate(path_list):
+        print(path + ' ....start')
+
+        # ファイル名およぶフォルダ名を取得
+        dict = os.path.dirname(path)
+        fname = os.path.splitext(os.path.basename(path))[0]
+
+        # pathから名前と日付に変換する
+        user = dict.split("\\")[-1]
+        day, time = fname.split("_")[-2:]
+        date = datetime.datetime.strptime(day+" "+time, '%Y-%m-%d %H-%M-%S')
+
+        # キーワードを設定
+        keyword = {'id':i, 'path_name':path,
+                    'user':user,'date':date}
+        arc = OpenSignalsReader(path)
+
+        # 心拍変動
+        rpeaks = signals.ecg.ecg(arc.signal('ECG') , sampling_rate=1000.0, show=False)['rpeaks']
+        rri = tools.nn_intervals(rpeaks.tolist())
+        df_segumentation = segumentation_freq_features(rri,sample_time=60,time_step=30)
+
+        # ニュートラルの平均よりも高い値の平均を算出する
+        result = neutral_detrend(df, emotion, keywords=keyword, base = "Neutral1")
+
+        if i == 0:
+            df_summary = pd.DataFrame([], columns=result.index)
+
+        # ファイルを結合
+        df_summary = pd.concat([df_summary,result.T],ignore_index=True)
+
+    pass
 
 
 if __name__ == '__main__':
     import os
-
-    #path= r"C:\Users\akito\Desktop\stress\ecg_list\RRI_tohma_2019-11-21_16-54-54.csv"
-    #rri = np.loadtxt(path,delimiter=',')
-    #print(path)
-    #A = segumentation_freq_features(rri,sample_time=60,time_step=15)
-    #fname = os.path.splitext(os.path.basename(path))[0]
-    #A.to_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features_TimeVaries\60s\{}.xlsx".format(fname))
-    
-
-
-    #import os
-    #dict = r"C:\Users\akito\Desktop\stress\ecg_list"
-    #path_list = os.listdir(dict)
-    #for i,path in enumerate(path_list):
-    #    abs_path = os.path.join(dict,path)
-    #    rri = np.loadtxt(abs_path,delimiter=',')
-        
-    #    print(path)
-        
-    #    A = segumentation_freq_features(rri,sample_time=60,time_step=15)
-    #    fname = os.path.splitext(os.path.basename(path))[0]
-    #    A.to_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features_TimeVaries\60s\{}.xlsx".format(fname))
+    path= r"C:\Users\akito\Desktop\stress\ecg_list\RRI_tohma_2019-11-21_16-54-54.csv"
+    rri = np.loadtxt(path,delimiter=',')
+    A = segumentation_freq_features(rri,sample_time=60,time_step=15)
+    fname = os.path.splitext(os.path.basename(path))[0]
 
     emotion = {'Neutral1':[0,300],
                'Stress':[300,600],
                'Neutral2':[600,900],
                'Amusement':[900,1200]}
+
+    dict = r"C:\Users\akito\Desktop\stress\ecg_list"
+    path_list = os.listdir(dict)
+    for i,path in enumerate(path_list):
+        abs_path = os.path.join(dict,path)
+        rri = np.loadtxt(abs_path,delimiter=',')
+        A = segumentation_freq_features(rri,sample_time=60,time_step=15)
+        fname = os.path.splitext(os.path.basename(path))[0]
+        A.to_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features_TimeVaries\60s\{}.xlsx".format(fname))
+
+
     dict =r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features_TimeVaries\60s"
     path_list = os.listdir(dict)
     for i,path in enumerate(path_list):
