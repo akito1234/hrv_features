@@ -28,7 +28,7 @@ def correction_neutral_before(df_neutral,df_emotion,identical_parameter):
 #---------------------------------------------
 def features_baseline(df,emotion_state=['Stress','Ammusement','Neutral2'],
                       baseline='Neutral1',
-                      identical_parameter = ['id','emotion','subject','date','path_name']):
+                      identical_parameter = ['id','emotion','user','date','path_name']):
     df_summary = None
     for i in range(df['id'].max() + 1):
         # 各実験データを取り出す
@@ -70,7 +70,7 @@ def features_barplot(df,columns=None, emotion_status = ['Neutral2','Stress'],ann
         if annotation:
             if i == 0:
                 # コルモゴロフ-スミルノフ検定 2標本の検定
-                p_value = K_S_test(df,emotion_status = emotion_status, identical_parameter = ['id','emotion','subject','date','path_name'])
+                p_value = K_S_test(df,emotion_status = emotion_status, identical_parameter = ['id','emotion','user','date','path_name'])
             # 統計指標を表示
             max_value = df[column].mean() + df[column].std()
             y, h, col = max_value, max_value * 0.05, 'k'
@@ -80,7 +80,7 @@ def features_barplot(df,columns=None, emotion_status = ['Neutral2','Stress'],ann
 #---------------------------------------------
 # コルモゴロフ-スミルノフ検定
 #---------------------------------------------
-def K_S_test(df,emotion_status = ['Neutral2','Stress'], identical_parameter = ['id','emotion','subject','date','path_name']):
+def K_S_test(df,emotion_status = ['Neutral2','Stress'], identical_parameter = ['id','emotion','user','date','path_name']):
     if len(emotion_status) != 2:
         print('emotion_statusには感情名を2つ入れる')
         return False
@@ -157,7 +157,7 @@ if __name__ == '__main__':
     #hue_order=['Neutral1','Stress','Neutral2'],palette= colorlist
     #column = 'fft_ratio'
     #replace_df = df_features.replace({'Neutral1':"N1", 'Neutral2':"N2", "Stress":"St", "Ammusement":"Am"})
-    #ax = sns.catplot(x='emotion', y=column, col="subject", col_wrap=2,
+    #ax = sns.catplot(x='emotion', y=column, col="user", col_wrap=2,
     #                 data=replace_df#[~(df['emotion']=='Ammusement') & (~df['id'].isin([16,17,18,19,20,21,22,23,24]))],
     #                 , aspect=1.2,order = ['N2','St','Am'], kind = 'bar'
     #                 )
