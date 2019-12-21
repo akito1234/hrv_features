@@ -118,8 +118,8 @@ def welch_psd(nni = None,
 		params, freq_i = fd._compute_parameters('fft', frequencies, powers, fbands)
 
 		# Plot PSD
-		figure = fd._plot_psd('fft', frequencies, powers, freq_i, params, show, show_param, legend)
-		figure = biosppy.utils.ReturnTuple((figure, ), ('fft_plot', ))
+		#figure = fd._plot_psd('fft', frequencies, powers, freq_i, params, show, show_param, legend)
+		#figure = biosppy.utils.ReturnTuple((figure, ), ('fft_plot', ))
 
 		# Output
 		return tools.join_tuples(params)
@@ -234,8 +234,8 @@ def lomb_psd(nni=None,
     params, freq_i = fd._compute_parameters('lomb', frequencies, powers, fbands)
 
     # Plot parameters
-    figure = fd._plot_psd('lomb', frequencies, powers, freq_i, params, show, show_param, legend)
-    figure = biosppy.utils.ReturnTuple((figure, ), ('lomb_plot', ))
+    #figure = fd._plot_psd('lomb', frequencies, powers, freq_i, params, show, show_param, legend)
+    #figure = biosppy.utils.ReturnTuple((figure, ), ('lomb_plot', ))
 
     # Complete output
     #return tools.join_tuples(params, figure, meta)
@@ -334,8 +334,8 @@ def ar_psd(nni=None,
     params, freq_i = fd._compute_parameters('ar', frequencies, powers, fbands)
 
 	# Plot PSD
-    figure = fd._plot_psd('ar', frequencies, powers, freq_i, params, show, show_param, legend)
-    figure = biosppy.utils.ReturnTuple((figure, ), ('ar_plot', ))
+    #figure = fd._plot_psd('ar', frequencies, powers, freq_i, params, show, show_param, legend)
+    #figure = biosppy.utils.ReturnTuple((figure, ), ('ar_plot', ))
 
 	# Complete output
     #return tools.join_tuples(params, figure)
@@ -404,7 +404,7 @@ def _artefact_correction(nni=None,threshold=0.25):
 
     # 閾値より大きく外れたデータを取得
     index_outlier = np.where(np.abs(detrend_nni) > (threshold*1000))[0]
-    print("{} point detected".format(index_outlier.size))
+    #print("{} point detected".format(index_outlier.size))
 
     if index_outlier.size > 0:
         # 閾値を超えれば，スプライン関数で補間

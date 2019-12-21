@@ -13,11 +13,31 @@ from biosignal_analysis import features_baseline
 import matplotlib.pyplot as plt
 
 
-
+# アンケート結果を取得する
 def get_Questionnaire(path):
     df = pd.read_excel(path,sheet_name="questionnaire")
+    #不要な項目を削除
+    df.drop(["id","exp_id","trans_Emotion_1","trans_Emotion_2"])
+    return df
 
+# 特徴量を取得する
+def get_datasets(path,remove_label=["Neutral2"]):
+    df = pd.read_excel(path)
+    df = dataset[~dataset["emotion"].isin(remove_label)]
+    return df
+
+
+def concat_Questionnaire(question_path,dataset_path):
+    # データセットを取得
+    questionnaire = get_Questionnaire(question_path)
+    features = get_Questionnaire(dataset_path)
+    
+    # Emotion, Subject, datetimeで検索
+    check_pd=[row for index, row in data.groupby("user")]
     pass
+    return 0
+
+
 
 
 # ---------------------------------
