@@ -29,6 +29,10 @@
     <Compile Include="biosinal_summary.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="boruta\boruta_py.py" />
+    <Compile Include="boruta\test\unit_tests.py" />
+    <Compile Include="boruta\test\__init__.py" />
+    <Compile Include="boruta\__init__.py" />
     <Compile Include="Support_Vector_Classifier_.py">
       <SubType>Code</SubType>
     </Compile>
@@ -62,9 +66,6 @@
     <Compile Include="biosignal_plot.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="util\neurokit_test.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="opensignalsreader\opensignalsreader.py" />
     <Compile Include="opensignalsreader\transfer_functions\bio.py" />
     <Compile Include="opensignalsreader\transfer_functions\bit.py" />
@@ -89,6 +90,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="boruta\" />
+    <Folder Include="boruta\examples\" />
+    <Folder Include="boruta\test\" />
     <Folder Include="ledapy\" />
     <Folder Include="ledapy\__pycache__\" />
     <Folder Include="util\" />
@@ -97,6 +101,9 @@
     <Folder Include="opensignalsreader\transfer_functions\__pycache__\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="boruta\examples\Madalon_Data_Set.ipynb" />
+    <Content Include="boruta\examples\test_X.csv" />
+    <Content Include="boruta\examples\test_y.csv" />
     <Content Include="ledapy\__pycache__\analyse.cpython-36.pyc" />
     <Content Include="ledapy\__pycache__\deconvolution.cpython-36.pyc" />
     <Content Include="ledapy\__pycache__\leda2.cpython-36.pyc" />

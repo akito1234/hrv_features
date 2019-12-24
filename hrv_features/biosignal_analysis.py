@@ -119,11 +119,12 @@ if __name__ == '__main__':
     plt.rcParams["font.size"] = 18
 
     # Excelファイルから特徴量データを取得
-    path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets.xlsx"
+    path = r"C:\Users\akito\Desktop\test.xlsx"
     df = pd.read_excel(path)
 
     # 正規化 (個人差補正)
-    df_features = features_baseline(df,emotion_state=['Neutral2','Stress','Amusement'],baseline='Neutral1')
+    df_features = features_baseline(df,emotion_state=['Neutral2','Stress','Amusement'],baseline='Neutral1',
+                                    identical_parameter = ['id','emotion','user','date','path_name'])
 
     # 描画設定
     columns = ['pathicData_mean',
