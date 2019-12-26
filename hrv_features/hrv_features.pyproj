@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Support_Vector_Classifier_.py</StartupFile>
+    <StartupFile>util\PCA.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -33,7 +33,10 @@
     <Compile Include="boruta\test\unit_tests.py" />
     <Compile Include="boruta\test\__init__.py" />
     <Compile Include="boruta\__init__.py" />
-    <Compile Include="Support_Vector_Classifier_.py">
+    <Compile Include="Support_Vector_Classifier.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Support_Vector_Regressor.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="test.py">
@@ -76,6 +79,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="resp_analysis.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="util\PCA.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="util\question_analysis.py">
