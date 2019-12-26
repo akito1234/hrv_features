@@ -3,6 +3,9 @@ import numpy as np
 
 from sklearn import preprocessing
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import LabelEncoder
+
+
 #---------------------------------------------
 # ニュートラル状態を差分する
 #---------------------------------------------
@@ -51,18 +54,57 @@ def features_baseline(df,emotion_state=['Stress','Ammusement','Neutral2'],
     return df_summary
 
 
-dataset_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_1.xlsx"
+dataset_path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets_1.xlsx"
 df = pd.read_excel(dataset_path)
-features = features_baseline(df,emotion_state=['Stress','Amusement'],baseline='Neutral1',
-                                identical_parameter = ['id','emotion','user','date','path_name']).to_excel(r"C:\Users\akito\Desktop\test.xlsx")
-features.drop(['id','emotion','user','date','path_name'],inplace=True,axis=1)
-features = preprocessing.StandardScaler().fit_transform(features)
+features_org = df[~df["emotion"].isin(["Neutral1","Neutral2"])]
+#features_org = features_baseline(df,emotion_state=['Stress','Amusement'],baseline='Neutral1',
+#                                identical_parameter = ['id','emotion','user','date','path_name'])
+features = features_org.drop(['id','emotion','user','date','path_name'], axis=1)
 
+# 行列の標準化
+features = features.apply(lambda x: (x-x.mean())/x.std(), axis=0)
+features.drop(features.columns[np.isnan(features).any()],inplace=True, axis=1)
 #主成分分析の実行
-pca = PCA()
-feature = pca.fit(features)
+pca = PCA(n_components=2)
+pca_feature = pca.fit(features)
 # データを主成分空間に写像
-feature = pca.transform(features)
+pca_feature = pca.transform(features)
 
-# 主成分得点
-print(pd.DataFrame(feature, columns=["PC{}".format(x + 1) for x in range(len(dfs.columns))]).head())
+## 主成分得点
+#print(pd.DataFrame(pca_feature,
+#                   columns=["PC{}".format(x + 1) for x in range(len(features.columns))]).head())
+import matplotlib.pyplot as plt
+
+# 第一主成分と第二主成分における観測変数の寄与度をプロットする
+#plt.figure(figsize=(6, 6))
+#for x, y, name in zip(pca.components_[0], pca.components_[1], features.columns):
+#    plt.text(x, y, name)
+#plt.scatter(pca.components_[0], pca.components_[1], alpha=0.8)
+#plt.grid()
+#plt.xlabel("PC1")
+#plt.ylabel("PC2")
+#plt.show()
+
+# 累積寄与率を図示する
+import matplotlib.ticker as ticker
+plt.gca().get_xaxis().set_major_locator(ticker.MaxNLocator(integer=True))
+plt.plot([0] + list( np.cumsum(pca.explained_variance_ratio_)), "-o")
+plt.xlabel("Number of principal components")
+plt.ylabel("Cumulative contribution rate")
+plt.grid()
+plt.show()
+
+
+#LabelEncoderのインスタンスを生成
+le = LabelEncoder()
+#ラベルを覚えさせる
+le = le.fit(features_org['emotion'])
+#ラベルを整数に変換
+features_org['emotion'] = le.transform(features_org['emotion'])
+# 第一主成分と第二主成分でプロットする
+plt.figure(figsize=(6, 6))
+plt.scatter(pca_feature[:, 0], pca_feature[:, 1], c=list(features_org['emotion']))
+plt.grid()
+plt.xlabel("PC1")
+plt.ylabel("PC2")
+plt.show()
