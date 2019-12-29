@@ -352,7 +352,7 @@ if __name__ =="__main__":
     question_path = r"Z:\theme\mental_arithmetic\06.QuestionNaire\QuestionNaire_result.xlsx"
     dataset_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_1.xlsx"
     dataset = get_datasets(question_path,dataset_path,
-                           normalization=False,emotion_filter=True)
+                           normalization=True,emotion_filter=True)
     
     dataset.to_excel(r"C:\Users\akito\Desktop\test.xlsx") 
     # info
@@ -389,13 +389,17 @@ if __name__ =="__main__":
     
     # モデル作成
     print("------Model Accuracy------")
-    test_dataset_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_time_Varies.xlsx"
+    test_dataset_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_time_Varies_TOHMA.xlsx"
     test_dataset = pd.read_excel(test_dataset_path,index_col=0)
     # Neutral(300s)のデータを差分する
+    
+    # スケールの調節していない
     test_dataset = test_dataset.iloc[1:, :] - test_dataset.iloc[0, :]
+    
     predict_result = best_clf.predict(test_dataset[selected_feature])
     print(predict_result)
-
+    np.savetxt(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\predict_result2.csv",
+               predict_result,delimiter=",")
 
     # モデルを保存する
     #filename = 'finalized_model.sav'
