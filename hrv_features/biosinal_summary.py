@@ -29,7 +29,7 @@ def biosignal_features(rri_peaks,
                                            resp_peaks, 
                                            scr_data,
                                            emotion[key])
-        print(key+"... done")
+        print("{}... done".format(key))
         segment_bio_report.update({'emotion':key})
         segment_bio_report.update(bio_parameter)
 
@@ -71,11 +71,11 @@ def biosignal_summary(path_list,emotion=None,output=None):
         print(path + ' ....start')
 
         # ファイル名およぶフォルダ名を取得
-        dict = os.path.dirname(path)
+        dict_path = os.path.dirname(path)
         fname = os.path.splitext(os.path.basename(path))[0]
 
         # pathから名前と日付に変換する
-        user = dict.split("\\")[-1]
+        user = dict_path.split("\\")[-1]
         day, time = fname.split("_")[-2:]
         date = datetime.datetime.strptime(day+" "+time, '%Y-%m-%d %H-%M-%S')
 
@@ -110,7 +110,27 @@ def biosignal_summary(path_list,emotion=None,output=None):
         df_summary.to_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_shy.xlsx")
     return df_summary
 
+# 一定時間ごとの特徴量を算出し，dataframe型にまとめて返す
+def biosignal_time_summary(path, duration=300,overlap=150):
+    # 生体データを取得
+    arc = OpenSignalsReader(path)
+    
+    # 時間変数を作成
+    time_ = np.arange(duration, arc.t.max(), overlap)
+    section_ = zip((time_ - duration), time_)
+    emotion = dict(zip(time_.tolist(), section_))
 
+    # HRV Features
+    rri_peaks = signals.ecg.ecg(arc.signal('ECG') , sampling_rate=1000.0, show=False)['rpeaks']
+    # RESP Features
+    resp_peaks = resp_analysis.resp(arc.signal('RESP'), sampling_rate=1000.0,show=False)['peaks']  
+    # EDA Features
+    scr_data = eda_analysis.scr(arc.signal('EDA'), sampling_rate=1000.0, downsamp = 4)
+    
+    df = pd.DataFrame([])
+    # 各生体データを時間区間りで算出
+    df = biosignal_features(rri_peaks,resp_peaks,scr_data,emotion)
+    return df
 
 # 生体信号から特徴量を算出し，dataframe型にまとめて返す
 def biosignal_multi_summary(path_list,emotion=None):
@@ -133,7 +153,6 @@ def biosignal_multi_summary(path_list,emotion=None):
             
             df = pd.DataFrame([])
             df = biosignal_features(rri_peaks, resp_peaks, scr_data, emotion, keyword)
-
 
             if i == 0:
                 df_summary = pd.DataFrame([], columns=df.columns)
@@ -200,17 +219,23 @@ if __name__ == '__main__':
 #                 r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\tohma\opensignals_device3_2019-12-12_16-46-59.txt",
 #                 r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\tohma\opensignals_201806130003_2019-12-12_19-36-46.txt"
 #    ]
-    path_list = [
-        r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shizuya\opensignals_device2_2019-12-12_11-15-27.txt",
-        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shizuya\opensignals_201808080162_2019-12-12_14-57-19.txt",
-        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\tohma\opensignals_device3_2019-12-12_16-46-59.txt",
-        #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\tohma\opensignals_201806130003_2019-12-12_19-36-46.txt"
-    ]
-    emotion = {'Neutral1':[0,300],
-               'Stress':[300,600],
-               'Neutral2':[600,900],
-               'Amusement':[900,1220]
-               }
-    df = biosignal_summary(path_list,emotion)
-    df.to_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_shy.xlsx")
-    print(df)
+    #path_list = [
+    #    r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shizuya\opensignals_device2_2019-12-12_11-15-27.txt",
+    #    #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shizuya\opensignals_201808080162_2019-12-12_14-57-19.txt",
+    #    #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\tohma\opensignals_device3_2019-12-12_16-46-59.txt",
+    #    #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\tohma\opensignals_201806130003_2019-12-12_19-36-46.txt"
+    #]
+    #emotion = {'Neutral1':[0,300],
+    #           'Stress':[300,600],
+    #           'Neutral2':[600,900],
+    #           'Amusement':[900,1220]
+    #           }
+    #df = biosignal_summary(path_list,emotion)
+    #df.to_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_shy.xlsx")
+    #print(df)
+
+    df=biosignal_time_summary(r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-20\teraki\opensignals_device1_2019-11-20_14-40-26.txt",
+                           duration=300,overlap=30)
+    df.to_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_time_Varies_TERAKI.xlsx")
+
+    pass

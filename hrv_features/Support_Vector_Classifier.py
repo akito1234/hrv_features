@@ -71,24 +71,26 @@ def extension_affectgrid(questionnaire):
 
 # アンケート結果に基づいたデータの選定
 def emotion_label_filter(qna,emotion_label=True,affect_grid=True):
-    #    Gross And Levenson	
-    #1	楽しさ
-    #2	興味
-    #3	幸福
-    #4	怒り
-    #5	嫌悪
-    #6	軽蔑
-    #7	恐怖
-    #8	悲しみ
-    #9	驚き
-    #10	満足
-    #11	安心
-    #12	苦しみ
-    #13	混乱
-    #14	困惑
-    #15	緊張
-    #16	中立
-    # 中立はAmusementとStress
+    '''
+    Ggross and levenson	
+    1	楽しさ
+    2	興味
+    3	幸福
+    4	怒り
+    5	嫌悪
+    6	軽蔑
+    7	恐怖
+    8	悲しみ
+    9	驚き
+    10	満足
+    11	安心
+    12	苦しみ
+    13	混乱
+    14	困惑
+    15	緊張
+    16	中立
+    中立はamusementとstress
+    '''
 
     org_df_amusement = qna.query("emotion == 'Amusement'")
     org_df_stress = qna.query("emotion == 'Stress'")
@@ -138,7 +140,11 @@ def Extension_AffectGrid():
 def get_targets(df, target_label = "emotion",type="label"):
     if type == "label":
         # 0 1 にする
-        targets = preprocessing.LabelEncoder().fit_transform(df[target_label])
+        le = preprocessing.LabelEncoder().fit(df[target_label].unique())
+        targets = le.transform(df[target_label])
+        print("Unique : {}".format(df[target_label].unique()))
+        print("Transform : {}".format(le.transform(df[target_label].unique())))
+
     elif type == "number":
         targets = df[target_label].values
     else:
@@ -148,9 +154,13 @@ def get_targets(df, target_label = "emotion",type="label"):
 
 # データセットから特徴量を抽出
 # 最終的には，ここで特徴量選択を行う
-def get_features(df,drop_features = ['id','emotion','user','date','path_name','Valence','Arousal',
+def get_features(df,selected_feature = None,drop_features = ['id','emotion','user','date','path_name','Valence','Arousal',
                                      'Emotion_1','Emotion_2',"angle","strength"],scale=True):
     df_features = df.drop(drop_features, axis=1)
+    # 使う特徴量選択
+    if selected_feature is not None:
+        df_features = df_features[selected_feature]
+    
     # スケール調整
     # 平均値を0,標準偏差を1 
     if scale:
@@ -164,10 +174,12 @@ def get_features(df,drop_features = ['id','emotion','user','date','path_name','V
 ## モデル構築
 ##--------------------------
 # 線形サポートベクタを用いて最適なパラメータを推定する
-def model_tuning(dataset, target_label = "emotion", type="label",model=LinearSVC()):
+def model_tuning(dataset, selected_feature =None, target_label = "emotion", type="label",model=LinearSVC()):
     targets = get_targets(dataset, target_label = "emotion",type="label")
-    features = get_features(dataset)
+    
+    features = get_features(dataset,selected_feature)
     gkf = split_by_group(dataset)
+    
     #penaltyとlossの組み合わせは三通り
     #              penalty     loss 
     # Standard  |    L2     |   L1
@@ -262,7 +274,7 @@ def feature_selection(dataset,show=False):
         plt.xlabel('Sample Index', fontsize=15)
         plt.show()
 
-    return result
+    return selected
 
 ##---------------------------
 ## 可視化
@@ -275,15 +287,12 @@ def plot_2d_separator():
 
     clf = linear_SVM.fit(features_scaled,targets)
 
-
-
     # 可視化の準備
     xmin, xmax, ymin, ymax = (features_scaled[:,0].min()-1, features_scaled[:,0].max()+1,
                                 features_scaled[:,1].min()-1, features_scaled[:,1].max()+1)    
     x_ = np.arange(xmin, xmax, 0.01)
     y_ = np.arange(ymin, ymax, 0.01)
     xx, yy = np.meshgrid(x_, y_)
-
 
     # 予測
     zz = clf.predict(np.stack([xx.ravel(), yy.ravel()], axis=1)
@@ -337,6 +346,8 @@ if __name__ =="__main__":
     #res=df.corr().to_excel(r"C:\Users\akito\Desktop\cor_python.xlsx")   # pandasのDataFrameに格納される
     #print(res)
 
+    
+
 
     question_path = r"Z:\theme\mental_arithmetic\06.QuestionNaire\QuestionNaire_result.xlsx"
     dataset_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_1.xlsx"
@@ -354,7 +365,7 @@ if __name__ =="__main__":
     # モデル構築
 
     # 特徴量選択
-    dataset = feature_selection(dataset)
+    selected_feature = feature_selection(dataset)
     
     # GridSearch
     # 精度検証
@@ -362,15 +373,30 @@ if __name__ =="__main__":
 
     print("\n特徴量選択後")
     # 相関ある特徴量と，ありそうな特徴量を使用
-    best_clf = model_tuning(dataset)
+
+    # 引数を特徴量にしたい
+    best_clf = model_tuning(dataset,selected_feature)
 
     # 精度検証
-    gkf = split_by_group(dataset)
-    targets = get_targets(dataset, target_label = "emotion",type="label")
-    features = get_features(dataset)
-    score_result = cross_val_score(best_clf,features, targets, cv=gkf)
-    print("Cross-Varidation score: \n{}".format(score_result))
-    print("Cross-Varidation score mean: \n {}".format(score_result.mean()))
-    np.savetxt(r"Z:\00_個人用\東間\02.discussion\20191226\score_normalization_false",score_result,delimiter=",")
-    # 可視化
+    #gkf = split_by_group(dataset)
+    #targets = get_targets(dataset, target_label = "emotion",type="label")
+    #features = get_features(dataset)
+    #score_result = cross_val_score(best_clf,features, targets, cv=gkf)
+    #print("Cross-Varidation score: \n{}".format(score_result))
+    #print("Cross-Varidation score mean: \n {}".format(score_result.mean()))
+    #np.savetxt(r"Z:\00_個人用\東間\02.discussion\20191226\score_normalization_false",score_result,delimiter=",")
+    
+    
+    # モデル作成
+    print("------Model Accuracy------")
+    test_dataset_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_time_Varies.xlsx"
+    test_dataset = pd.read_excel(test_dataset_path,index_col=0)
+    # Neutral(300s)のデータを差分する
+    test_dataset = test_dataset.iloc[1:, :] - test_dataset.iloc[0, :]
+    predict_result = best_clf.predict(test_dataset[selected_feature])
+    print(predict_result)
 
+
+    # モデルを保存する
+    #filename = 'finalized_model.sav'
+    #pickle.dump(model, open(filename, 'wb'))
