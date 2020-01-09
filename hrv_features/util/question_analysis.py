@@ -5,7 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
 import seaborn as sns
-
+from sklearn import preprocessing
+import numpy as np
 # 描画設定
 plt.style.use('ggplot') 
 font = {'family' : 'meiryo'}
@@ -79,13 +80,39 @@ def multivariateGrid(col_x, col_y, col_k, df, k_is_color=False, scatter_alpha=.5
     )
     plt.legend(legends)
 
+
+
+# データセットからターゲットを抽出
+def get_targets(df, target_label = "emotion",type="label"):
+    if type == "label":
+        # 0 1 にする
+        le = preprocessing.LabelEncoder().fit(df[target_label].unique())
+        targets = le.transform(df[target_label])
+        print("Unique : {}".format(df[target_label].unique()))
+        print("Transform : {}".format(le.transform(df[target_label].unique())))
+
+    elif type == "multilabel":
+        # pattern 1
+        #df["emotion"].where( (df["Valence"] >= 3) & (df["Valence"] <= 5),"Neutral",inplace=True)
+        df["emotion"].where( df["Emotion_1"] == 16,"Neutral",inplace=True)
+        targets = df["emotion"].values
+
+    elif type == "number":
+        targets = df[target_label].values
+    else:
+        return 0
+    
+    return targets
+
+
 if __name__ =="__main__":
     # 描画設定
     plt.style.use('ggplot') 
     font = {'family' : 'meiryo'}
     matplotlib.rc('font', **font)
-    path = r"Z:\theme\mental_arithmetic\06.QuestionNaire\QuestionNaire_result.xlsx"
+    question_path = r"Z:\theme\mental_arithmetic\06.QuestionNaire\QuestionNaire_result.xlsx"
 
-    df = pd.read_excel(path, sheet_name="questionnaire", header=0, index_col=0)
-    multivariateGrid('Valence', 'Arousal', 'emotion', df=df,scatter_alpha=1)
+    df = pd.read_excel(question_path,sheet_name="questionnaire",usecols=[i for i in range(13)])
+    targets = get_targets(df)
+    #multivariateGrid('Valence', 'Arousal', 'emotion', df=df,scatter_alpha=1)
     plt.show()
