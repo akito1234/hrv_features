@@ -146,8 +146,13 @@ def get_targets(df, target_label = "emotion",type="label"):
 
     elif type == "multilabel":
         # pattern 1
-        #df["emotion"].where( (df["Valence"] >= 3) & (df["Valence"] <= 5),"Neutral",inplace=True)
-        df["emotion"].where( df["Emotion_1"] == 16,"Neutral",inplace=True)
+        targets = df["emotion"].where((df['emotion'] == 'Stress') & (df['Valence'].isin([1,2])),"StH")
+        targets = df["emotion"].where((df['emotion'] == 'Stress') & (df['Valence'].isin([3,4])),"StL") 
+        print(targets)
+        targets = df["emotion"].where((df['emotion'] == 'Amusement') & (df['Valence'].isin([4,5]) ),"AmH")
+        targets = df["emotion"].where((df['emotion'] == 'Amusement') & (df['Valence'].isin([6,7]) ),"AmL")
+        
+        #df["emotion"].where( df["Valence"] == 4 ,"Neutral",inplace=True)
         targets = pd.get_dummies(df["emotion"]).values
 
     elif type == "number":
@@ -320,8 +325,8 @@ if __name__ =="__main__":
     #res=df.corr().to_excel(r"C:\Users\akito\Desktop\cor_python.xlsx")   # pandasのDataFrameに格納される
     #print(res)
 
-    question_path = r"Z:\theme\mental_arithmetic\06.QuestionNaire\QuestionNaire_result.xlsx"
-    dataset_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_1.xlsx"
+    question_path = r"C:\Users\akito\Desktop\stress\05.QuestionNaire\QuestionNaire_result.xlsx"
+    dataset_path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets_1.xlsx"
     dataset = get_datasets(question_path,dataset_path,
                            normalization=True,emotion_filter=False)
     
