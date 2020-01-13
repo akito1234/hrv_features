@@ -59,7 +59,7 @@ def preprocessing_questionnaire(questionnaire,emotion_filter,filter_type):
     # Flag処理
     questionnaire = questionnaire.query("is_bad == 1")
     # Affect Gridを拡張
-    questionnaire = extension_affectgrid(questionnaire)
+    #questionnaire = extension_affectgrid(questionnaire)
     # 主観評価用フィルタ
     if emotion_filter:
         questionnaire = emotion_label_filter(questionnaire, filter_type)
@@ -138,16 +138,21 @@ def get_targets(df, target_label = "emotion",type="label"):
         print("Transform : {}".format(le.transform(df[target_label].unique())))
 
     elif type == "multilabel":
-        # pattern 1
-        targets = df["emotion"].where((df['emotion'] == 'Stress') & (df['Valence'].isin([1,2])),"StH")
-        targets = df["emotion"].where((df['emotion'] == 'Stress') & (df['Valence'].isin([3,4])),"StL") 
-        print(targets)
-        targets = df["emotion"].where((df['emotion'] == 'Amusement') & (df['Valence'].isin([4,5]) ),"AmH")
-        targets = df["emotion"].where((df['emotion'] == 'Amusement') & (df['Valence'].isin([6,7]) ),"AmL")
+        ## pattern 1
+        #targets = df["emotion"].where((df['emotion'] == 'Stress') & (df['Valence'].isin([1,2])),"StH")
+        #targets = df["emotion"].where((df['emotion'] == 'Stress') & (df['Valence'].isin([3,4])),"StL") 
+        #print(targets)
+        #targets = df["emotion"].where((df['emotion'] == 'Amusement') & (df['Valence'].isin([4,5]) ),"AmH")
+        #targets = df["emotion"].where((df['emotion'] == 'Amusement') & (df['Valence'].isin([6,7]) ),"AmL")
         
-        #df["emotion"].where( df["Valence"] == 4 ,"Neutral",inplace=True)
-        targets = pd.get_dummies(df["emotion"]).values
+        ##df["emotion"].where( df["Valence"] == 4 ,"Neutral",inplace=True)
+        #targets = pd.get_dummies(df["emotion"]).values
 
+        # 0 1 にする
+        le = preprocessing.LabelEncoder().fit(df[target_label].unique())
+        targets = le.transform(df[target_label])
+        print("Unique : {}".format(df[target_label].unique()))
+        print("Transform : {}".format(le.transform(df[target_label].unique())))
     elif type == "number":
         targets = df[target_label].values
     else:
@@ -158,7 +163,9 @@ def get_targets(df, target_label = "emotion",type="label"):
 # データセットから特徴量を抽出
 # 最終的には，ここで特徴量選択を行う
 def get_features(df,selected_feature = None,drop_features = ['id','emotion','user','date','path_name','Valence','Arousal',
-                                     'Emotion_1','Emotion_2',"angle","strength"],scale=True):
+                                     'Emotion_1','Emotion_2'
+                                     #,"angle","strength"
+                                     ],scale=True):
     df_features = df.drop(drop_features, axis=1)
     # 使う特徴量選択
     if selected_feature is not None:
@@ -339,7 +346,7 @@ if __name__ =="__main__":
     pass
 
     # 特徴量選択
-    #selected_feature = feature_selection(dataset)
+    selected_feature = feature_selection(dataset)
     
     # GridSearch
     # 精度検証
