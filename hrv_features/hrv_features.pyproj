@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>model\data_processor.py</StartupFile>
+    <StartupFile>src\LinearSVM\model.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -33,10 +33,25 @@
     <Compile Include="boruta\test\unit_tests.py" />
     <Compile Include="boruta\test\__init__.py" />
     <Compile Include="boruta\__init__.py" />
-    <Compile Include="model\config.py">
+    <Compile Include="src\config.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="model\data_processor.py">
+    <Compile Include="src\data_processor.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\LinearSVM\model.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\LinearSVM\model_api.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\LinearSVM\trainer.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\LinearSVM\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Support_Vector_Classifier.py">
@@ -108,6 +123,8 @@
     <Folder Include="ledapy\" />
     <Folder Include="ledapy\__pycache__\" />
     <Folder Include="model\" />
+    <Folder Include="src\" />
+    <Folder Include="src\LinearSVM\" />
     <Folder Include="util\" />
     <Folder Include="opensignalsreader\" />
     <Folder Include="opensignalsreader\transfer_functions\" />
