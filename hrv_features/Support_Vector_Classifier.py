@@ -67,14 +67,7 @@ def preprocessing_questionnaire(questionnaire,emotion_filter,filter_type):
     questionnaire = questionnaire.drop(["id","exp_id","trans_Emotion_1","trans_Emotion_2","Film","is_bad"] ,axis=1)
     return questionnaire
 
-# アンケート結果によるフィルタ
-def extension_affectgrid(questionnaire):
-    # AFFECT GRIDの感情の強さと，方向を決める
-    _arousal = questionnaire["Arousal"].values
-    _valence = questionnaire["Valence"].values
-    questionnaire["strength"] = np.sqrt( np.square(_arousal) + np.square(_valence) )
-    questionnaire["angle"]  = np.arctan(_arousal/ _valence)
-    return questionnaire
+
 
 # アンケート結果に基づいたデータの選定
 def emotion_label_filter(qna,filter_type):
