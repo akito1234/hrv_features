@@ -111,8 +111,11 @@ if __name__ =="__main__":
     font = {'family' : 'meiryo'}
     matplotlib.rc('font', **font)
     question_path = r"Z:\theme\mental_arithmetic\06.QuestionNaire\QuestionNaire_result.xlsx"
-
     df = pd.read_excel(question_path,sheet_name="questionnaire",usecols=[i for i in range(13)])
+
+
+    multivariateGrid('Valence', 'Arousal', 'emotion', df=df,scatter_alpha=1)
+    
     targets = get_targets(df)
     #multivariateGrid('Valence', 'Arousal', 'emotion', df=df,scatter_alpha=1)
     plt.show()

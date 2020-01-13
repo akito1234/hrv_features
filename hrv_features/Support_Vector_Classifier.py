@@ -143,6 +143,8 @@ def get_targets(df, target_label = "emotion",type="label"):
         targets = le.transform(df[target_label])
         print("Unique : {}".format(df[target_label].unique()))
         print("Transform : {}".format(le.transform(df[target_label].unique())))
+        #targets = pd.get_dummies(df["emotion"]).values
+
 
     elif type == "multilabel":
         # pattern 1
@@ -154,7 +156,6 @@ def get_targets(df, target_label = "emotion",type="label"):
         targets = df[target_label].values
     else:
         return 0
-    
     return targets
 
 # データセットから特徴量を抽出
@@ -183,7 +184,7 @@ def feature_selection(dataset,show=False):
     drop_label = ['id','emotion','user','date','path_name','Valence','Arousal',
                                     'Emotion_1','Emotion_2',"angle","strength"]
 
-    targets = get_targets(dataset, target_label = "emotion",type="multilabel")
+    targets = get_targets(dataset, target_label = "emotion",type="label")
     features = get_features(dataset,scale=False)
     gkf = split_by_group(dataset)
 
@@ -232,7 +233,7 @@ def feature_selection(dataset,show=False):
 
 # グループ分け
 def split_by_group(dataset):
-    targets = get_targets(dataset, target_label = "emotion",type="multilabel")
+    targets = get_targets(dataset, target_label = "emotion",type="label")
     features = get_features(dataset)
 
     # 被験者ごとにグループ分け
@@ -249,7 +250,7 @@ def split_by_group(dataset):
 
 # 線形サポートベクタを用いて最適なパラメータを推定する
 def model_tuning(dataset, selected_feature =None, target_label = "emotion", type="label"):
-    targets = get_targets(dataset, target_label = "emotion",type="multilabel")
+    targets = get_targets(dataset, target_label = "emotion",type="label")
     features = get_features(dataset,selected_feature)
     gkf = split_by_group(dataset)
     
@@ -260,17 +261,18 @@ def model_tuning(dataset, selected_feature =None, target_label = "emotion", type
     # PenaltyL1 |    L1     |   L2
     # LinearSVCの取りうるモデルパラメータを設定
     C_range= np.logspace(-1, 2, 20)
-    #param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[12000],
-    #                'C': C_range, "tol":[1e-3]}, 
-    #                {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[12000],
-    #                'C': C_range, "tol":[1e-3]}, 
-    #                {"penalty": ["l2"],"loss": ["squared_hinge"],"dual": [True],"max_iter":[12000],
-    #                'C': C_range, "tol":[1e-3]}]
-    param_grid = {
-          'estimator__C': [0.5, 1.0, 1.5],
-          'estimator__tol': [1e-3, 1e-4, 1e-5],
-          }
-    clf = OneVsRestClassifier(LinearSVC())
+    param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[12000],
+                    'C': C_range, "tol":[1e-3]}, 
+                    {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[12000],
+                    'C': C_range, "tol":[1e-3]}, 
+                    {"penalty": ["l2"],"loss": ["squared_hinge"],"dual": [True],"max_iter":[12000],
+                    'C': C_range, "tol":[1e-3]}]
+    #param_grid = {
+    #      'estimator__C': [0.5, 1.0, 1.5],
+    #      'estimator__tol': [1e-3, 1e-4, 1e-5],
+    #      }
+    #clf = OneVsRestClassifier(LinearSVC())
+    clf = LinearSVC()
     grid_clf = GridSearchCV(clf, param_grid, cv=gkf)
 
     #モデル訓練
@@ -323,7 +325,7 @@ if __name__ =="__main__":
     question_path = r"Z:\theme\mental_arithmetic\06.QuestionNaire\QuestionNaire_result.xlsx"
     dataset_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_1.xlsx"
     dataset = get_datasets(question_path,dataset_path,
-                           normalization=True,emotion_filter=False)
+                           normalization=False,emotion_filter=False)
     
     dataset.to_excel(r"C:\Users\akito\Desktop\test.xlsx") 
     # info
@@ -334,14 +336,14 @@ if __name__ =="__main__":
     
     print("\n----- Model Tuning -----")
     # モデル作成
-    targets = get_targets(dataset, target_label = "emotion",type="multilabel")
+    targets = get_targets(dataset, target_label = "emotion",type="label")
     np.savetxt(r"C:\Users\akito\Desktop\2019-01-09.csv",targets,delimiter=","
                )
     #features = get_features(dataset,scale=True)
     pass
 
     # 特徴量選択
-    #selected_feature = feature_selection(dataset)
+    selected_feature = feature_selection(dataset)
     
     # GridSearch
     # 精度検証
@@ -350,12 +352,12 @@ if __name__ =="__main__":
     #print("\n特徴量選択後")
     # 相関ある特徴量と，ありそうな特徴量を使用
     # 引数を特徴量にしたい
-    best_clf = model_tuning(dataset,selected_feature=None)
+    best_clf = model_tuning(dataset,selected_feature)
 
     # 精度検証
     gkf = split_by_group(dataset)
-    targets = get_targets(dataset, target_label = "emotion",type="multilabel")
-    features = get_features(dataset)
+    targets = get_targets(dataset, target_label = "emotion",type="label")
+    features = get_features(dataset,selected_feature,scale=True)
     score_result = cross_val_score(best_clf,features, targets, cv=gkf)
     print("Cross-Varidation score: \n{}".format(score_result))
     print("Cross-Varidation score mean: \n {}".format(score_result.mean()))
