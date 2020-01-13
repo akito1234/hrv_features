@@ -225,17 +225,22 @@ if __name__ == '__main__':
     #    #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\tohma\opensignals_device3_2019-12-12_16-46-59.txt",
     #    #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\tohma\opensignals_201806130003_2019-12-12_19-36-46.txt"
     #]
-    #emotion = {'Neutral1':[0,300],
-    #           'Stress':[300,600],
-    #           'Neutral2':[600,900],
-    #           'Amusement':[900,1220]
-    #           }
+    emotion = {'Neutral1':[0,300],
+               'Stress':[300,600],
+               'Neutral2':[600,900],
+               'Amusement':[900,1220]
+               }
     #df = biosignal_summary(path_list,emotion)
     #df.to_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_shy.xlsx")
     #print(df)
-
-    df=biosignal_time_summary(r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\tohma\opensignals_201806130003_2019-12-12_19-36-46.txt",
-                           duration=300,overlap=30)
-    df.to_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_time_Varies_TOHMA.xlsx")
+    path_list = [
+        r"Z:\theme\mental_arithmetic\03.BiometricData\2020-01-11\tohma\opensignals_201808080162_2020-01-11_19-26-48.txt"
+    ]
+    df = biosignal_summary(path_list,emotion)
+    df.to_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_tm.xlsx")
+    print(df)
+    #df=biosignal_time_summary(r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\tohma\opensignals_201806130003_2019-12-12_19-36-46.txt",
+    #                       duration=300,overlap=30)
+    #df.to_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_time_Varies_TOHMA.xlsx")
 
     pass
