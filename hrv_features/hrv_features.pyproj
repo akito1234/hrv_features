@@ -3,9 +3,8 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
-    <ProjectHome>
-    </ProjectHome>
-    <StartupFile>Support_Vector_Classifier.py</StartupFile>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>model\data_processor.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -34,6 +33,12 @@
     <Compile Include="boruta\test\unit_tests.py" />
     <Compile Include="boruta\test\__init__.py" />
     <Compile Include="boruta\__init__.py" />
+    <Compile Include="model\config.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="model\data_processor.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Support_Vector_Classifier.py">
       <SubType>Code</SubType>
     </Compile>
@@ -102,7 +107,7 @@
     <Folder Include="boruta\test\" />
     <Folder Include="ledapy\" />
     <Folder Include="ledapy\__pycache__\" />
-    <Folder Include="learning\" />
+    <Folder Include="model\" />
     <Folder Include="util\" />
     <Folder Include="opensignalsreader\" />
     <Folder Include="opensignalsreader\transfer_functions\" />
