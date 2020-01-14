@@ -24,6 +24,13 @@ import matplotlib.pyplot as plt
 #from .. import 
 from src.data_processor import load_emotion_dataset,split_by_group,boruta_feature_selection
 
+#normalization=True,emotion_filter=Trueの場合に選択された特徴量
+#selected_label = ["rmssd","sdnn","lomb_abs_lf","hr_min","hr_mean","nni_max",
+#                     "nni_diff_mean","tinn_m","tinn","nni_mean","sd1","sd2",
+#                     "nni_counter","ellipse_area","lomb_total","tri_index","ar_rel_vlf"]
+
+
+
 # Grid Search
 def Grid_Search(dataset):
     gkf = split_by_group(dataset)
@@ -35,20 +42,20 @@ def Grid_Search(dataset):
     # PenaltyL1 |    L1     |   L2
 
     # LinearSVCの取りうるモデルパラメータを設定
-    C_range= np.logspace(-1, 2, 20)
-    #param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[12000],
-    #                'C': C_range, "tol":[1e-3]}, 
-    #                {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[12000],
-    #                'C': C_range, "tol":[1e-3]}, 
-    #                {"penalty": ["l2"],"loss": ["squared_hinge"],"dual": [True],"max_iter":[12000],
-    #                'C': C_range, "tol":[1e-3]}]
-    param_grid = {
-          'estimator__C': C_range
-          }
+    C_range= np.logspace(-3, 2, 100)
+    param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[100000],
+                    'C': C_range, "tol":[1e-2]}, 
+                    {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[100000],
+                    'C': C_range, "tol":[1e-2]}, 
+                    {"penalty": ["l2"],"loss": ["squared_hinge"],"dual": [True],"max_iter":[100000],
+                    'C': C_range, "tol":[1e-2]}]
+    #param_grid = {
+    #      'estimator__C': C_range
+    #      }
     #clf = OneVsRestClassifier(LinearSVC())
 
-    clf = OneVsRestClassifier(LinearSVC())
-    grid_clf = GridSearchCV(clf, param_grid, cv=gkf)
+    clf = LinearSVC()
+    grid_clf = GridSearchCV(clf, param_grid, cv=gkf,n_jobs=-1)
 
     #モデル訓練
     # 本来は，訓練データとテストデータに分けてfitさせる
@@ -64,7 +71,7 @@ def Grid_Search(dataset):
 def build():
     # データの取得
     emotion_dataset = load_emotion_dataset(normalization=True,
-                                           emotion_filter=False)
+                                           emotion_filter=True)
     # ------------------
     # データ整形
     # ------------------
@@ -82,11 +89,20 @@ def build():
     #emotion_dataset.targets = enc.fit_transform(df_targets)
 
     # 特徴量選択
+    # Boruta省略
     selected_label, selected_features = boruta_feature_selection(emotion_dataset,show=False)
     emotion_dataset.features_label_list = selected_label
     emotion_dataset.features = selected_features
     
     best_model = Grid_Search(emotion_dataset)
+    
+    # 精度検証
+    gkf = split_by_group(emotion_dataset)
+    score_result = cross_val_score(best_model, emotion_dataset.features,
+                                   emotion_dataset.targets, cv=gkf)
+    print("Cross-Varidation score: \n{}".format(score_result))
+    print("Cross-Varidation score mean: \n {}".format(score_result.mean()))
+
     return best_model
 
 def save(file_name="model"):
@@ -97,3 +113,5 @@ def save(file_name="model"):
 if __name__ == "__main__":
     build()
     print("success")
+    # データの取得
+    

@@ -9,11 +9,11 @@ from sklearn.model_selection import GridSearchCV
 from boruta import BorutaPy
 from sklearn.ensemble import RandomForestClassifier
 from multiprocessing import cpu_count
-# 主観評価データへのパス
-questionnaire_path = r"Z:\theme\mental_arithmetic\06.QuestionNaire\QuestionNaire_result.xlsx"
+## 主観評価データへのパス
+questionnaire_path = r"C:\Users\akito\Desktop\stress\05.QuestionNaire\QuestionNaire_result.xlsx"
 
 # 特徴量データへのパス
-features_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_1.xlsx"
+features_path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets_1.xlsx"
 
 # 特徴量データと主観評価を連結する用のキー
 identical_parameter = ['id','emotion','user','date','path_name']
@@ -194,13 +194,13 @@ class Emotion_Label:
         # Affect Gridによるフィルタ
         # Amusementは第一象限，Stressは第二象限
         if self.emotion_filter_type == "both" or self.emotion_filter_type == "affect_grid":
-            filtered_df_amusement = filtered_df_amusement.query('Arousal >= 4 & Valence > 4')
-            filtered_df_stress = filtered_df_stress.query('Arousal >= 4 & Valence < 4')
+            filtered_df_amusement = filtered_df_amusement.query('Arousal >= 4 & Valence >= 4')
+            filtered_df_stress = filtered_df_stress.query('Arousal >= 4 & Valence <= 4')
     
         # 感情ラベルによるフィルタ
         if self.emotion_filter_type == "both" or self.emotion_filter_type == "emotion_label":
-            filtered_df_amusement = filtered_df_amusement.query('Emotion_1 in (1, 2, 3, 9, 10, 11, 15)')
-            filtered_df_stress = filtered_df_stress.query('Emotion_1 in (4, 5, 6, 7, 8, 12, 13, 14)')
+            filtered_df_amusement = filtered_df_amusement.query('Emotion_1 in (1, 2, 3, 9, 10, 11)')
+            filtered_df_stress = filtered_df_stress.query('Emotion_1 in (4, 5, 6, 7, 8, 12, 13, 14, 15)')
         
         self.questionnaire = pd.concat([filtered_df_amusement,filtered_df_stress],axis = 0,ignore_index=True)
         
@@ -254,12 +254,12 @@ def split_by_group(dataset):
 # 特徴量選択
 def boruta_feature_selection(dataset,show=False):
     # 特徴量選択用のモデル(RandamForest)の定義
-    rf = RandomForestClassifier(n_jobs=int(cpu_count()/2), max_depth=7)
+    rf = RandomForestClassifier(n_jobs=int(cpu_count()/2), max_depth=5)
 
     # BORUTAの特徴量選択
     feat_selector = BorutaPy(rf, n_estimators='auto',
                              verbose=2, two_step=False,
-                             random_state=42,max_iter=100)
+                             random_state=42,max_iter=70)
 
     # BORUTAを実行
     # 最低5個の特徴量が選ばれるそう
