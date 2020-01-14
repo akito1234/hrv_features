@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\LinearSVM\model.py</StartupFile>
+    <StartupFile>src\MultiClass\multiclass.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -60,7 +60,7 @@
     <Compile Include="Support_Vector_Regressor.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="test.py">
+    <Compile Include="src\MultiClass\multiclass.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="util\convert_to_text.py">
@@ -125,6 +125,7 @@
     <Folder Include="model\" />
     <Folder Include="src\" />
     <Folder Include="src\LinearSVM\" />
+    <Folder Include="src\MultiClass\" />
     <Folder Include="util\" />
     <Folder Include="opensignalsreader\" />
     <Folder Include="opensignalsreader\transfer_functions\" />

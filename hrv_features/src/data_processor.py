@@ -9,23 +9,9 @@ from sklearn.model_selection import GridSearchCV
 from boruta import BorutaPy
 from sklearn.ensemble import RandomForestClassifier
 from multiprocessing import cpu_count
-## 主観評価データへのパス
-questionnaire_path = r"C:\Users\akito\Desktop\stress\05.QuestionNaire\QuestionNaire_result.xlsx"
+import src.config as config
 
-# 特徴量データへのパス
-features_path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets_1.xlsx"
 
-# 特徴量データと主観評価を連結する用のキー
-identical_parameter = ['id','emotion','user','date','path_name']
-
-# 取り除く感情名
-remove_label = ["Neutral2"]
-
-# 不要な特徴量
-remove_features_label = ["nni_diff_min"]
-
-# 主観評価データから取り除くカラム
-remove_questionnaire_label = ["id","exp_id","trans_Emotion_1","trans_Emotion_2","Film","is_bad"]
 
 
 
@@ -44,14 +30,15 @@ class EmotionRecognition:
         self.targets_user = None
         self.features = None
         self.features_label_list = None
-        self.identical_parameter = identical_parameter
-        self.remove_features_label = remove_features_label
+        self.identical_parameter = config.identical_parameter
+        self.remove_features_label = config.remove_features_label
         self.emotion_filter = emotion_filter
         self.filter_type = filter_type
         self.bool_normalization = normalization
         self.emotion_baseline = "Neutral1"
         #self.emotion_state = ['Stress','Amusement','Neutral2']
         self.emotion_state = ['Stress','Amusement']
+        self.individual_parameter = config.individual_parameter
 
        
         
@@ -59,10 +46,16 @@ class EmotionRecognition:
         if features_path is not None:
             # 主観評価結果取得
             emotion_label = Emotion_Label(question_path,emotion_filter,filter_type)
+            
             self._read_dataset(features_path)
-            print("SUCCESS")
             self._set_parameter(emotion_label)
-        
+            
+            print("---------------------")
+            print("Project Info\n")
+            print(" normalization :{}".format(normalization))
+            print(" emotion filter :{}".format(emotion_filter))
+            print(" individual_parameter :{}\n".format(config.individual_parameter))
+            print("---------------------")
 
     #キー(インスタンス変数)を取得するメソッド
     def keys(self):
@@ -73,6 +66,7 @@ class EmotionRecognition:
         # マージ，余計なデータを省く
         # Neutralを使う場合の処理は未実装
         dataset = pd.merge(emotion_label.questionnaire, self.features, on=["user","date","emotion"])
+        # Dataframe をNumpy形式に変換する
         self.targets = dataset[self.targets_name].values
         self.targets_user = dataset["user"].values
         self.features_label_list = self.features.drop(self.identical_parameter,axis=1).columns
@@ -85,7 +79,7 @@ class EmotionRecognition:
         if self.bool_normalization:
             # 正規化 (個人差補正)
             self.normalization()
-    
+
     def normalization(self,emotion_state=['Stress','Ammusement','Neutral2'],
                           baseline='Neutral1'):
         # 個人差の補正 (感情ごとの特徴量からベースラインを引く)
@@ -99,26 +93,32 @@ class EmotionRecognition:
             df_summary = df_summary.append(df_item,ignore_index=True,sort=False)
         
         self.features = df_summary
-        
     
     def individual_difference_correction(self, item):
         # 個人差補正(ベースライン差分)
         # ベースラインを取得
         baseline = item[1][ item[1]['emotion']  == self.emotion_baseline]
-        df_baseline = baseline.drop(identical_parameter, axis=1)
+        df_baseline = baseline.drop(self.identical_parameter, axis=1)
         
         df_result = pd.DataFrame([],columns=baseline.columns)
         
+
         for state in self.emotion_state:
             emotion = item[1][ item[1]['emotion']  == state]
             if emotion.empty:
                 print("Skip ... {}".format(state))
                 continue;
             # キーラベルを別にする
-            df_emotion = emotion.drop(identical_parameter, axis=1)
+            df_emotion = emotion.drop(self.identical_parameter, axis=1)
             identical_df = emotion[self.identical_parameter]
-            # 差分をとる
-            detrend_features = (df_emotion - df_baseline.values)
+
+            # 個人差補正
+            if self.individual_parameter == "diff":
+                detrend_features = (df_emotion - df_baseline.values)
+            elif self.individual_parameter == "ratio":
+                detrend_features = (df_emotion / df_baseline.values)
+            else:
+                break
             
             result_item = pd.concat([identical_df,detrend_features], axis=1,sort=False)
             df_result = df_result.append(result_item,ignore_index=True,sort=False)
@@ -136,7 +136,7 @@ class Emotion_Label:
         self.questionnaire = None
         self.emotion_filter = emotion_filter
         self.emotion_filter_type = filter_type
-        self.remove_questionnaire_label = remove_questionnaire_label
+        self.remove_questionnaire_label = config.remove_questionnaire_label
 
         # 前処理実行
         self.preprocessing_questionnaire(questionnaire_path)
@@ -228,10 +228,12 @@ class Emotion_Label:
         
 
 # ExcelデータをNumpy形式に変換してデータセットを作成
-def load_emotion_dataset(normalization=True,emotion_filter=True,filter_type="both"):
-    emotion_dataset = EmotionRecognition(features_path,questionnaire_path,
-                                         normalization=normalization,emotion_filter=emotion_filter,
-                                         filter_type=filter_type)
+def load_emotion_dataset():
+    emotion_dataset = EmotionRecognition(config.features_path,
+                                         config.questionnaire_path,
+                                         config.normalization,
+                                         config.emotion_filter,
+                                         config.filter_type)
     print("dataset info :")
     print("target shape : {}".format(emotion_dataset.targets.shape))
     print("features shape : {}".format(emotion_dataset.features.shape))
@@ -254,7 +256,7 @@ def split_by_group(dataset):
 # 特徴量選択
 def boruta_feature_selection(dataset,show=False):
     # 特徴量選択用のモデル(RandamForest)の定義
-    rf = RandomForestClassifier(n_jobs=int(cpu_count()/2), max_depth=5)
+    rf = RandomForestClassifier(n_jobs=-1,class_weight='balanced', max_depth=5)
 
     # BORUTAの特徴量選択
     feat_selector = BorutaPy(rf, n_estimators='auto',
@@ -305,7 +307,7 @@ def boruta_feature_selection(dataset,show=False):
 
 if __name__ =="__main__":
     load_emotion_dataset()
-    test = Emotion_Label(questionnaire_path)
+    test = Emotion_Label(config.questionnaire_path)
     print(test.target)
     print("success")
     pass

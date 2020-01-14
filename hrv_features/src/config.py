@@ -2,7 +2,7 @@
 プログラムの設定一覧
 """
 
-# 主観評価データへのパス
+## 主観評価データへのパス
 questionnaire_path = r"Z:\theme\mental_arithmetic\06.QuestionNaire\QuestionNaire_result.xlsx"
 
 # 特徴量データへのパス
@@ -19,3 +19,16 @@ remove_features_label = ["nni_diff_min"]
 
 # 主観評価データから取り除くカラム
 remove_questionnaire_label = ["id","exp_id","trans_Emotion_1","trans_Emotion_2","Film","is_bad"]
+
+# 個人差補正 diff or ratio
+#individual_parameter = "diff"
+individual_parameter = "ratio"
+
+# 個人差補正
+normalization=False
+
+# 主観評価によるフィルタ
+emotion_filter=True
+
+# フィルタの種類
+filter_type="both"

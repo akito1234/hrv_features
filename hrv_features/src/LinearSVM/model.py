@@ -42,13 +42,13 @@ def Grid_Search(dataset):
     # PenaltyL1 |    L1     |   L2
 
     # LinearSVCの取りうるモデルパラメータを設定
-    C_range= np.logspace(-3, 2, 100)
+    C_range= np.logspace(-4, 2, 100)
     param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[100000],
-                    'C': C_range, "tol":[1e-2]}, 
+                    'C': C_range, "tol":[1e-3],"random_state":[0]}, 
                     {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[100000],
-                    'C': C_range, "tol":[1e-2]}, 
+                    'C': C_range, "tol":[1e-3],"random_state":[0]}, 
                     {"penalty": ["l2"],"loss": ["squared_hinge"],"dual": [True],"max_iter":[100000],
-                    'C': C_range, "tol":[1e-2]}]
+                    'C': C_range, "tol":[1e-3],"random_state":[0]}]
     #param_grid = {
     #      'estimator__C': C_range
     #      }
@@ -70,8 +70,7 @@ def Grid_Search(dataset):
 
 def build():
     # データの取得
-    emotion_dataset = load_emotion_dataset(normalization=True,
-                                           emotion_filter=True)
+    emotion_dataset = load_emotion_dataset()
     # ------------------
     # データ整形
     # ------------------
@@ -79,8 +78,13 @@ def build():
     emotion_dataset.features = preprocessing.StandardScaler().fit_transform(emotion_dataset.features) 
     # one_hot_encoding
     le = preprocessing.LabelEncoder().fit(np.unique(emotion_dataset.targets))
-    emotion_dataset.targets = le.transform(emotion_dataset.targets)
     
+    # 出力
+    print(np.unique(emotion_dataset.targets))
+    print(le.transform(np.unique(emotion_dataset.targets)))
+    emotion_dataset.targets = le.transform(emotion_dataset.targets)
+
+
     ## one_hot_encoding
     #df_targets = pd.DataFrame(emotion_dataset.targets)
     #enc = preprocessing.OneHotEncoder( sparse=False )
@@ -105,13 +109,22 @@ def build():
 
     return best_model
 
+# 学習モデルを保存する
 def save(file_name="model"):
     best_model = build()
     with open("./model/{}.pickle".format(file_name), mode='wb') as fp:
         pickle.dump(best_model,fp)
+    return best_model
+
+# 学習モデルを復元する
+def load(file_name):
+    with open("./model/{}".format(file_name),mode="rb") as fp:
+        clf = pickle.load(fp)
+    return clf
 
 if __name__ == "__main__":
-    build()
+    save("linear_svm_apply_all")
+    
     print("success")
     # データの取得
     
