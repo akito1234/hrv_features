@@ -14,7 +14,7 @@ from sklearn.preprocessing import OneHotEncoder
 # Local Package
 from src import config
 
-dataset = pd.read_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_1.xlsx")
+dataset = pd.read_excel(config.features_path)
 # Neutral2以外のデータを取り出す
 dataset = dataset.query("emotion != 'Neutral2'")
 
