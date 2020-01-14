@@ -3,10 +3,10 @@
 """
 
 ## 主観評価データへのパス
-questionnaire_path = r"Z:\theme\mental_arithmetic\06.QuestionNaire\QuestionNaire_result.xlsx"
+questionnaire_path = r"C:\Users\akito\Desktop\stress\06.QuestionNaire\QuestionNaire_result.xlsx"
 
 # 特徴量データへのパス
-features_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_1.xlsx"
+features_path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets_1.xlsx"
 
 # 特徴量データと主観評価を連結する用のキー
 identical_parameter = ['id','emotion','user','date','path_name']
