@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\MultiClass\multiclass.py</StartupFile>
+    <StartupFile>src\RandomForestClassifier\model.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -33,10 +33,25 @@
     <Compile Include="boruta\test\unit_tests.py" />
     <Compile Include="boruta\test\__init__.py" />
     <Compile Include="boruta\__init__.py" />
+    <Compile Include="src\AdaBoostClassifier\model.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="src\config.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\data_processor.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\DecisionTreeClassifier\model.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\GaussianNB\model.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\kNN\model.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\LinearDiscriminantAnalysis\model.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\LinearSVM\model.py">
@@ -49,6 +64,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\LinearSVM\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\LogisticRegressor\model.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\RandomForestClassifier\model.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\XGBClassifier\model.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\__init__.py">
@@ -126,6 +150,14 @@
     <Folder Include="src\" />
     <Folder Include="src\LinearSVM\" />
     <Folder Include="src\MultiClass\" />
+    <Folder Include="src\LogisticRegressor\" />
+    <Folder Include="src\kNN\" />
+    <Folder Include="src\GaussianNB\" />
+    <Folder Include="src\DecisionTreeClassifier\" />
+    <Folder Include="src\AdaBoostClassifier\" />
+    <Folder Include="src\LinearDiscriminantAnalysis\" />
+    <Folder Include="src\XGBClassifier\" />
+    <Folder Include="src\RandomForestClassifier\" />
     <Folder Include="util\" />
     <Folder Include="opensignalsreader\" />
     <Folder Include="opensignalsreader\transfer_functions\" />

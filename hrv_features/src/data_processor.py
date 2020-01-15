@@ -10,7 +10,7 @@ from boruta import BorutaPy
 from sklearn.ensemble import RandomForestClassifier
 from multiprocessing import cpu_count
 import src.config as config
-
+from sklearn.svm import LinearSVC
 
 
 
@@ -64,7 +64,7 @@ class EmotionRecognition:
     def _set_parameter(self,emotion_label):
         # オプション設定
         # マージ，余計なデータを省く
-        # Neutralを使う場合の処理は未実装
+        # ! Neutralを使う場合の処理は未実装
         dataset = pd.merge(emotion_label.questionnaire, self.features, on=["user","date","emotion"])
         # Dataframe をNumpy形式に変換する
         self.targets = dataset[self.targets_name].values
@@ -80,8 +80,7 @@ class EmotionRecognition:
             # 正規化 (個人差補正)
             self.normalization()
 
-    def normalization(self,emotion_state=['Stress','Ammusement','Neutral2'],
-                          baseline='Neutral1'):
+    def normalization(self):
         # 個人差の補正 (感情ごとの特徴量からベースラインを引く)
         if self.features is None:
             raise ValueError("Features Dataset does not found...")
@@ -99,10 +98,7 @@ class EmotionRecognition:
         # ベースラインを取得
         baseline = item[1][ item[1]['emotion']  == self.emotion_baseline]
         df_baseline = baseline.drop(self.identical_parameter, axis=1)
-        
         df_result = pd.DataFrame([],columns=baseline.columns)
-        
-
         for state in self.emotion_state:
             emotion = item[1][ item[1]['emotion']  == state]
             if emotion.empty:
@@ -226,6 +222,7 @@ class Emotion_Label:
         self.target = self.questionnaire[self.target_name]
 
         
+        
 
 # ExcelデータをNumpy形式に変換してデータセットを作成
 def load_emotion_dataset():
@@ -239,6 +236,7 @@ def load_emotion_dataset():
     print("features shape : {}".format(emotion_dataset.features.shape))
     return emotion_dataset
 
+# Group By KHold
 def split_by_group(dataset):
     # 被験者ごとにグループ分け
     le = preprocessing.LabelEncoder()
@@ -255,14 +253,15 @@ def split_by_group(dataset):
 
 # 特徴量選択
 def boruta_feature_selection(dataset,show=False):
+    
     # 特徴量選択用のモデル(RandamForest)の定義
-    rf = RandomForestClassifier(n_jobs=-1,class_weight='balanced', max_depth=5)
-
+    rf = RandomForestClassifier(n_jobs=-1, class_weight='balanced', 
+                                max_depth=5,random_state=0)
+    
     # BORUTAの特徴量選択
     feat_selector = BorutaPy(rf, n_estimators='auto',
                              verbose=2, two_step=False,
-                             random_state=42,max_iter=70)
-
+                             random_state=0,max_iter=100)
     # BORUTAを実行
     # 最低5個の特徴量が選ばれるそう
     feat_selector.fit(dataset.features, dataset.targets)
