@@ -42,7 +42,7 @@ def Grid_Search(dataset):
     # PenaltyL1 |    L1     |   L2
 
     # LinearSVCの取りうるモデルパラメータを設定
-    C_range= np.logspace(-4, 2, 100)
+    C_range= np.logspace(-2, 2, 10)
     param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[100000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}, 
                     {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[100000],

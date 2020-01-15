@@ -3,7 +3,7 @@
 """
 
 ## 主観評価データへのパス
-questionnaire_path = r"C:\Users\akito\Desktop\stress\06.QuestionNaire\QuestionNaire_result.xlsx"
+questionnaire_path = r"C:\Users\akito\Desktop\stress\05.QuestionNaire\QuestionNaire_result.xlsx"
 
 # 特徴量データへのパス
 features_path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets_1.xlsx"
@@ -25,10 +25,10 @@ remove_questionnaire_label = ["id","exp_id","trans_Emotion_1","trans_Emotion_2",
 individual_parameter = "ratio"
 
 # 個人差補正
-normalization=False
+normalization = True
 
 # 主観評価によるフィルタ
-emotion_filter=True
+emotion_filter = True
 
 # フィルタの種類
 filter_type="both"
