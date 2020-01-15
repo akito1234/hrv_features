@@ -18,35 +18,38 @@ from sklearn.svm import LinearSVC
 class EmotionRecognition:
     #感情クラス
     #前処理全般
-    def __init__(self, features_path,question_path
-                 ,normalization=True,emotion_filter=True,filter_type="both"
+    def __init__(self, features_path, question_path
+                 ,normalization,emotion_filter,filter_type
+                 ,identical_parameter,remove_features_label
+                 ,emotion_baseline,emotion_state,
+                 individual_parameter,target_name
                  ):
+        
         '''
         感情判別用のデータセット作成
-
         '''
         self.targets = None
-        self.targets_name = "emotion"
+        self.targets_name = target_name
         self.targets_user = None
         self.features = None
         self.features_label_list = None
-        self.identical_parameter = config.identical_parameter
-        self.remove_features_label = config.remove_features_label
+        self.identical_parameter = identical_parameter
+        self.remove_features_label = remove_features_label
         self.emotion_filter = emotion_filter
         self.filter_type = filter_type
+        self.emotion_baseline = emotion_baseline
+        self.emotion_state = emotion_state
         self.bool_normalization = normalization
-        self.emotion_baseline = "Neutral1"
-        #self.emotion_state = ['Stress','Amusement','Neutral2']
-        self.emotion_state = ['Stress','Amusement']
-        self.individual_parameter = config.individual_parameter
+        self.individual_parameter = individual_parameter
 
-       
-        
         # 特徴量取得
-        if features_path is not None:
+        if question_path is not None:
             # 主観評価結果取得
-            emotion_label = Emotion_Label(question_path,emotion_filter,filter_type)
-            
+            emotion_label = Emotion_Label(question_path,
+                                          emotion_filter,
+                                          filter_type,
+                                          target_name)
+
             self._read_dataset(features_path)
             self._set_parameter(emotion_label)
             
@@ -57,15 +60,19 @@ class EmotionRecognition:
             print(" individual_parameter :{}\n".format(config.individual_parameter))
             print("---------------------")
 
-    #キー(インスタンス変数)を取得するメソッド
-    def keys(self):
-        print("[targets, target_names, features]")
-
     def _set_parameter(self,emotion_label):
         # オプション設定
         # マージ，余計なデータを省く
-        # ! Neutralを使う場合の処理は未実装
-        dataset = pd.merge(emotion_label.questionnaire, self.features, on=["user","date","emotion"])
+        # 個人差の補正あり
+        # emotion_labelを除いたのデータ数をマージする
+        # 個人差の補正なし
+        # emotion_labelにbaselineを加えたラベル
+        dataset = pd.merge(emotion_label.questionnaire, self.features, on=["user","date","emotion"],how="right")
+        if self.bool_normalization:
+            dataset = dataset.query("emotion == @self.emotion_state and Valence.notnull() and Arousal.notnull()", engine='python')
+        else:
+            dataset = dataset.query("emotion == @self.emotion_baseline or (emotion == @self.emotion_state and Valence.notnull() and Arousal.notnull())", engine='python')
+
         # Dataframe をNumpy形式に変換する
         self.targets = dataset[self.targets_name].values
         self.targets_user = dataset["user"].values
@@ -75,7 +82,7 @@ class EmotionRecognition:
     def _read_dataset(self,features_path):
         self.features = pd.read_excel(features_path)
         # 不要な特徴量を削除
-        self.features = self.features.drop(["nni_diff_min"],axis=1)
+        self.features = self.features.drop(config.remove_features_label,axis=1)
         if self.bool_normalization:
             # 正規化 (個人差補正)
             self.normalization()
@@ -84,22 +91,21 @@ class EmotionRecognition:
         # 個人差の補正 (感情ごとの特徴量からベースラインを引く)
         if self.features is None:
             raise ValueError("Features Dataset does not found...")
-
         df_summary = pd.DataFrame([], columns=self.features.columns)
         groupby_features = self.features.groupby(["user","date"])
         for item in groupby_features:
             df_item = self.individual_difference_correction(item)
             df_summary = df_summary.append(df_item,ignore_index=True,sort=False)
-        
+
         self.features = df_summary
-    
+
     def individual_difference_correction(self, item):
         # 個人差補正(ベースライン差分)
         # ベースラインを取得
         baseline = item[1][ item[1]['emotion']  == self.emotion_baseline]
         df_baseline = baseline.drop(self.identical_parameter, axis=1)
         df_result = pd.DataFrame([],columns=baseline.columns)
-        for state in self.emotion_state:
+        for state in pd.unique(item[1].query("emotion != @self.emotion_baseline")["emotion"]):
             emotion = item[1][ item[1]['emotion']  == state]
             if emotion.empty:
                 print("Skip ... {}".format(state))
@@ -107,7 +113,6 @@ class EmotionRecognition:
             # キーラベルを別にする
             df_emotion = emotion.drop(self.identical_parameter, axis=1)
             identical_df = emotion[self.identical_parameter]
-
             # 個人差補正
             if self.individual_parameter == "diff":
                 detrend_features = (df_emotion - df_baseline.values)
@@ -115,41 +120,46 @@ class EmotionRecognition:
                 detrend_features = (df_emotion / df_baseline.values)
             else:
                 break
-            
             result_item = pd.concat([identical_df,detrend_features], axis=1,sort=False)
             df_result = df_result.append(result_item,ignore_index=True,sort=False)
-
         return df_result
 
 
 
-# 主観評価の処理クラス
 class Emotion_Label:
-    def __init__(self, questionnaire_path,emotion_filter=False,
+    def __init__(self, questionnaire_path=None,emotion_filter=False,
                  filter_type="both",target_name="emotion"):
+        '''
+        アンケート結果の処理クラス
+        '''
+
         self.target = None
         self.target_name = target_name
         self.questionnaire = None
         self.emotion_filter = emotion_filter
         self.emotion_filter_type = filter_type
+        # これがいるかは要相談
         self.remove_questionnaire_label = config.remove_questionnaire_label
 
         # 前処理実行
-        self.preprocessing_questionnaire(questionnaire_path)
+        if questionnaire_path is not None:
+            self.preprocessing_questionnaire(questionnaire_path)
+
         if self.questionnaire is not None:
             self.get_emotion_target()
 
     def preprocessing_questionnaire(self,question_path):
+        # データ取得
         self.questionnaire = pd.read_excel(question_path,sheet_name="questionnaire",usecols=range(13))
-
         # フラグ処理
         self.questionnaire = self.questionnaire.query("is_bad == 1")
+        # 不要なコラム除去
+        self.questionnaire = self.questionnaire.drop(self.remove_questionnaire_label,axis=1)
         # Affect Gridの拡張
         self.extension_affectgrid()
         # 主観評価用フィルタ
         if self.emotion_filter:
             self.filter()
-        self.questionnaire = self.questionnaire.drop(self.remove_questionnaire_label,axis=1)
 
     def extension_affectgrid(self):
         # AFFECT GRIDの感情の強さと，方向を決める
@@ -162,26 +172,13 @@ class Emotion_Label:
     def filter(self):
         # 主観評価結果に基づいたデータの選定
         '''
-        Ggross and levenson	
-        1	楽しさ
-        2	興味
-        3	幸福
-        4	怒り
-        5	嫌悪
-        6	軽蔑
-        7	恐怖
-        8	悲しみ
-        9	驚き
-        10	満足
-        11	安心
-        12	苦しみ
-        13	混乱
-        14	困惑
-        15	緊張
+        Ggross and levenson	Emotion Labels
+        1	楽しさ   2	興味  3	幸福  4	怒り  5	嫌悪
+        6	軽蔑     7	恐怖  8	悲しみ9	驚き 10	満足
+        11	安心    12　苦しみ13混乱 14	困惑 15	緊張
         16	中立
         中立はamusementとstress
         '''
-
         # 入力
         df_amusement = self.questionnaire.query("emotion == 'Amusement'")
         df_stress = self.questionnaire.query("emotion == 'Stress'")
@@ -199,7 +196,6 @@ class Emotion_Label:
             filtered_df_stress = filtered_df_stress.query('Emotion_1 in (4, 5, 6, 7, 8, 12, 13, 14, 15)')
         
         self.questionnaire = pd.concat([filtered_df_amusement,filtered_df_stress],axis = 0,ignore_index=True)
-        
         # 入力
         print("\n---------Selection of data by subjective evaluation---------")
         print("\nNumber of original data")
@@ -220,7 +216,14 @@ class Emotion_Label:
     # 感情ラベルを作成
     def get_emotion_target(self):
         self.target = self.questionnaire[self.target_name]
-
+    
+    def get_multilabel(self):
+        pass
+        #targets = df["emotion"].where((df['emotion'] == 'Stress') & (df['Valence'].isin([1,2])),"StH")
+        #targets = df["emotion"].where((df['emotion'] == 'Stress') & (df['Valence'].isin([3,4])),"StL") 
+        #print(targets)
+        #targets = df["emotion"].where((df['emotion'] == 'Amusement') & (df['Valence'].isin([4,5]) ),"AmH")
+        #targets = df["emotion"].where((df['emotion'] == 'Amusement') & (df['Valence'].isin([6,7]) ),"AmL")
         
         
 
@@ -230,7 +233,14 @@ def load_emotion_dataset():
                                          config.questionnaire_path,
                                          config.normalization,
                                          config.emotion_filter,
-                                         config.filter_type)
+                                         config.filter_type,
+                                         config.identical_parameter,
+                                         config.remove_features_label,
+                                         "Neutral1",
+                                         ['Stress','Amusement'],
+                                         config.individual_parameter,
+                                         config.target_name
+                                         )
     print("dataset info :")
     print("target shape : {}".format(emotion_dataset.targets.shape))
     print("features shape : {}".format(emotion_dataset.features.shape))

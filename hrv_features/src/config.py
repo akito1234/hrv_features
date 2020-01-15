@@ -20,6 +20,9 @@ remove_features_label = ["nni_diff_min"]
 # 主観評価データから取り除くカラム
 remove_questionnaire_label = ["id","exp_id","trans_Emotion_1","trans_Emotion_2","Film","is_bad"]
 
+# 目的変数
+target_name = "emotion"
+
 # 個人差補正 diff or ratio
 #individual_parameter = "diff"
 individual_parameter = "ratio"
