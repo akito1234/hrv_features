@@ -2,20 +2,13 @@
 import numpy as np
 import pandas as pd
 from sklearn import preprocessing
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import LinearSVC
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import StratifiedKFold
-from sklearn.model_selection import LeaveOneOut
+from sklearn.model_selection import cross_val_score,cross_val_predict
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
 from sklearn.model_selection import GroupKFold
 from sklearn.model_selection import GridSearchCV
 from sklearn.multiclass import OneVsRestClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.feature_selection import RFE,RFECV
-from sklearn.neighbors import KNeighborsRegressor
-from boruta import BorutaPy
-from multiprocessing import cpu_count
 import pickle
 # 描画
 import matplotlib.pyplot as plt
@@ -42,19 +35,14 @@ def Grid_Search(dataset):
     # PenaltyL1 |    L1     |   L2
 
     # LinearSVCの取りうるモデルパラメータを設定
-    C_range= np.logspace(-2, 2, 10)
+    C_range= np.logspace(-2, 2, 100)
     param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[100000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}, 
                     {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[100000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}, 
                     {"penalty": ["l2"],"loss": ["squared_hinge"],"dual": [True],"max_iter":[100000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}]
-    #param_grid = {
-    #      'estimator__C': C_range
-    #      }
-    #clf = OneVsRestClassifier(LinearSVC())
-
-    clf = LinearSVC()
+    clf = LinearSVC(random_state=1)
     grid_clf = GridSearchCV(clf, param_grid, cv=gkf,n_jobs=-1)
 
     #モデル訓練
@@ -74,9 +62,10 @@ def build():
     # ------------------
     # データ整形
     # ------------------
-    # 正規化 [重要]
+    # 標準化 [重要]
+    np.savetxt(r"C:\Users\akito\Desktop\test.csv",emotion_dataset.features,delimiter=",")
     emotion_dataset.features = preprocessing.StandardScaler().fit_transform(emotion_dataset.features) 
-    # one_hot_encoding
+    # label encoding
     le = preprocessing.LabelEncoder().fit(np.unique(emotion_dataset.targets))
     
     # 出力
@@ -85,28 +74,35 @@ def build():
     emotion_dataset.targets = le.transform(emotion_dataset.targets)
 
 
-    ## one_hot_encoding
-    #df_targets = pd.DataFrame(emotion_dataset.targets)
-    #enc = preprocessing.OneHotEncoder( sparse=False )
-    ## 結果(ndarray)
-    #print( enc.fit_transform(df_targets) )
-    #emotion_dataset.targets = enc.fit_transform(df_targets)
-
+    # ----------------
     # 特徴量選択
-    # Boruta省略
+    # ----------------
+    # Boruta
     selected_label, selected_features = boruta_feature_selection(emotion_dataset,show=False)
     emotion_dataset.features_label_list = selected_label
     emotion_dataset.features = selected_features
     
     best_model = Grid_Search(emotion_dataset)
-    
+
+    # --------------
     # 精度検証
+    # --------------
+    print("\n------------Result-------------")
+    print("Model : Linear SVM")
     gkf = split_by_group(emotion_dataset)
+    predict_result = cross_val_predict(best_model, emotion_dataset.features,
+                                   emotion_dataset.targets, cv=gkf)
+    print("confusion matrix: \n{}".format(confusion_matrix(emotion_dataset.targets, predict_result)))
+
     score_result = cross_val_score(best_model, emotion_dataset.features,
                                    emotion_dataset.targets, cv=gkf)
     print("Cross-Varidation score: \n{}".format(score_result))
     print("Cross-Varidation score mean: \n {}".format(score_result.mean()))
-
+    print("Cross-Varidation score std: \n {}".format(score_result.std()))
+    
+    print("Classification Report : \n")
+    print(classification_report(predict_result,emotion_dataset.targets,
+                                target_names=["Amusement","Stress"]))
     return best_model
 
 # 学習モデルを保存する
@@ -123,8 +119,8 @@ def load(file_name):
     return clf
 
 if __name__ == "__main__":
-    save("linear_svm_apply_all")
-    
+    #save("linear_svm_apply_all")
+    build()
     print("success")
     # データの取得
     
