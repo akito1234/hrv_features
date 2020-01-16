@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>biosinal_summary.py</StartupFile>
+    <StartupFile>src\LinearSVC\trainer.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -54,16 +54,19 @@
     <Compile Include="src\LinearDiscriminantAnalysis\model.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\LinearSVM\model.py">
+    <Compile Include="src\LinearSVC\model.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\LinearSVM\model_api.py">
+    <Compile Include="src\LinearSVC\model_api.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\LinearSVM\trainer.py">
+    <Compile Include="src\LinearSVC\trainer.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\LinearSVM\__init__.py">
+    <Compile Include="src\LinearSVC\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\LinearSVR\model.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\LogisticRegressor\model.py">
@@ -87,7 +90,7 @@
     <Compile Include="src\MultiClass\multiclass.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="test.py">
+    <Compile Include="biosignal_time_varies.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="util\convert_to_text.py">
@@ -151,7 +154,7 @@
     <Folder Include="ledapy\__pycache__\" />
     <Folder Include="models\" />
     <Folder Include="src\" />
-    <Folder Include="src\LinearSVM\" />
+    <Folder Include="src\LinearSVC\" />
     <Folder Include="src\MultiClass\" />
     <Folder Include="src\LogisticRegressor\" />
     <Folder Include="src\kNN\" />
@@ -160,6 +163,7 @@
     <Folder Include="src\AdaBoostClassifier\" />
     <Folder Include="src\LinearDiscriminantAnalysis\" />
     <Folder Include="src\model\" />
+    <Folder Include="src\LinearSVR\" />
     <Folder Include="src\XGBClassifier\" />
     <Folder Include="src\RandomForestClassifier\" />
     <Folder Include="util\" />

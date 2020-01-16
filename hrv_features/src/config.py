@@ -6,7 +6,7 @@
 questionnaire_path = r"Z:\theme\mental_arithmetic\06.QuestionNaire\QuestionNaire_result.xlsx"
 
 # 特徴量データへのパス
-features_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_120s.xlsx"
+features_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_300s.xlsx"
 
 # 重要 出力される感情ラベルの種類
 emotion_state = ['Stress','Amusement']
@@ -26,6 +26,7 @@ remove_questionnaire_label = ["id","exp_id","trans_Emotion_1","trans_Emotion_2",
 
 # 目的変数
 target_name = "emotion"
+#target_name = "Valence"
 
 # 個人差補正 diff or ratio
 #individual_parameter = "diff"

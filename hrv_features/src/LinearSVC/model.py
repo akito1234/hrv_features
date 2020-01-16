@@ -119,8 +119,8 @@ def load(file_name):
     return clf
 
 if __name__ == "__main__":
-    save("LinearSVM_TimeWindow_120s_Noralize_ratio")
-    #build()
+    #save("LinearSVM_TimeWindow_120s_Noralize_ratio")
+    build()
     print("success")
     # データの取得
     

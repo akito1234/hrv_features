@@ -268,7 +268,7 @@ def boruta_feature_selection(dataset,show=False):
     print ('\n Top %d features:' % feat_selector.n_features_)
     
     feature_df = pd.DataFrame(column_list, columns=['features'])
-
+    
     feature_df['rank']=feat_selector.ranking_
     feature_df = feature_df.sort_values('rank', ascending=True).reset_index(drop=True)
     print (feature_df.head(feat_selector.n_features_))
@@ -280,7 +280,7 @@ def boruta_feature_selection(dataset,show=False):
     # 特徴量後のデータセット作成
     selected_label = dataset.features_label_list[feat_selector.support_]
     selected_features = dataset.features[: ,feat_selector.support_]
-
+    print(selected_label)
     if show:
         ## 可視化
         mask = feat_selector.support_
