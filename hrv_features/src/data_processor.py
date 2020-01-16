@@ -63,14 +63,14 @@ class EmotionRecognition:
     def _set_parameter(self,emotion_label):
         # オプション設定
         # マージ，余計なデータを省く
-        # 個人差の補正あり
-        # emotion_labelを除いたのデータ数をマージする
-        # 個人差の補正なし
-        # emotion_labelにbaselineを加えたラベル
+        # 個人差の補正あり: emotion_labelを除いたのデータ数をマージする
+        # 個人差の補正なし:emotion_labelにbaselineを加えたラベル
+
         dataset = pd.merge(emotion_label.questionnaire, self.features, on=["user","date","emotion"],how="right")
         if self.bool_normalization:
             dataset = dataset.query("emotion == @self.emotion_state and Valence.notnull() and Arousal.notnull()", engine='python')
         else:
+            #dataset = dataset.query("emotion == @self.emotion_state and Valence.notnull() and Arousal.notnull()", engine='python')
             dataset = dataset.query("emotion == @self.emotion_baseline or (emotion == @self.emotion_state and Valence.notnull() and Arousal.notnull())", engine='python')
 
         # Dataframe をNumpy形式に変換する
@@ -91,37 +91,29 @@ class EmotionRecognition:
         # 個人差の補正 (感情ごとの特徴量からベースラインを引く)
         if self.features is None:
             raise ValueError("Features Dataset does not found...")
+
         df_summary = pd.DataFrame([], columns=self.features.columns)
         groupby_features = self.features.groupby(["user","date"])
         for item in groupby_features:
             df_item = self.individual_difference_correction(item)
             df_summary = df_summary.append(df_item,ignore_index=True,sort=False)
-
         self.features = df_summary
 
     def individual_difference_correction(self, item):
-        # 個人差補正(ベースライン差分)
-        # ベースラインを取得
-        baseline = item[1][ item[1]['emotion']  == self.emotion_baseline]
-        df_baseline = baseline.drop(self.identical_parameter, axis=1)
-        df_result = pd.DataFrame([],columns=baseline.columns)
-        for state in pd.unique(item[1].query("emotion != @self.emotion_baseline")["emotion"]):
-            emotion = item[1][ item[1]['emotion']  == state]
-            if emotion.empty:
-                print("Skip ... {}".format(state))
-                continue;
-            # キーラベルを別にする
-            df_emotion = emotion.drop(self.identical_parameter, axis=1)
-            identical_df = emotion[self.identical_parameter]
-            # 個人差補正
-            if self.individual_parameter == "diff":
-                detrend_features = (df_emotion - df_baseline.values)
-            elif self.individual_parameter == "ratio":
-                detrend_features = (df_emotion / df_baseline.values)
-            else:
-                break
-            result_item = pd.concat([identical_df,detrend_features], axis=1,sort=False)
-            df_result = df_result.append(result_item,ignore_index=True,sort=False)
+        # 個人差補正(ベースライン補正)
+        df_identical = item[1].query("emotion != @self.emotion_baseline").loc[:,self.identical_parameter]
+        df_baseline = item[1].query("emotion == @self.emotion_baseline").drop(self.identical_parameter, axis=1)
+        df_emotion = item[1].query("emotion != @self.emotion_baseline").drop(self.identical_parameter, axis=1)
+        # Numpyに変換して補正
+        if self.individual_parameter == "diff":
+            correct_emotion = df_emotion.values - df_baseline.values
+        elif self.individual_parameter == "ratio":
+            correct_emotion = df_emotion.values / df_baseline.values
+        else:
+           print("Error {}".format(state))
+        df_result = pd.DataFrame(correct_emotion,columns=df_emotion.columns,
+                              index=df_emotion.index)
+        df_result = pd.concat([df_identical, df_result], axis=1,sort=False)
         return df_result
 
 
@@ -226,8 +218,8 @@ def load_emotion_dataset():
                                          config.filter_type,
                                          config.identical_parameter,
                                          config.remove_features_label,
-                                         "Neutral1",
-                                         ['Stress','Amusement'],
+                                         config.emotion_baseline,
+                                         config.emotion_state,
                                          config.individual_parameter,
                                          config.target_name
                                          )

@@ -1,3 +1,5 @@
+# k
+
 
 import numpy as np
 import pandas as pd
@@ -17,20 +19,12 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import cross_val_score,cross_val_predict
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
+import pickle
 # Local Package
 from src import config
 
-
-def multi_split_by_group(features,targets,subjects):
-    print(pd.unique(subjects))
-    # 被験者ごとにグループ分け
-    le = preprocessing.LabelEncoder()
-    unique_subject = le.fit(np.unique(subjects))
-    trans_subjects = le.transform(subjects)
-    gkf = list(GroupKFold(n_splits=len(np.unique(trans_subjects))).split(features,targets,trans_subjects))
-    #　出力
-    print(np.unique(trans_subjects))
-    return gkf
+# Import Localpackage
+from src.data_processor import *
 
 def multi_Grid_Search(features,targets,gkf):
     #penaltyとlossの組み合わせは三通り
@@ -62,65 +56,76 @@ def multi_Grid_Search(features,targets,gkf):
 
     return grid_clf.best_estimator_
 
+def build():
+    # データの取得
+    emotion_dataset = load_emotion_dataset()
 
-dataset = pd.read_excel(config.features_path)
-# Neutral2以外のデータを取り出す
-dataset = dataset.query("emotion != ['Neutral2'] ")
-
-# 目標変数
-target_label = dataset["emotion"]
-targets = preprocessing.LabelEncoder().fit_transform(target_label)
-
-# 説明変数
-features = dataset.drop(config.identical_parameter,axis=1)
-features_label = features.columns
-features = preprocessing.StandardScaler().fit_transform(features) 
-#features = preprocessing.MinMaxScaler().fit_transform(features) 
-
-# ANOVA F-Values
-#selector = SelectKBest(f_classif, k=10).fit(features, targets)
-#mask = selector.get_support()
-#print(features_label)
-#print("selected: {}".format(features_label[mask]))
-
-#------------------
-# 特徴量選択
-#------------------
-# 特徴量選択用のモデル(RandamForest)の定義
-rf = RandomForestClassifier(n_jobs=-1, max_depth=7,random_state=0)
-# BORUTAの特徴量選択
-feat_selector = BorutaPy(rf, n_estimators='auto',
-                         verbose=2, two_step=False,
-                         random_state=42,max_iter=100)
-feat_selector.fit(features, targets)
-features = features[:,feat_selector.support_]
-print(features_label[feat_selector.support_])
+    # --------------
+    # 前処理
+    # --------------
+    # 標準化 [重要]
+    emotion_dataset.features = preprocessing.StandardScaler().fit_transform(emotion_dataset.features) 
+    # ラベルエンコード   
+    emotion_dataset.targets = preprocessing.LabelEncoder().fit_transform(emotion_dataset.targets)
 
 
-#------------------
-# モデルの構築
-#------------------
-# GridSearch
-gkf = multi_split_by_group(features,targets,dataset["user"])
-#best_clf = RandomForestClassifier(n_jobs=-1, max_depth=5)
+    # --------------
+    # 特徴量選択
+    # --------------
+    print("\n--------Features Selection-----------")
+    #print(config.selected_label)
+    #select_features = emotion_dataset.features_label_list.isin(config.selected_label)
+    #emotion_dataset.features = emotion_dataset.features[:,select_features]
 
-#best_clf = multi_Grid_Search(features,targets, gkf)
-best_clf = clf = OneVsRestClassifier(LinearSVC(random_state=0)).fit(features, targets)
+    # BORUTA
+    selected_label, selected_features = boruta_feature_selection(emotion_dataset,show=False)
+    emotion_dataset.features_label_list = selected_label
+    emotion_dataset.features = selected_features
+    print(selected_label)
 
 
-
-# --------------
-# 精度検証
-# --------------
-print("\n------------Result-------------")
-print("Model : MultiClassifier")
-predict_result = cross_val_predict(best_clf, features,targets, cv=gkf)
-print("confusion matrix: \n{}".format(confusion_matrix(targets, predict_result)))
-
-score_result = cross_val_score(best_clf, features,targets, cv=gkf)
-print("Cross-Varidation score: \n{}".format(score_result))
-print("Cross-Varidation score mean: \n {}".format(score_result.mean()))
-print("Cross-Varidation score std: \n {}".format(score_result.std()))
+    # --------------
+    # 学習モデル
+    # --------------
+    gkf = split_by_group(emotion_dataset)
+    clf = multi_Grid_Search(emotion_dataset.features,emotion_dataset.targets,gkf)
     
-print("Classification Report : \n")
-print(classification_report(predict_result,targets))
+    ##best_clf = multi_Grid_Search(features,targets, gkf)
+    #best_clf = clf = OneVsRestClassifier(LinearSVC(random_state=0)).fit(features, targets)
+
+    # --------------
+    # 精度検証
+    # --------------
+    print("\n------------Result-------------")
+    print("Model : MultiClassification")
+    
+    predict_result = cross_val_predict(clf, emotion_dataset.features,
+                                   emotion_dataset.targets, cv=gkf)
+    print("confusion matrix: \n{}".format(confusion_matrix(emotion_dataset.targets, predict_result)))
+
+    score_result = cross_val_score(clf, emotion_dataset.features,
+                                   emotion_dataset.targets, cv=gkf)
+    print("Cross-Varidation score: \n{}".format(score_result))
+    print("Cross-Varidation score mean: \n {}".format(score_result.mean()))
+    print("Cross-Varidation score std: \n {}".format(score_result.std()))
+    
+    print("Classification Report : \n")
+    print(classification_report(predict_result,emotion_dataset.targets))
+    return clf
+
+# 学習モデルを保存する
+def save(file_name="model"):
+    best_model = build()
+    with open("./models/{}.pickle".format(file_name), mode='wb') as fp:
+        pickle.dump(best_model,fp)
+    return best_model
+
+# 学習モデルを復元する
+def load(file_name):
+    with open("./model/{}".format(file_name),mode="rb") as fp:
+        clf = pickle.load(fp)
+    return clf
+
+if __name__ =="__main__":
+    build()
+    #save("LinearSVM_multiclassification_emotion_filter_feature_select")

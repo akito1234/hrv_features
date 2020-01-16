@@ -63,7 +63,9 @@ def build():
     # データ整形
     # ------------------
     # 標準化 [重要]
-    np.savetxt(r"C:\Users\akito\Desktop\test.csv",emotion_dataset.features,delimiter=",")
+    
+    emotion_dataset.features_label_list = emotion_dataset.features_label_list[~np.isinf(emotion_dataset.features).any(axis=0)]
+    emotion_dataset.features = emotion_dataset.features[:, ~np.isinf(emotion_dataset.features).any(axis=0)]
     emotion_dataset.features = preprocessing.StandardScaler().fit_transform(emotion_dataset.features) 
     # label encoding
     le = preprocessing.LabelEncoder().fit(np.unique(emotion_dataset.targets))
@@ -73,7 +75,6 @@ def build():
     print(le.transform(np.unique(emotion_dataset.targets)))
     emotion_dataset.targets = le.transform(emotion_dataset.targets)
 
-
     # ----------------
     # 特徴量選択
     # ----------------
@@ -81,9 +82,7 @@ def build():
     selected_label, selected_features = boruta_feature_selection(emotion_dataset,show=False)
     emotion_dataset.features_label_list = selected_label
     emotion_dataset.features = selected_features
-    
     best_model = Grid_Search(emotion_dataset)
-
     # --------------
     # 精度検証
     # --------------
@@ -108,19 +107,20 @@ def build():
 # 学習モデルを保存する
 def save(file_name="model"):
     best_model = build()
-    with open("./model/{}.pickle".format(file_name), mode='wb') as fp:
+    with open("./models/{}.pickle".format(file_name), mode='wb') as fp:
         pickle.dump(best_model,fp)
+    print("{}   save...".format("./models/{}.pickle".format(file_name)))
     return best_model
 
 # 学習モデルを復元する
 def load(file_name):
-    with open("./model/{}".format(file_name),mode="rb") as fp:
+    with open("./models/{}".format(file_name),mode="rb") as fp:
         clf = pickle.load(fp)
     return clf
 
 if __name__ == "__main__":
-    #save("linear_svm_apply_all")
-    build()
+    save("LinearSVM_TimeWindow_120s_Noralize_ratio")
+    #build()
     print("success")
     # データの取得
     

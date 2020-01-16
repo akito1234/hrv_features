@@ -8,7 +8,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_score,cross_val_predict
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
-
+import pickle
 # Import local packages
 from src import config
 from src.data_processor import *
@@ -69,6 +69,15 @@ def build():
 
     return clf
 
+# 学習モデルを保存する
+def save(file_name="model"):
+    best_model = build()
+    with open("./models/{}.pickle".format(file_name), mode='wb') as fp:
+        pickle.dump(best_model,fp)
+    print("{}   save...".format("./models/{}.pickle".format(file_name)))
+    return best_model
+
 
 if __name__ =="__main__":
     build()
+    #save("AdaBoostClassifier")

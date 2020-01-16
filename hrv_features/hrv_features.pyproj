@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\MultiClass\multiclass.py</StartupFile>
+    <StartupFile>biosinal_summary.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -87,6 +87,9 @@
     <Compile Include="src\MultiClass\multiclass.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="test.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="util\convert_to_text.py">
       <SubType>Code</SubType>
     </Compile>
@@ -146,7 +149,7 @@
     <Folder Include="boruta\test\" />
     <Folder Include="ledapy\" />
     <Folder Include="ledapy\__pycache__\" />
-    <Folder Include="model\" />
+    <Folder Include="models\" />
     <Folder Include="src\" />
     <Folder Include="src\LinearSVM\" />
     <Folder Include="src\MultiClass\" />
@@ -156,6 +159,7 @@
     <Folder Include="src\DecisionTreeClassifier\" />
     <Folder Include="src\AdaBoostClassifier\" />
     <Folder Include="src\LinearDiscriminantAnalysis\" />
+    <Folder Include="src\model\" />
     <Folder Include="src\XGBClassifier\" />
     <Folder Include="src\RandomForestClassifier\" />
     <Folder Include="util\" />
