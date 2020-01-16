@@ -14,8 +14,9 @@ from boruta import BorutaPy
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GroupKFold
 from sklearn.model_selection import GridSearchCV
-from sklearn.model_selection import cross_val_score
-
+from sklearn.model_selection import cross_val_score,cross_val_predict
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
 # Local Package
 from src import config
 
@@ -40,11 +41,11 @@ def multi_Grid_Search(features,targets,gkf):
 
     # LinearSVCの取りうるモデルパラメータを設定
     C_range= np.logspace(-2,2,100)
-    param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[100000],
+    param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[500000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}, 
-                    {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[100000],
+                    {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[500000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}, 
-                    {"penalty": ["l2"],"loss": ["squared_hinge"],"dual": [True],"max_iter":[100000],
+                    {"penalty": ["l2"],"loss": ["squared_hinge"],"dual": [True],"max_iter":[500000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}]
 
     clf = LinearSVC()
@@ -64,7 +65,7 @@ def multi_Grid_Search(features,targets,gkf):
 
 dataset = pd.read_excel(config.features_path)
 # Neutral2以外のデータを取り出す
-dataset = dataset.query("emotion != ['Neutral2'] & user != 'takase'")
+dataset = dataset.query("emotion != ['Neutral2'] ")
 
 # 目標変数
 target_label = dataset["emotion"]
@@ -86,26 +87,40 @@ features = preprocessing.StandardScaler().fit_transform(features)
 # 特徴量選択
 #------------------
 # 特徴量選択用のモデル(RandamForest)の定義
-rf = RandomForestClassifier(n_jobs=-1, max_depth=5)
+rf = RandomForestClassifier(n_jobs=-1, max_depth=7,random_state=0)
 # BORUTAの特徴量選択
 feat_selector = BorutaPy(rf, n_estimators='auto',
                          verbose=2, two_step=False,
                          random_state=42,max_iter=100)
 feat_selector.fit(features, targets)
-print(features_label[feat_selector.support_])
 features = features[:,feat_selector.support_]
+print(features_label[feat_selector.support_])
+
 
 #------------------
 # モデルの構築
 #------------------
 # GridSearch
 gkf = multi_split_by_group(features,targets,dataset["user"])
-best_clf = RandomForestClassifier(n_jobs=-1, max_depth=5)# multi_Grid_Search(features,targets, gkf)
-#clf = LinearSVC(random_state=0).fit(features[:, feat_selector.support_], targets)
+#best_clf = RandomForestClassifier(n_jobs=-1, max_depth=5)
 
-## モデル構築
-##score = cross_val_score()
+#best_clf = multi_Grid_Search(features,targets, gkf)
+best_clf = clf = OneVsRestClassifier(LinearSVC(random_state=0)).fit(features, targets)
 
 
-#accuracy = clf.score(features[:, feat_selector.support_], targets)
-#print(accuracy)
+
+# --------------
+# 精度検証
+# --------------
+print("\n------------Result-------------")
+print("Model : MultiClassifier")
+predict_result = cross_val_predict(best_clf, features,targets, cv=gkf)
+print("confusion matrix: \n{}".format(confusion_matrix(targets, predict_result)))
+
+score_result = cross_val_score(best_clf, features,targets, cv=gkf)
+print("Cross-Varidation score: \n{}".format(score_result))
+print("Cross-Varidation score mean: \n {}".format(score_result.mean()))
+print("Cross-Varidation score std: \n {}".format(score_result.std()))
+    
+print("Classification Report : \n")
+print(classification_report(predict_result,targets))

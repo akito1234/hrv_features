@@ -13,8 +13,6 @@ import src.config as config
 from sklearn.svm import LinearSVC
 
 
-
-
 class EmotionRecognition:
     #感情クラス
     #前処理全般
@@ -40,7 +38,6 @@ class EmotionRecognition:
         self.emotion_state = ['Stress','Amusement']
         self.individual_parameter = config.individual_parameter
 
-       
         
         # 特徴量取得
         if features_path is not None:
@@ -121,12 +118,10 @@ class EmotionRecognition:
 
         return df_result
 
-
-
 # 主観評価の処理クラス
 class Emotion_Label:
     def __init__(self, questionnaire_path,emotion_filter=False,
-                 filter_type="both",target_name="emotion"):
+                 filter_type="both",target_name="Valence"):
         self.target = None
         self.target_name = target_name
         self.questionnaire = None
@@ -221,9 +216,7 @@ class Emotion_Label:
     def get_emotion_target(self):
         self.target = self.questionnaire[self.target_name]
 
-        
-        
-
+       
 # ExcelデータをNumpy形式に変換してデータセットを作成
 def load_emotion_dataset():
     emotion_dataset = EmotionRecognition(config.features_path,
@@ -287,7 +280,6 @@ def boruta_feature_selection(dataset,show=False):
 
     # 特徴量後のデータセット作成
     selected_label = dataset.features_label_list[feat_selector.support_]
-    #selected = dataset.drop(drop_label, axis=1).columns[feat_selector.support_]
     selected_features = dataset.features[: ,feat_selector.support_]
 
     if show:
@@ -300,9 +292,6 @@ def boruta_feature_selection(dataset,show=False):
         plt.show()
 
     return selected_label, selected_features
-
-
-
 
 if __name__ =="__main__":
     load_emotion_dataset()
