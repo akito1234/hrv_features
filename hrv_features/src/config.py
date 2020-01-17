@@ -43,7 +43,7 @@ filter_type="both"
 
 
 ## モデル比較用
-#selected_label = ["lomb_total","sd2","sd1","tri_index","lomb_rel_hf",
-#                   "tinn","tinn_m","nni_counter","nni_mean","nni_max",
-#                   "ellipse_area","hr_min","nni_diff_mean","hr_mean",
-#                   "sdnn","rmssd"]
+selected_label = ["lomb_total","sd2","sd1","tri_index","lomb_rel_hf",
+                   "tinn","tinn_m","nni_counter","nni_mean","nni_max",
+                   "ellipse_area","hr_min","nni_diff_mean","hr_mean",
+                   "sdnn","rmssd"]

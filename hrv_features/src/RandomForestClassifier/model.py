@@ -77,14 +77,14 @@ def build():
     # --------------
     print("\n--------Features Selection-----------")
     # Boruta省略
-    #print(config.selected_label)
-    #select_features = emotion_dataset.features_label_list.isin(config.selected_label)
-    #emotion_dataset.features = emotion_dataset.features[:,select_features]
+    print(config.selected_label)
+    select_features = emotion_dataset.features_label_list.isin(config.selected_label)
+    emotion_dataset.features = emotion_dataset.features[:,select_features]
 
     # Boruta実行
-    selected_label, selected_features = boruta_feature_selection(emotion_dataset,show=False)
-    emotion_dataset.features_label_list = selected_label
-    emotion_dataset.features = selected_features
+    #selected_label, selected_features = boruta_feature_selection(emotion_dataset,show=False)
+    #emotion_dataset.features_label_list = selected_label
+    #emotion_dataset.features = selected_features
 
 
     # --------------
