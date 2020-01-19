@@ -66,12 +66,15 @@ class EmotionRecognition:
         # 個人差の補正あり: emotion_labelを除いたのデータ数をマージする
         # 個人差の補正なし:emotion_labelにbaselineを加えたラベル
 
-        dataset = pd.merge(emotion_label.questionnaire, self.features, on=["user","date","emotion"],how="right")
-        if self.bool_normalization:
-            dataset = dataset.query("emotion == @self.emotion_state and Valence.notnull() and Arousal.notnull()", engine='python')
-        else:
-            #dataset = dataset.query("emotion == @self.emotion_state and Valence.notnull() and Arousal.notnull()", engine='python')
-            dataset = dataset.query("emotion == @self.emotion_baseline or (emotion == @self.emotion_state and Valence.notnull() and Arousal.notnull())", engine='python')
+        # ニュートラルいれるときは直すこと
+        dataset = pd.merge(emotion_label.questionnaire, self.features, on=["user","date","emotion"]
+                           #,how="right"
+                           )
+        #if self.bool_normalization:
+        #    dataset = dataset.query("emotion == @self.emotion_state and Valence.notnull() and Arousal.notnull()", engine='python')
+        #else:
+        #    #dataset = dataset.query("emotion == @self.emotion_state and Valence.notnull() and Arousal.notnull()", engine='python')
+        #    dataset = dataset.query("emotion == @self.emotion_baseline or (emotion == @self.emotion_state and Valence.notnull() and Arousal.notnull())", engine='python')
 
         # Dataframe をNumpy形式に変換する
         self.targets = dataset[self.targets_name].values
@@ -135,7 +138,9 @@ class Emotion_Label:
             self.preprocessing_questionnaire(questionnaire_path)
 
         if self.questionnaire is not None:
+            print("Selected Targets:{}".format(self.target_name))
             self.get_emotion_target()
+            
 
     def preprocessing_questionnaire(self,question_path):
         # データ取得
@@ -204,10 +209,44 @@ class Emotion_Label:
 
     # 感情ラベルを作成
     def get_emotion_target(self):
-        self.target = self.questionnaire[self.target_name]
+        if any(self.questionnaire.columns.isin([self.target_name])):
+            self.target = self.questionnaire[self.target_name]
+        elif self.target_name == "3label_emotion":
+            self.questionnaire["3label_emotion"] = self.questionnaire.apply(self.Convert_3Label_Targets,axis=1)
+        elif self.target_name == "4label_emotion":
+            self.questionnaire["4label_emotion"] = self.questionnaire.apply(self.Convert_4Label_Targets,axis=1)
 
-        
-        
+
+    def Convert_3Label_Targets(self,df):
+        # Affect Gridに従って，Valence High,Middle,Lowの三段階にラベルを振り分ける
+        targets = ""
+        if ((df["emotion"] == "Stress") and ((df["Arousal"] >= 4 and df["Valence"] <= 2)
+             or (df["Arousal"] in (6,7) and df["Valence"] in (3,4)))):
+            targtets = "VL"# valence low
+        elif (df["Valence"] in (3,4,5) and df["Arousal"] in (4,5)):
+            targtets = "VM"# valence middle        
+        elif ((df["emotion"] == "Amusement") and ((df["Arousal"] >= 4 and df["Valence"] >= 6)
+               or (df["Arousal"] in (6,7) and df["Valence"] in (4,5)))):
+            targtets = "VH"# valence high 
+        return targets 
+
+    def Convert_4Label_Targets(self,df):
+        # Affect Gridに従って，Stress High Low, Amusement High,Lowの４段階にラベルを振り分ける
+        targets = ""
+        if ((df["emotion"] == "Stress") and (df["Arousal"] >= 4 and df["Valence"] <= 4)
+             and not (df["Arousal"] in (4,5) and df["Valence"] in (3,4))):
+            targtets = "StH"# stress high
+
+        elif ((df["emotion"] == "Stress") and (df["Arousal"] in (4,5) and df["Valence"] in (3,4))):
+            targtets = "StL"# stress low
+
+        elif ((df["emotion"] == "Amusement") and (df["Arousal"] >= 4 and df["Valence"] >= 4)
+             and not (df["Arousal"] in (4,5) and df["Valence"] in (4,5))):
+            targtets = "AmH"# amusement high
+
+        elif ((df["emotion"] == "Amusement") and (df["Arousal"] in (4,5) and df["Valence"] in (4,5))):
+            targtets = "AmL"# amusement low
+        return targets 
 
 # ExcelデータをNumpy形式に変換してデータセットを作成
 def load_emotion_dataset():
