@@ -3,11 +3,11 @@
 """
 
 ## 主観評価データへのパス
-questionnaire_path = r"C:\Users\akito\Desktop\stress\05.QuestionNaire\QuestionNaire_result.xlsx"
+questionnaire_path = r"Z:\theme\mental_arithmetic\06.QuestionNaire\QuestionNaire_result.xlsx"
 
 
 # 特徴量データへのパス
-features_path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets_1.xlsx"
+features_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_300s.xlsx"
 
 # 重要 出力される感情ラベルの種類
 emotion_state = ['Stress','Amusement']
@@ -29,6 +29,8 @@ remove_questionnaire_label = ["id","exp_id","trans_Emotion_1","trans_Emotion_2",
 #target_name = "emotion"
 #target_name = "Valence"
 #target_name = "strength"
+
+# 注意　3_labelおよび4_labelはアンケートフィルタ必須
 target_name = "3label_emotion"
 
 # 個人差補正 diff or ratio

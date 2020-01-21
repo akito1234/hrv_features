@@ -171,7 +171,6 @@ def segumentation_freq_features(nni,sample_time=300,time_step=30):
             df = pd.DataFrame([], columns=dict_parameters.keys())
 
         df =  pd.concat([df, pd.DataFrame(dict_parameters, index=[time])])
-
     return df
 
 #---------------------------------------------
@@ -205,32 +204,6 @@ def freqparameter(nni):
     results = modify_tuple_to_float(results)
 
     return results
-
-#---------------------------------------------
-# Neutrl状態から差分を算出する
-#---------------------------------------------
-#def biosignal_features(df, emotion,keywords = None):
-#    for i,key in enumerate(emotion.keys()):
-#        # セグメント内での特徴量算出
-#        segment_bio_report = {}
-#        if keywords is not None:
-#            segment_bio_report.update(keywords)
-
-#        #bio_parameter = segments_parameter(rri_peaks, 
-#        #                                   resp_peaks, 
-#        #                                   scr_data,
-#        #                                   emotion[key])
-
-#        print("----------------"+key+"--------------------")
-        
-#        segment_bio_report.update({'emotion':key})
-#        segment_bio_report.update(bio_parameter)
-
-#        if i == 0:
-#            df = pd.DataFrame([], columns=segment_bio_report.keys())
-
-#        df =  pd.concat([df, pd.DataFrame(segment_bio_report , index=[key])])
-#    return df
 
 
 def neutral_detrend(df, emotion, keywords= None,base = "Neutral1"):

@@ -18,7 +18,6 @@ from util import detrending
 
 # Local imports/HRV toolbox imports
 import pyhrv.tools as tools
-import pyhrv
 import biosppy
 
 

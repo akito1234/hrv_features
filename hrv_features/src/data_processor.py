@@ -123,7 +123,7 @@ class EmotionRecognition:
 
 # 主観評価の処理クラス
 class Emotion_Label:
-    def __init__(self, questionnaire_path,emotion_filter=False,
+    def __init__(self, questionnaire_path,emotion_filter=True,
                  filter_type="both",target_name="emotion"):
         self.target = None
         self.target_name = target_name
@@ -222,12 +222,14 @@ class Emotion_Label:
         targets = ""
         if ((df["emotion"] == "Stress") and ((df["Arousal"] >= 4 and df["Valence"] <= 2)
              or (df["Arousal"] in (6,7) and df["Valence"] in (3,4)))):
-            targtets = "VL"# valence low
+            targets = "VL"# valence low
+
         elif (df["Valence"] in (3,4,5) and df["Arousal"] in (4,5)):
-            targtets = "VM"# valence middle        
+            targets = "VM"# valence middle        
+
         elif ((df["emotion"] == "Amusement") and ((df["Arousal"] >= 4 and df["Valence"] >= 6)
                or (df["Arousal"] in (6,7) and df["Valence"] in (4,5)))):
-            targtets = "VH"# valence high 
+            targets = "VH"# valence high 
         return targets 
 
     def Convert_4Label_Targets(self,df):
@@ -235,17 +237,17 @@ class Emotion_Label:
         targets = ""
         if ((df["emotion"] == "Stress") and (df["Arousal"] >= 4 and df["Valence"] <= 4)
              and not (df["Arousal"] in (4,5) and df["Valence"] in (3,4))):
-            targtets = "StH"# stress high
+            targets = "StH"# stress high
 
         elif ((df["emotion"] == "Stress") and (df["Arousal"] in (4,5) and df["Valence"] in (3,4))):
-            targtets = "StL"# stress low
+            targets = "StL"# stress low
 
         elif ((df["emotion"] == "Amusement") and (df["Arousal"] >= 4 and df["Valence"] >= 4)
              and not (df["Arousal"] in (4,5) and df["Valence"] in (4,5))):
-            targtets = "AmH"# amusement high
+            targets = "AmH"# amusement high
 
         elif ((df["emotion"] == "Amusement") and (df["Arousal"] in (4,5) and df["Valence"] in (4,5))):
-            targtets = "AmL"# amusement low
+            targets = "AmL"# amusement low
         return targets 
 
 # ExcelデータをNumpy形式に変換してデータセットを作成
@@ -332,8 +334,12 @@ def boruta_feature_selection(dataset,show=False):
     return selected_label, selected_features
 
 if __name__ =="__main__":
-    load_emotion_dataset()
-    test = Emotion_Label(config.questionnaire_path)
-    print(test.target)
-    print("success")
-    pass
+    test = Emotion_Label(config.questionnaire_path,
+                         target_name = config.target_name)
+    print(test.questionnaire)
+    test.questionnaire.to_excel(r"C:\Users\akito\Desktop\quetionnarire2.xlsx")
+    #load_emotion_dataset()
+    #test = Emotion_Label(config.questionnaire_path)
+    #print(test.target)
+    #print("success")
+    #pass

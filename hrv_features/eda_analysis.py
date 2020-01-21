@@ -78,7 +78,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     from opensignalsreader import OpenSignalsReader
 
-    path = r"C:\Users\akito\Desktop\test.txt"
+    path = r"Z:\theme\mental_arithmetic\03.BiometricData\2019-10-21\tohma\opensignals_201806130003_2019-10-21_15-16-48.txt"
     arc = OpenSignalsReader(path)
 
     scr_data = scr(arc.signal('EDA'),
@@ -89,13 +89,14 @@ if __name__ == '__main__':
     
     #for a in scr_data.keys():
     #    print(a,scr_data[a])
-    
-    fig, axes = plt.subplots(3,1)
-    axes[0].plot(scr_data['ts'],scr_data['sc'])
-    axes[1].plot(scr_data['ts'],scr_data['pathicData'])
-    axes[2].plot(scr_data['ts'],scr_data['tonicData'])
-    plt.show()
+    #np.savetxt(r"C:\Users\akito\Desktop\kishida_opensignals_dev_2019-10-11_17-06-10.csv"
+    #           ,np.c_[scr_data['ts'],scr_data['sc'],scr_data['pathicData'],scr_data['tonicData']],delimiter=",")
+    #fig, axes = plt.subplots(2,1,sharex=True)
+    plt.plot(scr_data['ts'],scr_data['sc'])
+    plt.plot(scr_data['ts'],scr_data['tonicData'])
+    plt.plot(scr_data['ts'],scr_data['pathicData'])
 
+    plt.show()
     #path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-28\shibata\opensignals_dev_2019-10-28_13-50-02.txt"
     #arc = OpenSignalsReader(path)
     #result = scr(arc.signal(['EDA']),result_type='phasicdriver')
@@ -107,23 +108,4 @@ if __name__ == '__main__':
     #fig,axs = plt.subplots(2,1,sharex=False)
     #axs[0].plot(result['ts'],result['src'])
     #axs[1].plot(arc.t,arc.signal(['EDA']))
-    #plt.show()
-
-
-
-    #import matplotlib.pyplot as plt
-    #data = np.loadtxt(r"Z:\theme\mental_stress\03.Analysis\Analysis_BioSignal\EDA\SCR_kishida_2019-10-22.csv")
-    #ts = data[:,0]
-    #scr_signal = data[:,1]
-    #scr_signal = scr_signal - scr_signal[ts <= 300].mean()
-
-
-    ### SCR (skin conductance response)の1次微分を算出 
-    ##scr_first_time_derivative = np.diff(scr_signal) / np.diff(ts)
-
-    ## 微分した値を符号関数に変換する
-    #scr_sgn = np.sign(scr_signal)
-
-    #plt.plot(ts ,scr_signal)
-    #plt.plot(ts,scr_sgn)
     #plt.show()
