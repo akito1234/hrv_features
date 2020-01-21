@@ -235,18 +235,16 @@ class Emotion_Label:
     def Convert_4Label_Targets(self,df):
         # Affect Gridに従って，Stress High Low, Amusement High,Lowの４段階にラベルを振り分ける
         targets = ""
-        if ((df["emotion"] == "Stress") and (df["Arousal"] >= 4 and df["Valence"] <= 4)
-             and not (df["Arousal"] in (4,5) and df["Valence"] in (3,4))):
+        if ((df["emotion"] == "Stress") and (df["Arousal"] >= 4 and df["Valence"] <= 2)):
             targets = "StH"# stress high
 
-        elif ((df["emotion"] == "Stress") and (df["Arousal"] in (4,5) and df["Valence"] in (3,4))):
+        elif ((df["emotion"] == "Stress") and (df["Arousal"] >=4 and df["Valence"] in (3,4))):
             targets = "StL"# stress low
 
-        elif ((df["emotion"] == "Amusement") and (df["Arousal"] >= 4 and df["Valence"] >= 4)
-             and not (df["Arousal"] in (4,5) and df["Valence"] in (4,5))):
+        elif ((df["emotion"] == "Amusement") and (df["Arousal"] >= 4 and df["Valence"] >= 6)):
             targets = "AmH"# amusement high
 
-        elif ((df["emotion"] == "Amusement") and (df["Arousal"] in (4,5) and df["Valence"] in (4,5))):
+        elif ((df["emotion"] == "Amusement") and (df["Arousal"] >=4 and df["Valence"] in (4,5))):
             targets = "AmL"# amusement low
         return targets 
 

@@ -7,6 +7,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import mean_absolute_error
 # Local Packages
 from src.data_processor import *
 from src.config import *
@@ -98,11 +99,32 @@ def build():
     params = {"C":np.logspace(-1,2,100), "epsilon":np.logspace(-1,1,params_cnt)}
     gridsearch = GridSearchCV(SVR(kernel="linear"), params, cv=gkf, scoring="r2", return_train_score=True)
     gridsearch.fit(emotion_dataset.features, emotion_dataset.targets)
-    print("C, εのチューニング")
-    print("最適なパラメーター =", gridsearch.best_params_)
-    print("精度 =", gridsearch.best_score_)
-
+    print("best parameters:", gridsearch.best_params_)
+    print("accuracy ", gridsearch.best_score_)
+    
+    y_pred = gridsearch.best_estimator_.predict(emotion_dataset.features)
+    mae = mean_absolute_error(emotion_dataset.targets, y_pred)
+    print("mean absolute error : {}".format(mae))
+    yyplot(emotion_dataset.targets, y_pred)
     return reg
+
+# visualization
+# yyplot 作成関数
+def yyplot(y_obs, y_pred):
+    yvalues = np.concatenate([y_obs.flatten(), y_pred.flatten()])
+    ymin, ymax, yrange = np.amin(yvalues), np.amax(yvalues), np.ptp(yvalues)
+    fig = plt.figure(figsize=(8, 8))
+    plt.scatter(y_obs, y_pred)
+    plt.plot([ymin - yrange * 0.01, ymax + yrange * 0.01], [ymin - yrange * 0.01, ymax + yrange * 0.01])
+    plt.xlim(ymin - yrange * 0.01, ymax + yrange * 0.01)
+    plt.ylim(ymin - yrange * 0.01, ymax + yrange * 0.01)
+    plt.xlabel('y_observed', fontsize=24)
+    plt.ylabel('y_predicted', fontsize=24)
+    plt.title('Observed-Predicted Plot', fontsize=24)
+    plt.tick_params(labelsize=16)
+    plt.show()
+
+    return fig
 
 if __name__ == "__main__":
     build()
