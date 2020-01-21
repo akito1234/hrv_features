@@ -31,14 +31,14 @@ remove_questionnaire_label = ["id","exp_id","trans_Emotion_1","trans_Emotion_2",
 #target_name = "strength"
 
 # 注意　3_labelおよび4_labelはアンケートフィルタ必須
-target_name = "3label_emotion"
+target_name = "4label_emotion"
 
 # 個人差補正 diff or ratio
 #individual_parameter = "diff"
 individual_parameter = "ratio"
 
 # 個人差補正
-normalization = False
+normalization = True
 
 # 主観評価によるフィルタ
 emotion_filter = True

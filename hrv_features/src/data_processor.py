@@ -221,14 +221,14 @@ class Emotion_Label:
         # Affect Gridに従って，Valence High,Middle,Lowの三段階にラベルを振り分ける
         targets = ""
         if ((df["emotion"] == "Stress") and ((df["Arousal"] >= 4 and df["Valence"] <= 2)
-             or (df["Arousal"] in (6,7) and df["Valence"] in (3,4)))):
+             or (df["Arousal"] == 7 and df["Valence"] in (3,4)))):
             targets = "VL"# valence low
 
-        elif (df["Valence"] in (3,4,5) and df["Arousal"] in (4,5)):
+        elif (df["Valence"] in (3,4,5) and df["Arousal"] in (4,5,6)):
             targets = "VM"# valence middle        
 
         elif ((df["emotion"] == "Amusement") and ((df["Arousal"] >= 4 and df["Valence"] >= 6)
-               or (df["Arousal"] in (6,7) and df["Valence"] in (4,5)))):
+               or (df["Arousal"] == 7 and df["Valence"] in (4,5)))):
             targets = "VH"# valence high 
         return targets 
 
@@ -337,7 +337,7 @@ if __name__ =="__main__":
     test = Emotion_Label(config.questionnaire_path,
                          target_name = config.target_name)
     print(test.questionnaire)
-    test.questionnaire.to_excel(r"C:\Users\akito\Desktop\quetionnarire2.xlsx")
+    test.questionnaire.to_excel(r"C:\Users\akito\Desktop\quetionnarire_3label_type2.xlsx")
     #load_emotion_dataset()
     #test = Emotion_Label(config.questionnaire_path)
     #print(test.target)
