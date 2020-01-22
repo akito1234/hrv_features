@@ -22,7 +22,7 @@ from sklearn.metrics import classification_report
 import pickle
 # Local Package
 from src import config
-
+from src.visualization import *
 # Import Localpackage
 from src.data_processor import *
 
@@ -34,7 +34,7 @@ def multi_Grid_Search(features,targets,gkf):
     # PenaltyL1 |    L1     |   L2
 
     # LinearSVCの取りうるモデルパラメータを設定
-    C_range= np.logspace(-2,2,100)
+    C_range= np.logspace(-1,2,10)
     param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[500000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}, 
                     {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[500000],
@@ -42,7 +42,7 @@ def multi_Grid_Search(features,targets,gkf):
                     {"penalty": ["l2"],"loss": ["squared_hinge"],"dual": [True],"max_iter":[500000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}]
 
-    clf = LinearSVC()
+    clf = LinearSVC(random_state=1)
     grid_clf = GridSearchCV(clf, param_grid, cv=gkf, n_jobs=-1)
 
     #モデル訓練
@@ -68,7 +68,7 @@ def build():
     # ラベルエンコード   
     emotion_dataset.targets = preprocessing.LabelEncoder().fit_transform(emotion_dataset.targets)
 
-
+    feature_label = emotion_dataset.features_label_list
     # --------------
     # 特徴量選択
     # --------------
@@ -77,22 +77,22 @@ def build():
     #select_features = emotion_dataset.features_label_list.isin(config.selected_label)
     #emotion_dataset.features = emotion_dataset.features[:,select_features]
 
-    # BORUTA
-    selected_label, selected_features = boruta_feature_selection(emotion_dataset,show=False)
+    # LinearSVM
+    selected_label, selected_features = rfe_feature_selection(emotion_dataset)
     emotion_dataset.features_label_list = selected_label
     emotion_dataset.features = selected_features
-    print(selected_label)
-
 
     # --------------
     # 学習モデル
     # --------------
     gkf = split_by_group(emotion_dataset)
-    clf = multi_Grid_Search(emotion_dataset.features,emotion_dataset.targets,gkf)
+    clf = multi_Grid_Search(emotion_dataset.features,emotion_dataset.targets, gkf)
     
     ##best_clf = multi_Grid_Search(features,targets, gkf)
     #best_clf = clf = OneVsRestClassifier(LinearSVC(random_state=0)).fit(features, targets)
-
+    
+    # 重要度描画
+    #plot_importance(clf, emotion_dataset.features_label_list)
     # --------------
     # 精度検証
     # --------------

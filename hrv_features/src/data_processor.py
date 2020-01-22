@@ -1,17 +1,20 @@
 import numpy as np
 import pandas as pd
+from sklearn import preprocessing
 import os, glob
+from functools import partial
 from sklearn import preprocessing
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import LeaveOneOut
 from sklearn.model_selection import GroupKFold
 from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import cross_val_score,cross_val_predict
 from boruta import BorutaPy
+from sklearn.feature_selection import RFE,RFECV
 from sklearn.ensemble import RandomForestClassifier
-from multiprocessing import cpu_count
 import src.config as config
 from sklearn.svm import LinearSVC
-
+import optuna
 
 class EmotionRecognition:
     #感情クラス
@@ -331,13 +334,121 @@ def boruta_feature_selection(dataset,show=False):
 
     return selected_label, selected_features
 
+
+def svc_feature_selection(dataset):
+    # 特徴量選択用のモデル(RandamForest)の定義
+    svc = LinearSVC(random_state=1,max_iter=10000)
+
+    gkf = split_by_group(dataset)
+    feat_selector = RFECV(estimator=svc, cv=gkf,min_features_to_select=5,n_jobs=-1,step=1)
+    dataset.features = preprocessing.StandardScaler().fit_transform(dataset.features) 
+
+    # 学習の開始
+    feat_selector.fit(dataset.features, dataset.targets)
+
+    # 出力
+    column_list = dataset.features_label_list
+    print('\n Initial features: {}'.format(column_list))
+
+    # 選ばれた特徴量の数
+    print('\n Number of select feature: {}'.format(feat_selector.n_features_))
+
+    print ('\n Top %d features:' % feat_selector.n_features_)
+    
+    feature_df = pd.DataFrame(column_list, columns=['features'])
+    
+    feature_df['rank']=feat_selector.ranking_
+    feature_df = feature_df.sort_values('rank', ascending=True).reset_index(drop=True)
+    print (feature_df.head(feat_selector.n_features_))
+
+    # check ranking of features
+    print ('\n Feature ranking:')
+    print (feat_selector.ranking_)
+
+    # 特徴量後のデータセット作成
+    selected_label = dataset.features_label_list[feat_selector.support_]
+    selected_features = dataset.features[: ,feat_selector.support_]
+
+    return selected_label, selected_features
+
+def rfe_feature_selection(dataset):
+    # 特徴量選択用のモデル(Linear SVM)の定義
+    svc = LinearSVC(random_state=1,max_iter=10000,class_weight="balanced")
+
+    # RFE で取り出す特徴量の数を最適化する
+    #n_features_to_select = trial.suggest_int('n_features_to_select', 1, 100)
+    feat_selector = RFE(estimator=svc, n_features_to_select =10,step=1)
+    dataset.features = preprocessing.StandardScaler().fit_transform(dataset.features) 
+    # 学習の開始
+    feat_selector.fit(dataset.features, dataset.targets)
+
+    # 出力
+    column_list = dataset.features_label_list
+    print('\n Initial features: {}'.format(column_list))
+
+    # 選ばれた特徴量の数
+    print('\n Number of select feature: {}'.format(feat_selector.n_features_))
+
+    print ('\n Top %d features:' % feat_selector.n_features_)
+    
+    feature_df = pd.DataFrame(column_list, columns=['features'])
+    
+    feature_df['rank']=feat_selector.ranking_
+    feature_df = feature_df.sort_values('rank', ascending=True).reset_index(drop=True)
+    print (feature_df.head(feat_selector.n_features_))
+
+    # check ranking of features
+    print ('\n Feature ranking:')
+    print (feat_selector.ranking_)
+
+    # 特徴量後のデータセット作成
+    selected_label = dataset.features_label_list[feat_selector.support_]
+    selected_features = dataset.features[: ,feat_selector.support_]
+    print(selected_label)
+   
+
+    return selected_label, selected_features
+
+def objective(dataset, trial):
+    # 特徴量選択用のモデル(Linear SVM)の定義
+    svc = LinearSVC(random_state=1,max_iter=10000)
+
+    # RFE で取り出す特徴量の数を最適化する
+    n_features_to_select = trial.suggest_int('n_features_to_select', 1, 100)
+    feat_selector = RFE(estimator=svc, n_features_to_select=n_features_to_select)
+
+
+    dataset.features = preprocessing.StandardScaler().fit_transform(dataset.features) 
+    # 学習の開始
+    feat_selector.fit(dataset.features, dataset.targets)
+
+    # 特徴量後のデータセット作成
+    selected_label = dataset.features_label_list[feat_selector.support_]
+    selected_features = dataset.features[: ,feat_selector.support_]
+
+    gkf = split_by_group(dataset)
+    score_result = cross_val_score(feat_selector.estimator_,dataset.features,
+                                   dataset.targets, cv=gkf)
+
+    return score_result.mean()
+
+
 if __name__ =="__main__":
-    test = Emotion_Label(config.questionnaire_path,
-                         target_name = config.target_name)
-    print(test.questionnaire)
-    test.questionnaire.to_excel(r"C:\Users\akito\Desktop\quetionnarire_3label_type2.xlsx")
-    #load_emotion_dataset()
-    #test = Emotion_Label(config.questionnaire_path)
-    #print(test.target)
-    #print("success")
-    #pass
+    #test = Emotion_Label(config.questionnaire_path,
+    #                     target_name = config.target_name)
+    #print(test.questionnaire)
+    #test.questionnaire.to_excel(r"C:\Users\akito\Desktop\quetionnarire_3label_type2.xlsx")
+    dataset = load_emotion_dataset()
+
+    # 目的関数にデータを適用する
+    f = partial(objective, dataset)
+
+    # Optuna で取り出す特徴量の数を最適化する
+    study = optuna.create_study(direction='maximize')
+
+    # 20 回試行する
+    study.optimize(f, n_trials=20)
+
+    # 発見したパラメータを出力する
+    print('params:', study.best_params)
+    pass

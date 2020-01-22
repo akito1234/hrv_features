@@ -15,7 +15,8 @@ import matplotlib.pyplot as plt
 
 # Import Localpackage
 #from .. import 
-from src.data_processor import load_emotion_dataset,split_by_group,boruta_feature_selection
+from src.data_processor import *
+from src.visualization import *
 
 #normalization=True,emotion_filter=Trueの場合に選択された特徴量
 #selected_label = ["rmssd","sdnn","lomb_abs_lf","hr_min","hr_mean","nni_max",
@@ -79,10 +80,15 @@ def build():
     # 特徴量選択
     # ----------------
     # Boruta
-    selected_label, selected_features = boruta_feature_selection(emotion_dataset,show=False)
+    #selected_label, selected_features = boruta_feature_selection(emotion_dataset,show=False)
+    selected_label, selected_features = svc_feature_selection(emotion_dataset)
     emotion_dataset.features_label_list = selected_label
     emotion_dataset.features = selected_features
     best_model = Grid_Search(emotion_dataset)
+
+    # 重要度描画
+    plot_importance(best_model, emotion_dataset.features_label_list)
+    
     # --------------
     # 精度検証
     # --------------
@@ -102,6 +108,8 @@ def build():
     print("Classification Report : \n")
     print(classification_report(predict_result,emotion_dataset.targets,
                                 target_names=["Amusement","Stress"]))
+
+
     return best_model
 
 # 学習モデルを保存する
