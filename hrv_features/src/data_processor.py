@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn import preprocessing
 import os, glob
 from functools import partial
@@ -42,8 +43,6 @@ class EmotionRecognition:
         self.emotion_state = emotion_state
         self.bool_normalization = normalization
         self.individual_parameter = individual_parameter
-
-       
         
         # 特徴量取得
         if question_path is not None:
@@ -71,13 +70,14 @@ class EmotionRecognition:
 
         # ニュートラルいれるときは直すこと
         dataset = pd.merge(emotion_label.questionnaire, self.features, on=["user","date","emotion"]
-                           #,how="right"
+                           ,how="right"
                            )
-        #if self.bool_normalization:
-        #    dataset = dataset.query("emotion == @self.emotion_state and Valence.notnull() and Arousal.notnull()", engine='python')
-        #else:
-        #    #dataset = dataset.query("emotion == @self.emotion_state and Valence.notnull() and Arousal.notnull()", engine='python')
-        #    dataset = dataset.query("emotion == @self.emotion_baseline or (emotion == @self.emotion_state and Valence.notnull() and Arousal.notnull())", engine='python')
+        if self.bool_normalization:
+            dataset = dataset.query("emotion == @self.emotion_state or (Valence.notnull() and Arousal.notnull())", engine='python')
+
+        else:
+            #dataset = dataset.query("emotion == @self.emotion_state and Valence.notnull() and Arousal.notnull()", engine='python')
+            dataset = dataset.query("emotion == @self.emotion_baseline or (emotion == @self.emotion_state and Valence.notnull() and Arousal.notnull())", engine='python')
 
         # Dataframe をNumpy形式に変換する
         self.targets = dataset[self.targets_name].values
@@ -219,36 +219,66 @@ class Emotion_Label:
         elif self.target_name == "4label_emotion":
             self.questionnaire["4label_emotion"] = self.questionnaire.apply(self.Convert_4Label_Targets,axis=1)
 
-
+    
     def Convert_3Label_Targets(self,df):
         # Affect Gridに従って，Valence High,Middle,Lowの三段階にラベルを振り分ける
         targets = ""
+        ##Pattern 1
+        #if ((df["emotion"] == "Stress") and ((df["Arousal"] >= 4 and df["Valence"] <= 2)
+        #     or (df["Arousal"] in (6,7) and df["Valence"] in (3,4)))):
+        #    targets = "VL"# valence low
+
+        #elif (df["Valence"] in (3,4,5) and df["Arousal"] in (4,5)):
+        #    targets = "VM"# valence middle        
+
+        #elif ((df["emotion"] == "Amusement") and ((df["Arousal"] >= 4 and df["Valence"] >= 6)
+        #       or (df["Arousal"] in (6,7) and df["Valence"] in (4,5)))):
+        #    targets = "VH"# valence high 
+
+        # Pattern 2
         if ((df["emotion"] == "Stress") and ((df["Arousal"] >= 4 and df["Valence"] <= 2)
-             or (df["Arousal"] == 7 and df["Valence"] in (3,4)))):
+            or (df["Arousal"] == 7 and df["Valence"] in (3,4)))):
             targets = "VL"# valence low
 
-        elif (df["Valence"] in (3,4,5) and df["Arousal"] in (4,5,6)):
+        elif (df["Valence"] in (3,4,5) and df["Arousal"] in (3,4,5)):
             targets = "VM"# valence middle        
 
         elif ((df["emotion"] == "Amusement") and ((df["Arousal"] >= 4 and df["Valence"] >= 6)
-               or (df["Arousal"] == 7 and df["Valence"] in (4,5)))):
+                or (df["Arousal"] == 7 and df["Valence"] in (4,5)))):
             targets = "VH"# valence high 
-        return targets 
 
+        return targets 
+    
     def Convert_4Label_Targets(self,df):
         # Affect Gridに従って，Stress High Low, Amusement High,Lowの４段階にラベルを振り分ける
         targets = ""
-        if ((df["emotion"] == "Stress") and (df["Arousal"] >= 4 and df["Valence"] <= 2)):
-            targets = "StH"# stress high
 
-        elif ((df["emotion"] == "Stress") and (df["Arousal"] >=4 and df["Valence"] in (3,4))):
-            targets = "StL"# stress low
+        #if ((df["emotion"] == "Stress") and (df["Arousal"] >= 4 and df["Valence"] <= 2)):
+        #    targets = "StH"# stress high
 
-        elif ((df["emotion"] == "Amusement") and (df["Arousal"] >= 4 and df["Valence"] >= 6)):
-            targets = "AmH"# amusement high
+        #elif ((df["emotion"] == "Stress") and (df["Arousal"] >=4 and df["Valence"] in (3,4))):
+        #    targets = "StL"# stress low
 
-        elif ((df["emotion"] == "Amusement") and (df["Arousal"] >=4 and df["Valence"] in (4,5))):
-            targets = "AmL"# amusement low
+        #elif ((df["emotion"] == "Amusement") and (df["Arousal"] >= 4 and df["Valence"] >= 6)):
+        #    targets = "AmH"# amusement high
+
+        #elif ((df["emotion"] == "Amusement") and (df["Arousal"] >=4 and df["Valence"] in (4,5))):
+        #    targets = "AmL"# amusement low
+
+        if ((df["emotion"] == "Stress") and (df["Arousal"] in (4,5))):
+            targets = "StL"# stress high
+
+        elif ((df["emotion"] == "Stress") and (df["Arousal"] in (6,7))):
+            targets = "StH"# stress low
+
+        elif ((df["emotion"] == "Amusement") and (df["Arousal"] in (4,5))):
+            targets = "AmL"# amusement high
+
+        elif ((df["emotion"] == "Amusement") and  (df["Arousal"] in (6,7))):
+            targets = "AmH"# amusement low
+
+
+
         return targets 
 
 # ExcelデータをNumpy形式に変換してデータセットを作成
@@ -335,7 +365,7 @@ def boruta_feature_selection(dataset,show=False):
     return selected_label, selected_features
 
 
-def svc_feature_selection(dataset):
+def svc_feature_selection(dataset,show=False):
     # 特徴量選択用のモデル(RandamForest)の定義
     svc = LinearSVC(random_state=1,max_iter=10000)
 
@@ -369,15 +399,23 @@ def svc_feature_selection(dataset):
     selected_label = dataset.features_label_list[feat_selector.support_]
     selected_features = dataset.features[: ,feat_selector.support_]
 
+    if show:
+        # Plot number of features VS. cross-validation scores
+        plt.figure()
+        plt.xlabel("Number of features selected")
+        plt.ylabel("Cross validation score (nb of correct classifications)")
+        plt.plot(range(1, len(feat_selector.grid_scores_) + 1), feat_selector.grid_scores_)
+        plt.show()
+
     return selected_label, selected_features
 
-def rfe_feature_selection(dataset):
+def rfe_feature_selection(dataset,show=False):
     # 特徴量選択用のモデル(Linear SVM)の定義
     svc = LinearSVC(random_state=1,max_iter=10000,class_weight="balanced")
 
     # RFE で取り出す特徴量の数を最適化する
     #n_features_to_select = trial.suggest_int('n_features_to_select', 1, 100)
-    feat_selector = RFE(estimator=svc, n_features_to_select =10,step=1)
+    feat_selector = RFE(estimator=svc, n_features_to_select =13,step=1)
     dataset.features = preprocessing.StandardScaler().fit_transform(dataset.features) 
     # 学習の開始
     feat_selector.fit(dataset.features, dataset.targets)
@@ -405,7 +443,7 @@ def rfe_feature_selection(dataset):
     selected_label = dataset.features_label_list[feat_selector.support_]
     selected_features = dataset.features[: ,feat_selector.support_]
     print(selected_label)
-   
+
 
     return selected_label, selected_features
 

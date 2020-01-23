@@ -10,7 +10,7 @@ questionnaire_path = r"Z:\theme\mental_arithmetic\06.QuestionNaire\QuestionNaire
 features_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_300s.xlsx"
 
 # 重要 出力される感情ラベルの種類
-emotion_state = ['Stress','Amusement']
+emotion_state = ['Stress','Amusement','Neutral2']
 emotion_baseline = "Neutral1"
 
 # 特徴量データと主観評価を連結する用のキー
@@ -26,12 +26,13 @@ remove_features_label = ["nni_diff_min"]
 remove_questionnaire_label = ["id","exp_id","trans_Emotion_1","trans_Emotion_2","Film","is_bad"]
 
 # 目的変数
-#target_name = "emotion"
+target_name = "emotion"
 #target_name = "angle"
 #target_name = "strength"
+#target_name = "Valence"
 
 # 注意　3_labelおよび4_labelはアンケートフィルタ必須
-target_name = "3label_emotion"
+#target_name = "4label_emotion"
 
 # 個人差補正 diff or ratio
 #individual_parameter = "diff"

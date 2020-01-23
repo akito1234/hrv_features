@@ -18,12 +18,6 @@ import matplotlib.pyplot as plt
 from src.data_processor import *
 from src.visualization import *
 
-#normalization=True,emotion_filter=Trueの場合に選択された特徴量
-#selected_label = ["rmssd","sdnn","lomb_abs_lf","hr_min","hr_mean","nni_max",
-#                     "nni_diff_mean","tinn_m","tinn","nni_mean","sd1","sd2",
-#                     "nni_counter","ellipse_area","lomb_total","tri_index","ar_rel_vlf"]
-
-
 
 # Grid Search
 def Grid_Search(dataset):
@@ -37,11 +31,11 @@ def Grid_Search(dataset):
 
     # LinearSVCの取りうるモデルパラメータを設定
     C_range= np.logspace(-2, 2, 100)
-    param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[100000],
+    param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[500000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}, 
-                    {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[100000],
+                    {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[500000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}, 
-                    {"penalty": ["l2"],"loss": ["squared_hinge"],"dual": [True],"max_iter":[100000],
+                    {"penalty": ["l2"],"loss": ["squared_hinge"],"dual": [True],"max_iter":[500000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}]
     clf = LinearSVC(random_state=1)
     grid_clf = GridSearchCV(clf, param_grid, cv=gkf,n_jobs=-1)
@@ -57,17 +51,59 @@ def Grid_Search(dataset):
 
     return grid_clf.best_estimator_
 
+
+# 特徴量名一覧から各生体信号に分割する
+def Devide_Features_Biosignal(features_label,biosignal_type = ["ECG","RESP","EDA"]):
+    print("----------------------------\n")
+    print("Separate features for each biological signal")
+    apply_features = None
+    for type in biosignal_type:
+        if type == "RESP":
+            selected_features = features_label.str.contains("bvp_")
+            print("Append RESP features\n")
+
+        elif type == "EDA":
+            selected_features = (features_label.str.contains("sc_") 
+                                 | features_label.str.contains("tonicData_") 
+                                 | features_label.str.contains("pathicData_"))
+            print("Append EDA features\n")
+        elif type == "ECG":
+            selected_features = ~(features_label.str.contains("sc_") 
+                                 | features_label.str.contains("tonicData_") 
+                                 | features_label.str.contains("pathicData_")
+                                 | features_label.str.contains("bvp_"))
+            print("Append ECG features\n")
+        # mask処理
+        if apply_features is None:
+            apply_features = selected_features
+        else:
+            apply_features = (apply_features | selected_features)
+
+    return apply_features
+
 def build():
     # データの取得
     emotion_dataset = load_emotion_dataset()
     # ------------------
     # データ整形
     # ------------------
+
     # 標準化 [重要]
-    
+
+    # 外れ値のある特徴量を取り除く
     emotion_dataset.features_label_list = emotion_dataset.features_label_list[~np.isinf(emotion_dataset.features).any(axis=0)]
     emotion_dataset.features = emotion_dataset.features[:, ~np.isinf(emotion_dataset.features).any(axis=0)]
+    
+    # 生体信号ごとに特徴量を選択する
+    biosignal_type = ["ECG","EDA","RESP"]
+    selected_features = Devide_Features_Biosignal(emotion_dataset.features_label_list,
+                                                                    biosignal_type)
+    emotion_dataset.features_label_list = emotion_dataset.features_label_list[selected_features]
+    
+    emotion_dataset.features = emotion_dataset.features[:,selected_features]
+    
     emotion_dataset.features = preprocessing.StandardScaler().fit_transform(emotion_dataset.features) 
+    
     # label encoding
     le = preprocessing.LabelEncoder().fit(np.unique(emotion_dataset.targets))
     
@@ -79,15 +115,14 @@ def build():
     # ----------------
     # 特徴量選択
     # ----------------
-    # Boruta
-    #selected_label, selected_features = boruta_feature_selection(emotion_dataset,show=False)
-    selected_label, selected_features = boruta_feature_selection(emotion_dataset)
+    selected_label, selected_features = svc_feature_selection(emotion_dataset)
     emotion_dataset.features_label_list = selected_label
     emotion_dataset.features = selected_features
     best_model = Grid_Search(emotion_dataset)
 
+
     # 重要度描画
-    plot_importance(best_model, emotion_dataset.features_label_list)
+    #plot_importance(best_model, emotion_dataset.features_label_list)
     
     # --------------
     # 精度検証

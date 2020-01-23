@@ -7,7 +7,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 from sklearn.model_selection import GridSearchCV
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_squared_error,mean_absolute_error,r2_score
 # Local Packages
 from src.data_processor import *
 from src.config import *
@@ -121,7 +121,7 @@ def build():
     # ハイパーパラメータのチューニング
     # グリッドサーチするパラメータを設定
     params_cnt = 20
-    params = {"C":np.logspace(-1,2,100), "epsilon":np.logspace(-1,1,params_cnt)}
+    params = {"C":np.logspace(-1,2,10), "epsilon":np.logspace(-1,1,params_cnt)}
 
     gridsearch = GridSearchCV(SVR(kernel="linear"), params, cv=gkf, scoring="r2", return_train_score=True)
     
@@ -132,28 +132,43 @@ def build():
     print("accuracy ", gridsearch.best_score_)
     
     y_pred = gridsearch.best_estimator_.predict(emotion_dataset.features)
+    
+
+    r2 = r2_score(emotion_dataset.targets, y_pred)
     mae = mean_absolute_error(emotion_dataset.targets, y_pred)
-    print("mean absolute error : {}".format(mae))
-    yyplot(emotion_dataset.targets, y_pred)
+    rmse = np.sqrt(mean_squared_error(emotion_dataset.targets, y_pred))
+    print("R2 : {}".format(r2))
+    print("Mean Absolute Brror : {}".format(mae))
+    print("Root Mean Squared Error  : {}".format(rmse))
+    yyplot(emotion_dataset.targets, y_pred,emotion_dataset.targets_name)
     return reg
 
 # visualization
 # yyplot 作成関数
-def yyplot(y_obs, y_pred):
+def yyplot(y_obs, y_pred,name):
     yvalues = np.concatenate([y_obs.flatten(), y_pred.flatten()])
     ymin, ymax, yrange = np.amin(yvalues), np.amax(yvalues), np.ptp(yvalues)
     fig = plt.figure(figsize=(8, 8))
-    plt.scatter(y_obs, y_pred)
+    plt.scatter(y_obs, y_pred, marker='.',
+            label='RMSE : %.3f, MAE : %.3f \n RMSE/MAE = %.3f, R2 = %.3f'%(
+            mean_squared_error(y_obs, y_pred)**0.5, mean_absolute_error(y_obs, y_pred),
+            mean_squared_error(y_obs, y_pred)**0.5 / mean_absolute_error(y_obs, y_pred),
+            r2_score(y_obs, y_pred)))
+
+    plt.legend(fontsize=12)
     plt.plot([ymin - yrange * 0.01, ymax + yrange * 0.01], [ymin - yrange * 0.01, ymax + yrange * 0.01])
     plt.xlim(ymin - yrange * 0.01, ymax + yrange * 0.01)
     plt.ylim(ymin - yrange * 0.01, ymax + yrange * 0.01)
-    plt.xlabel('y_observed', fontsize=24)
-    plt.ylabel('y_predicted', fontsize=24)
-    plt.title('Observed-Predicted Plot', fontsize=24)
+    plt.xlabel('True Value', fontsize=24)
+    plt.ylabel('Predicted Value', fontsize=24)
+    plt.title('{} True-Predicted Plot'.format(name), fontsize=24)
     plt.tick_params(labelsize=16)
     plt.show()
 
     return fig
 
+
 if __name__ == "__main__":
     build()
+
+

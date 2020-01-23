@@ -34,7 +34,7 @@ def multi_Grid_Search(features,targets,gkf):
     # PenaltyL1 |    L1     |   L2
 
     # LinearSVCの取りうるモデルパラメータを設定
-    C_range= np.logspace(-1,2,10)
+    C_range= np.logspace(-2,2,10)
     param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[500000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}, 
                     {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[500000],
@@ -42,7 +42,7 @@ def multi_Grid_Search(features,targets,gkf):
                     {"penalty": ["l2"],"loss": ["squared_hinge"],"dual": [True],"max_iter":[500000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}]
 
-    clf = LinearSVC(random_state=1)
+    clf = LinearSVC(random_state=1,class_weight = 'balanced')
     grid_clf = GridSearchCV(clf, param_grid, cv=gkf, n_jobs=-1)
 
     #モデル訓練
@@ -78,7 +78,7 @@ def build():
     #emotion_dataset.features = emotion_dataset.features[:,select_features]
 
     # LinearSVM
-    selected_label, selected_features = rfe_feature_selection(emotion_dataset)
+    selected_label, selected_features = svc_feature_selection(emotion_dataset)
     emotion_dataset.features_label_list = selected_label
     emotion_dataset.features = selected_features
 
