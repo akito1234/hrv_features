@@ -10,14 +10,12 @@ questionnaire_path = r"Z:\theme\mental_arithmetic\06.QuestionNaire\QuestionNaire
 features_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_300s.xlsx"
 
 # 重要 出力される感情ラベルの種類
-emotion_state = ['Stress','Amusement','Neutral2']
+emotion_state = ['Stress','Amusement']
+
 emotion_baseline = "Neutral1"
 
 # 特徴量データと主観評価を連結する用のキー
 identical_parameter = ['id','emotion','user','date','path_name']
-
-# 取り除く感情名
-remove_label = ["Neutral2"]
 
 # 不要な特徴量
 remove_features_label = ["nni_diff_min"]

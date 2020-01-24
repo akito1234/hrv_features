@@ -17,6 +17,11 @@ import src.config as config
 from sklearn.svm import LinearSVC
 import optuna
 
+from mlxtend.feature_selection import SequentialFeatureSelector as SFS
+from mlxtend.plotting import plot_sequential_feature_selection as plot_sfs
+from sklearn.calibration import CalibratedClassifierCV
+
+
 class EmotionRecognition:
     #感情クラス
     #前処理全般
@@ -63,21 +68,22 @@ class EmotionRecognition:
             print("---------------------")
 
     def _set_parameter(self,emotion_label):
-        # オプション設定
-        # マージ，余計なデータを省く
-        # 個人差の補正あり: emotion_labelを除いたのデータ数をマージする
-        # 個人差の補正なし:emotion_labelにbaselineを加えたラベル
-
-        # ニュートラルいれるときは直すこと
-        dataset = pd.merge(emotion_label.questionnaire, self.features, on=["user","date","emotion"]
-                           ,how="right"
-                           )
-        if self.bool_normalization:
-            dataset = dataset.query("emotion == @self.emotion_state or (Valence.notnull() and Arousal.notnull())", engine='python')
-
-        else:
-            #dataset = dataset.query("emotion == @self.emotion_state and Valence.notnull() and Arousal.notnull()", engine='python')
-            dataset = dataset.query("emotion == @self.emotion_baseline or (emotion == @self.emotion_state and Valence.notnull() and Arousal.notnull())", engine='python')
+        # パラメータ設定
+          
+        # 1. Emotion State にある感情ラベルのみを抽出する
+        # 2. アンケート結果のdateから，featuresのデータを取り出す
+        exp_date = emotion_label.questionnaire["date"].unique().tolist()
+        self.features.query("emotion in @self.emotion_state  & date in @exp_date",inplace=True)
+        
+        
+        # Get Emotion Dataset
+        dataset = pd.merge(emotion_label.questionnaire, self.features, on=["user","date","emotion"])
+        # かなり強引なので，あとで修正する
+        if "Neutral1" in self.emotion_state or "Neutral2" in self.emotion_state:
+            df = pd.merge(emotion_label.questionnaire.query("emotion in ['Neutral1','Neutral2']")
+                               , self.features.query("emotion in ['Neutral1','Neutral2']"), on=["user","date","emotion"],
+                               how="right")
+            dataset = pd.concat([dataset, df],sort=False)
 
         # Dataframe をNumpy形式に変換する
         self.targets = dataset[self.targets_name].values
@@ -415,7 +421,7 @@ def rfe_feature_selection(dataset,show=False):
 
     # RFE で取り出す特徴量の数を最適化する
     #n_features_to_select = trial.suggest_int('n_features_to_select', 1, 100)
-    feat_selector = RFE(estimator=svc, n_features_to_select =13,step=1)
+    feat_selector = RFE(estimator=svc, n_features_to_select =10,step=1)
     dataset.features = preprocessing.StandardScaler().fit_transform(dataset.features) 
     # 学習の開始
     feat_selector.fit(dataset.features, dataset.targets)
@@ -470,6 +476,41 @@ def objective(dataset, trial):
 
     return score_result.mean()
 
+def Foward_features_selection(dataset):
+    folds = 10
+    gkf = split_by_group(dataset)
+    dataset.features = preprocessing.StandardScaler().fit_transform(dataset.features) 
+    # SVCのパラメータ定義
+    svc = LinearSVC(C=1., tol=0.0001, verbose=0, random_state=0, dual=False)
+    
+    # Make this a calibrated classifier ; not necessary with AUC as metric
+    sigmoid = CalibratedClassifierCV(svc, cv=folds, method='sigmoid')
+    
+    # Select between 10 and 20 features starting from 1
+    # One could do backward elimination but that would take longer
+    # For more details see:
+    # http://rasbt.github.io/mlxtend/user_guide/feature_selection/SequentialFeatureSelector/
+    sfs = SFS(sigmoid,
+              k_features=(10, 20),
+              forward=True,
+              floating=True,
+              scoring='accuracy',
+              verbose=2,
+              cv=gkf,
+              n_jobs=-1)
+    sfs.fit(dataset.features, dataset.targets)
+
+    # The whole run
+    print(sfs.subsets_)
+    print(sfs.k_feature_idx_)
+    print(sfs.k_feature_names_)
+
+    # Summarize the output
+    print(' Best score: .%6f' % sfs.k_score_)
+    print(' Optimal number of features: %d' % len(sfs.k_feature_idx_))
+    print(' The selected features are:')
+    print(sfs.k_feature_names_)
+    pass
 
 if __name__ =="__main__":
     #test = Emotion_Label(config.questionnaire_path,
@@ -477,16 +518,16 @@ if __name__ =="__main__":
     #print(test.questionnaire)
     #test.questionnaire.to_excel(r"C:\Users\akito\Desktop\quetionnarire_3label_type2.xlsx")
     dataset = load_emotion_dataset()
+    Foward_features_selection(dataset)
+    ## 目的関数にデータを適用する
+    #f = partial(objective, dataset)
 
-    # 目的関数にデータを適用する
-    f = partial(objective, dataset)
+    ## Optuna で取り出す特徴量の数を最適化する
+    #study = optuna.create_study(direction='maximize')
 
-    # Optuna で取り出す特徴量の数を最適化する
-    study = optuna.create_study(direction='maximize')
+    ## 20 回試行する
+    #study.optimize(f, n_trials=20)
 
-    # 20 回試行する
-    study.optimize(f, n_trials=20)
-
-    # 発見したパラメータを出力する
-    print('params:', study.best_params)
-    pass
+    ## 発見したパラメータを出力する
+    #print('params:', study.best_params)
+    #pass

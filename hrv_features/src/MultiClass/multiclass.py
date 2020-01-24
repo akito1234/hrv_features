@@ -76,9 +76,9 @@ def build():
     #print(config.selected_label)
     #select_features = emotion_dataset.features_label_list.isin(config.selected_label)
     #emotion_dataset.features = emotion_dataset.features[:,select_features]
-
+     
     # LinearSVM
-    selected_label, selected_features = svc_feature_selection(emotion_dataset)
+    selected_label, selected_features = Foward_features_selection(emotion_dataset)
     emotion_dataset.features_label_list = selected_label
     emotion_dataset.features = selected_features
 

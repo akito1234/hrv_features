@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 #from .. import 
 from src.data_processor import *
 from src.visualization import *
+from src.config import *
 
 
 # Grid Search
@@ -30,12 +31,12 @@ def Grid_Search(dataset):
     # PenaltyL1 |    L1     |   L2
 
     # LinearSVCの取りうるモデルパラメータを設定
-    C_range= np.logspace(-2, 2, 100)
-    param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[500000],
+    C_range= np.logspace(-2, 2, 50)
+    param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[1000000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}, 
-                    {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[500000],
+                    {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[1000000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}, 
-                    {"penalty": ["l2"],"loss": ["squared_hinge"],"dual": [True],"max_iter":[500000],
+                    {"penalty": ["l2"],"loss": ["squared_hinge"],"dual": [True],"max_iter":[1000000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}]
     clf = LinearSVC(random_state=1)
     grid_clf = GridSearchCV(clf, param_grid, cv=gkf,n_jobs=-1)
@@ -95,7 +96,7 @@ def build():
     emotion_dataset.features = emotion_dataset.features[:, ~np.isinf(emotion_dataset.features).any(axis=0)]
     
     # 生体信号ごとに特徴量を選択する
-    biosignal_type = ["ECG","EDA","RESP"]
+    biosignal_type = ["ECG","EDA"]
     selected_features = Devide_Features_Biosignal(emotion_dataset.features_label_list,
                                                                     biosignal_type)
     emotion_dataset.features_label_list = emotion_dataset.features_label_list[selected_features]
@@ -115,7 +116,7 @@ def build():
     # ----------------
     # 特徴量選択
     # ----------------
-    selected_label, selected_features = svc_feature_selection(emotion_dataset)
+    selected_label, selected_features = svc_feature_selection(emotion_dataset,show=False)
     emotion_dataset.features_label_list = selected_label
     emotion_dataset.features = selected_features
     best_model = Grid_Search(emotion_dataset)
@@ -142,7 +143,7 @@ def build():
     
     print("Classification Report : \n")
     print(classification_report(predict_result,emotion_dataset.targets,
-                                target_names=["Amusement","Stress"]))
+                                target_names=config.emotion_state))
 
 
     return best_model
