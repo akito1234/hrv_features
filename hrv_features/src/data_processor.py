@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import logging
 from sklearn import preprocessing
 import os, glob
 from functools import partial
@@ -476,41 +477,49 @@ def objective(dataset, trial):
 
     return score_result.mean()
 
-def Foward_features_selection(dataset):
-    folds = 10
+def Foward_features_selection(dataset,Foward=True):
+    
     gkf = split_by_group(dataset)
     dataset.features = preprocessing.StandardScaler().fit_transform(dataset.features) 
     # SVCのパラメータ定義
     svc = LinearSVC(C=1., tol=0.0001, verbose=0, random_state=0, dual=False)
     
     # Make this a calibrated classifier ; not necessary with AUC as metric
-    sigmoid = CalibratedClassifierCV(svc, cv=folds, method='sigmoid')
+    #folds = 10
+    #sigmoid = CalibratedClassifierCV(svc, cv=folds, method='sigmoid')
     
     # Select between 10 and 20 features starting from 1
     # One could do backward elimination but that would take longer
     # For more details see:
     # http://rasbt.github.io/mlxtend/user_guide/feature_selection/SequentialFeatureSelector/
-    sfs = SFS(sigmoid,
-              k_features=(10, 20),
-              forward=True,
+    sfs = SFS(svc,#sigmoid,
+              k_features=(5, 15),
+              forward=Foward,
               floating=True,
               scoring='accuracy',
               verbose=2,
               cv=gkf,
               n_jobs=-1)
-    sfs.fit(dataset.features, dataset.targets)
+
+    sfs.fit(dataset.features, dataset.targets
+            ,custom_feature_names=tuple( dataset.features_label_list))
 
     # The whole run
-    print(sfs.subsets_)
-    print(sfs.k_feature_idx_)
-    print(sfs.k_feature_names_)
+    #print(sfs.subsets_)
+    #print(sfs.k_feature_idx_)
+    #print(sfs.k_feature_names_)
 
     # Summarize the output
     print(' Best score: .%6f' % sfs.k_score_)
     print(' Optimal number of features: %d' % len(sfs.k_feature_idx_))
     print(' The selected features are:')
     print(sfs.k_feature_names_)
-    pass
+    print('最終的に選ばれた3つの特徴')
+    for i in sfs.k_feature_idx_:
+        print(i,'番目 ',dataset.features_label_list[i])
+
+    return sfs.k_feature_names_,dataset.features[:,sfs.k_feature_idx_]
+
 
 if __name__ =="__main__":
     #test = Emotion_Label(config.questionnaire_path,

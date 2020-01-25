@@ -116,7 +116,7 @@ def build():
     # ----------------
     # 特徴量選択
     # ----------------
-    selected_label, selected_features = svc_feature_selection(emotion_dataset,show=False)
+    selected_label, selected_features = Foward_features_selection(emotion_dataset,False)
     emotion_dataset.features_label_list = selected_label
     emotion_dataset.features = selected_features
     best_model = Grid_Search(emotion_dataset)
