@@ -97,6 +97,7 @@ def build():
     
     # 生体信号ごとに特徴量を選択する
     biosignal_type = ["ECG","EDA"]
+    
     selected_features = Devide_Features_Biosignal(emotion_dataset.features_label_list,
                                                                     biosignal_type)
     emotion_dataset.features_label_list = emotion_dataset.features_label_list[selected_features]
@@ -116,7 +117,7 @@ def build():
     # ----------------
     # 特徴量選択
     # ----------------
-    selected_label, selected_features = Foward_features_selection(emotion_dataset,False)
+    selected_label, selected_features = Foward_feature_selection(emotion_dataset)
     emotion_dataset.features_label_list = selected_label
     emotion_dataset.features = selected_features
     best_model = Grid_Search(emotion_dataset)

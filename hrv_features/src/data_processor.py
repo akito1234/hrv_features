@@ -477,7 +477,7 @@ def objective(dataset, trial):
 
     return score_result.mean()
 
-def Foward_features_selection(dataset,Foward=True):
+def Foward_feature_selection(dataset,Foward=True):
     
     gkf = split_by_group(dataset)
     dataset.features = preprocessing.StandardScaler().fit_transform(dataset.features) 
@@ -493,7 +493,7 @@ def Foward_features_selection(dataset,Foward=True):
     # For more details see:
     # http://rasbt.github.io/mlxtend/user_guide/feature_selection/SequentialFeatureSelector/
     sfs = SFS(svc,#sigmoid,
-              k_features=(5, 15),
+              k_features=(5, 20),
               forward=Foward,
               floating=True,
               scoring='accuracy',
