@@ -36,12 +36,12 @@ def Grid_Search(dataset):
     # PenaltyL1 |    L1     |   L2
 
     # LinearSVCの取りうるモデルパラメータを設定
-    C_range= np.logspace(-2, 2, 100)
-    param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[100000],
+    C_range= np.logspace(-2, 2, 50)
+    param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[1000000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}, 
-                    {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[100000],
+                    {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[1000000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}, 
-                    {"penalty": ["l2"],"loss": ["squared_hinge"],"dual": [True],"max_iter":[100000],
+                    {"penalty": ["l2"],"loss": ["squared_hinge"],"dual": [True],"max_iter":[1000000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}]
     clf = LinearSVC(random_state=1)
     grid_clf = GridSearchCV(clf, param_grid, cv=gkf,n_jobs=-1)
@@ -60,14 +60,21 @@ def Grid_Search(dataset):
 def build():
     # データの取得
     emotion_dataset = load_emotion_dataset()
+
+
     # ------------------
     # データ整形
     # ------------------
     # 標準化 [重要]
-    
     emotion_dataset.features_label_list = emotion_dataset.features_label_list[~np.isinf(emotion_dataset.features).any(axis=0)]
     emotion_dataset.features = emotion_dataset.features[:, ~np.isinf(emotion_dataset.features).any(axis=0)]
     emotion_dataset.features = preprocessing.StandardScaler().fit_transform(emotion_dataset.features) 
+
+
+    #scaler = preprocessing.StandardScaler().fit(emotion_dataset.features) 
+    #with open("./models/{}.pickle".format("individual_diff_StandardScaler"), mode='wb') as fp:
+    #        pickle.dump(scaler,fp)
+
     # label encoding
     le = preprocessing.LabelEncoder().fit(np.unique(emotion_dataset.targets))
     
@@ -81,13 +88,16 @@ def build():
     # ----------------
     # Boruta
     #selected_label, selected_features = boruta_feature_selection(emotion_dataset,show=False)
-    selected_label, selected_features = boruta_feature_selection(emotion_dataset)
+    selected_label, selected_features = Foward_feature_selection(emotion_dataset)
     emotion_dataset.features_label_list = selected_label
     emotion_dataset.features = selected_features
     best_model = Grid_Search(emotion_dataset)
 
+
+    #np.savetxt(r"Z:\theme\mental_arithmetic\05.Figure\FeaturesSelectionREFCV\ALL_Features_Importance.csv",
+    #           np.c_[emotion_dataset.features_label_list,best_model.clf_],delimiter=",")
     # 重要度描画
-    plot_importance(best_model, emotion_dataset.features_label_list)
+    #plot_importance(best_model, emotion_dataset.features_label_list)
     
     # --------------
     # 精度検証
@@ -107,7 +117,7 @@ def build():
     
     print("Classification Report : \n")
     print(classification_report(predict_result,emotion_dataset.targets,
-                                target_names=["Amusement","Stress"]))
+                                target_names=['Amusement','Neutral2','Stress']))
 
 
     return best_model
@@ -128,7 +138,7 @@ def load(file_name):
 
 if __name__ == "__main__":
     #save("LinearSVM_TimeWindow_120s_Noralize_ratio")
-    build()
+    save("LinearSVM_2020-01-29_noramlizeTrue_selectfeature_SVC")
     print("success")
     # データの取得
     

@@ -111,14 +111,17 @@ def biosignal_summary(path_list,emotion=None,output_path=None):
     return df_summary
 
 # 一定時間ごとの特徴量を算出し，dataframe型にまとめて返す
-def biosignal_time_summary(path, duration=300,overlap=150,outpath=None):
+def biosignal_time_summary(path, duration=300,overlap=150,skip_time=None,outpath=None):
     # 生体データを取得
     arc = OpenSignalsReader(path)
     
     # 時間変数を作成
     time_ = np.arange(duration, arc.t.max(), overlap)
+    label_ = time_
+    if skip_time is not None:
+        time_ = time_ + skip_time
     section_ = zip((time_ - duration), time_)
-    emotion = dict(zip(time_.tolist(), section_))
+    emotion = dict(zip(label_.tolist(), section_))
 
     # HRV Features
     rri_peaks = signals.ecg.ecg(arc.signal('ECG') , sampling_rate=1000.0, show=False)['rpeaks']

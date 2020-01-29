@@ -11,7 +11,7 @@ pass
 emotion_dataset = load_emotion_dataset()
 
 # 検証用のデータ
-test = pd.read_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\謎\biosignal_datasets_time_Varies_TOHMA.xlsx")
+test = pd.read_excel(r"Z:\theme\robot_communication\04_Analysis\Analysis_TimeVaries\features_tohma_2020-01-28.xlsx")
 
 # 特徴量選択
 # 個人差補正なし
@@ -19,8 +19,12 @@ test = pd.read_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\
 
 # 注意!
 # 300s
-selected_features = ['lomb_rel_hf', 'lomb_total', 'nni_counter', 'nni_mean', 'nni_max', 'hr_mean', 'hr_min',
-                    'nni_diff_mean', 'sdnn', 'rmssd', 'tinn_m', 'tinn', 'tri_index', 'sd1', 'sd2', 'ellipse_area']
+#selected_features = ['lomb_rel_hf', 'lomb_total', 'nni_counter', 'nni_mean', 'nni_max', 'hr_mean', 'hr_min',
+#                    'nni_diff_mean', 'sdnn', 'rmssd', 'tinn_m', 'tinn', 'tri_index', 'sd1', 'sd2', 'ellipse_area']
+
+
+selected_features = ['fft_abs_lf',"fft_rel_vlf","fft_log_vlf","ar_peak_vlf","lomb_peak_vlf",
+                     "lomb_abs_vlf","lomb_rel_vlf","tinn_n","tinn_"]
 
 #120s
 #selected_features = ["nni_mean","nni_counter","nni_max","hr_mean","hr_min","tinn_m"]
