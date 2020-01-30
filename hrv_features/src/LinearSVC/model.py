@@ -62,11 +62,11 @@ def build():
     emotion_dataset = load_emotion_dataset()
 
 
-    # 追加
-    # 検証用のデータ
-    test = pd.read_excel(r"Z:\theme\robot_communication\04_Analysis\Analysis_TimeVaries\features_kishida_2020-01-28.xlsx"
-                         ,index_col = 0,header=0).drop(config.remove_features_label,axis=1)
-    test_features = test.columns
+    ## 追加
+    ## 検証用のデータ
+    #test = pd.read_excel(r"Z:\theme\robot_communication\04_Analysis\Analysis_TimeVaries\features_kishida_2020-01-28.xlsx"
+    #                     ,index_col = 0,header=0).drop(config.remove_features_label,axis=1)
+    #test_features = test.columns
 
     # ------------------
     # データ整形
@@ -81,9 +81,9 @@ def build():
 
     # 追加
     # 個人差補正
-    # config. ratio
-    test = test.iloc[1:,:].values / test.iloc[0,:].values
-    test = sc.transform(test)
+    ## config. ratio
+    #test = test.iloc[1:,:].values / test.iloc[0,:].values
+    #test = sc.transform(test)
 
 
     #scaler = preprocessing.StandardScaler().fit(emotion_dataset.features) 
@@ -103,14 +103,14 @@ def build():
     # ----------------
     # Boruta
     #selected_label, selected_features = boruta_feature_selection(emotion_dataset,show=False)
-    selected_label, selected_features = svc_feature_selection(emotion_dataset)
+    selected_label, selected_features = Exhaustive_feature_selection(emotion_dataset)
     emotion_dataset.features_label_list = selected_label
     emotion_dataset.features = selected_features
     best_model = Grid_Search(emotion_dataset)
 
     # 追加
     # 特徴量選択
-    selected_test = test[:,test_features.isin(selected_label)]
+    #selected_test = test[:,test_features.isin(selected_label)]
 
     #np.savetxt(r"Z:\theme\mental_arithmetic\05.Figure\FeaturesSelectionREFCV\ALL_Features_Importance.csv",
     #           best_model.coef_,delimiter=",")
@@ -139,18 +139,18 @@ def build():
     print("Classification Report : \n")
     print(classification_report(predict_result,emotion_dataset.targets))
 
-    # 追加
-    accuracy = best_model.predict(selected_test)
-    # 精度
-    print(accuracy)
+    ## 追加
+    #accuracy = best_model.predict(selected_test)
+    ## 精度
+    #print(accuracy)
 
-    # 確率
-    predict_score = best_model.decision_function(selected_test)
-    print(predict_score)
-    np.savetxt(r"Z:\theme\robot_communication\04_Analysis\Analysis_PredictEmotion\predict_device1_kishida_2020-01-28.csv"
-               ,predict_score,delimiter=",")
-    np.savetxt(r"Z:\theme\robot_communication\04_Analysis\Analysis_PredictEmotion\accuracy_device1_kishida_2020-01-28.csv"
-               ,accuracy,delimiter=",")
+    ## 確率
+    #predict_score = best_model.decision_function(selected_test)
+    #print(predict_score)
+    #np.savetxt(r"Z:\theme\robot_communication\04_Analysis\Analysis_PredictEmotion\predict_device1_kishida_2020-01-28.csv"
+    #           ,predict_score,delimiter=",")
+    #np.savetxt(r"Z:\theme\robot_communication\04_Analysis\Analysis_PredictEmotion\accuracy_device1_kishida_2020-01-28.csv"
+    #           ,accuracy,delimiter=",")
 
     return best_model
 

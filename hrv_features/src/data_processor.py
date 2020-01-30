@@ -12,16 +12,16 @@ from sklearn.model_selection import GroupKFold
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import cross_val_score,cross_val_predict
 from boruta import BorutaPy
-from sklearn.feature_selection import RFE,RFECV
+from sklearn.feature_selection import RFE,RFECV,SelectKBest,SelectPercentile
 from sklearn.ensemble import RandomForestClassifier
 import src.config as config
 from sklearn.svm import LinearSVC
-import optuna
+import pickle
 
 from mlxtend.feature_selection import SequentialFeatureSelector as SFS
 from mlxtend.plotting import plot_sequential_feature_selection as plot_sfs
 from sklearn.calibration import CalibratedClassifierCV
-
+from mlxtend.feature_selection import ExhaustiveFeatureSelector as EFS
 
 class EmotionRecognition:
     #感情クラス
@@ -520,6 +520,62 @@ def Foward_feature_selection(dataset,Foward=True):
         print(i,'番目 ',dataset.features_label_list[i])
 
     return sfs.k_feature_names_,dataset.features[:,sfs.k_feature_idx_]
+
+def Select_KBest(dataset,n=7):
+    select = SelectKBest(k=n)
+    select.fit(dataset.features, dataset.targets)
+  
+    # 特徴量後のデータセット作成
+    mask = select.get_support()    # 各特徴量を選択したか否かのmaskを取得
+    selected_label = dataset.features_label_list[mask]
+    print(selected_label)
+    selected_features = select.transform(dataset.features)
+    return selected_label, selected_features
+
+def Exhaustive_feature_selection(dataset):
+    gkf = split_by_group(dataset)
+    dataset.features = preprocessing.StandardScaler().fit_transform(dataset.features)
+
+
+    # SelectKBestで有意差の少ない特徴量を取り除く
+    # 特徴量のうち40%を選択
+    selector = SelectPercentile(percentile=40)
+    selector.fit(dataset.features, dataset.targets)
+    mask = selector.get_support()
+
+    # 選択した特徴量の列のみ取得
+    dataset.features = selector.transform(dataset.features)
+    dataset.features_label_list  = dataset.features_label_list[mask]
+    print("Select 40% Feature by using ANOVA")
+    print(dataset.features_label_list)
+    
+    svc = LinearSVC(C=1., tol=0.0001, verbose=0, random_state=0, dual=False)
+    efs = EFS(svc,
+               min_features=5,
+               max_features=8,
+               scoring='accuracy',
+               print_progress=True,
+               cv=gkf
+               )
+    efs = efs.fit(dataset.features, dataset.targets
+                   ,custom_feature_names=tuple( dataset.features_label_list))
+    
+    # 出力
+    with open("./models/{}.pickle".format("ExhaustiveSearch_ALL_coef_True"), mode='wb') as fp:
+        pickle.dump(efs,fp)
+    print("{}   save...".format("./models/{}.pickle".format("ExhaustiveSearch_ALL_coef_True")))
+
+    # Summarize the output
+    
+    print(' Best score: %.2f' % efs.best_score_)
+    print(' Optimal number of features: %d' % len(efs.best_idx_))
+    print(' The selected features are:')
+    print(efs.best_feature_names_)
+    print('最終的に選ばれた特徴')
+    for i in efs.best_idx_:
+        print(i,'番目 ',dataset.features_label_list[i])
+
+    return efs.best_feature_names_,dataset.features[:,efs.best_idx_]
 
 
 if __name__ =="__main__":

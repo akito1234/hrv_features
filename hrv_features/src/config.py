@@ -3,11 +3,11 @@
 """
 
 ## 主観評価データへのパス
-questionnaire_path = r"Z:\theme\mental_arithmetic\06.QuestionNaire\QuestionNaire_result.xlsx"
-
+questionnaire_path = r"C:\Users\akito\Desktop\stress\05.QuestionNaire\QuestionNaire_result.xlsx"
 
 # 特徴量データへのパス
-features_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_300s.xlsx"
+features_path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets_1.xlsx"
+
 
 # 重要 出力される感情ラベルの種類
 emotion_state = ['Stress','Amusement',"Neutral2"]
@@ -44,10 +44,3 @@ emotion_filter = True
 
 # フィルタの種類
 filter_type="both"
-
-
-## モデル比較用
-#selected_label = ["lomb_total","sd2","sd1","tri_index","lomb_rel_hf",
-#                   "tinn","tinn_m","nni_counter","nni_mean","nni_max",
-#                   "ellipse_area","hr_min","nni_diff_mean","hr_mean",
-#                   "sdnn","rmssd"]

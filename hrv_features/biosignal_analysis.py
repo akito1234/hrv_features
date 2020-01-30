@@ -99,8 +99,6 @@ def K_S_test(df,emotion_status = ['Neutral2','Stress'], identical_parameter = ['
         p_value = stats.ks_2samp(specimen_group_1[column].values, specimen_group_2[column].values)[1]
         result[column] = p_value
 
-        #
-
     ## convert to Dataframe
     #result = pd.DataFrame.from_dict(result, orient='index')
 
@@ -114,24 +112,19 @@ def K_S_test(df,emotion_status = ['Neutral2','Stress'], identical_parameter = ['
 
 
 if __name__ == '__main__':
+    from src.data_processor import * 
     import matplotlib as mpl
     font = {'family' : 'meiryo'}
     plt.rcParams["font.size"] = 18
 
-    # Excelファイルから特徴量データを取得
-    path = r"C:\Users\akito\Desktop\test.xlsx"
-    df = pd.read_excel(path)
-
-    # 正規化 (個人差補正)
-    df_features = features_baseline(df,emotion_state=['Neutral2','Stress','Amusement'],baseline='Neutral1',
-                                    identical_parameter = ['id','emotion','user','date','path_name'])
+    dataset = load_emotion_dataset()
 
     # 描画設定
-    columns = ['pathicData_mean',
-               'bvp_sdnn',
+    columns = ['pathicData_std',
+               'tinn_m',
                #'fft_norm_lf',
                #'fft_norm_hf',
-               'fft_ratio'
+               #'fft_ratio'
                ]
     #features_barplot(df_features[~df_features['id'].isin([16,17,18,19,20,21,22,23,24])],columns,emotion_status = ['Ammusement','Stress'])
     #2,3,11,14,
@@ -142,10 +135,10 @@ if __name__ == '__main__':
                  vars=columns
                 )
     
-    # コルモゴロフ-スミルノフ検定
-    A = K_S_test(df[~df['id'].isin([])],emotion_status = ['Neutral1','Stress'], identical_parameter = ['id','emotion','path_name'])
-    B = K_S_test(df[~df['id'].isin([])],emotion_status = ['Neutral1','Amusement'], identical_parameter = ['id','emotion','path_name'])
-    C = K_S_test(df[~df['id'].isin([])],emotion_status = ['Amusement','Stress'], identical_parameter = ['id','emotion','path_name'])
+    ## コルモゴロフ-スミルノフ検定
+    #A = K_S_test(df[~df['id'].isin([])],emotion_status = ['Neutral1','Stress'], identical_parameter = ['id','emotion','path_name'])
+    #B = K_S_test(df[~df['id'].isin([])],emotion_status = ['Neutral1','Amusement'], identical_parameter = ['id','emotion','path_name'])
+    #C = K_S_test(df[~df['id'].isin([])],emotion_status = ['Amusement','Stress'], identical_parameter = ['id','emotion','path_name'])
     #resultA = pd.DataFrame.from_dict(A, orient='index')
     #resultB = pd.DataFrame.from_dict(B, orient='index')
     #resultC = pd.DataFrame.from_dict(C, orient='index')
