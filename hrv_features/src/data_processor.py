@@ -86,6 +86,7 @@ class EmotionRecognition:
                                how="right")
             dataset = pd.concat([dataset, df],sort=False)
 
+        dataset.to_excel(r"C:\Users\akito\Desktop\test_output.xlsx")
         # Dataframe をNumpy形式に変換する
         self.targets = dataset[self.targets_name].values
         self.targets_user = dataset["user"].values

@@ -10,7 +10,7 @@ questionnaire_path = r"Z:\theme\mental_arithmetic\06.QuestionNaire\QuestionNaire
 features_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_300s.xlsx"
 
 # 重要 出力される感情ラベルの種類
-emotion_state = ['Stress','Amusement','Neutral2']
+emotion_state = ['Stress','Amusement',"Neutral2"]
 
 emotion_baseline = "Neutral1"
 

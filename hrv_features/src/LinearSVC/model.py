@@ -62,13 +62,28 @@ def build():
     emotion_dataset = load_emotion_dataset()
 
 
+    # 追加
+    # 検証用のデータ
+    test = pd.read_excel(r"Z:\theme\robot_communication\04_Analysis\Analysis_TimeVaries\features_kishida_2020-01-28.xlsx"
+                         ,index_col = 0,header=0).drop(config.remove_features_label,axis=1)
+    test_features = test.columns
+
     # ------------------
     # データ整形
     # ------------------
     # 標準化 [重要]
     emotion_dataset.features_label_list = emotion_dataset.features_label_list[~np.isinf(emotion_dataset.features).any(axis=0)]
     emotion_dataset.features = emotion_dataset.features[:, ~np.isinf(emotion_dataset.features).any(axis=0)]
-    emotion_dataset.features = preprocessing.StandardScaler().fit_transform(emotion_dataset.features) 
+
+
+    sc = preprocessing.StandardScaler()
+    emotion_dataset.features = sc.fit_transform(emotion_dataset.features) 
+
+    # 追加
+    # 個人差補正
+    # config. ratio
+    test = test.iloc[1:,:].values / test.iloc[0,:].values
+    test = sc.transform(test)
 
 
     #scaler = preprocessing.StandardScaler().fit(emotion_dataset.features) 
@@ -88,14 +103,20 @@ def build():
     # ----------------
     # Boruta
     #selected_label, selected_features = boruta_feature_selection(emotion_dataset,show=False)
-    selected_label, selected_features = Foward_feature_selection(emotion_dataset)
+    selected_label, selected_features = svc_feature_selection(emotion_dataset)
     emotion_dataset.features_label_list = selected_label
     emotion_dataset.features = selected_features
     best_model = Grid_Search(emotion_dataset)
 
+    # 追加
+    # 特徴量選択
+    selected_test = test[:,test_features.isin(selected_label)]
 
     #np.savetxt(r"Z:\theme\mental_arithmetic\05.Figure\FeaturesSelectionREFCV\ALL_Features_Importance.csv",
-    #           np.c_[emotion_dataset.features_label_list,best_model.clf_],delimiter=",")
+    #           best_model.coef_,delimiter=",")
+    #np.savetxt(r"Z:\theme\mental_arithmetic\05.Figure\FeaturesSelectionREFCV\ALL_Features_list.csv",
+    #             emotion_dataset.features_label_list,delimiter=",")
+
     # 重要度描画
     #plot_importance(best_model, emotion_dataset.features_label_list)
     
@@ -116,9 +137,20 @@ def build():
     print("Cross-Varidation score std: \n {}".format(score_result.std()))
     
     print("Classification Report : \n")
-    print(classification_report(predict_result,emotion_dataset.targets,
-                                target_names=['Amusement','Neutral2','Stress']))
+    print(classification_report(predict_result,emotion_dataset.targets))
 
+    # 追加
+    accuracy = best_model.predict(selected_test)
+    # 精度
+    print(accuracy)
+
+    # 確率
+    predict_score = best_model.decision_function(selected_test)
+    print(predict_score)
+    np.savetxt(r"Z:\theme\robot_communication\04_Analysis\Analysis_PredictEmotion\predict_device1_kishida_2020-01-28.csv"
+               ,predict_score,delimiter=",")
+    np.savetxt(r"Z:\theme\robot_communication\04_Analysis\Analysis_PredictEmotion\accuracy_device1_kishida_2020-01-28.csv"
+               ,accuracy,delimiter=",")
 
     return best_model
 
@@ -138,7 +170,8 @@ def load(file_name):
 
 if __name__ == "__main__":
     #save("LinearSVM_TimeWindow_120s_Noralize_ratio")
-    save("LinearSVM_2020-01-29_noramlizeTrue_selectfeature_SVC")
+    build()
+    #save("LinearSVM_2020-01-29_noramlizeTrue_selectfeature_SVC")
     print("success")
     # データの取得
     
