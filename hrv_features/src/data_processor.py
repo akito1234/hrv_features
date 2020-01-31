@@ -15,6 +15,7 @@ from boruta import BorutaPy
 from sklearn.feature_selection import RFE,RFECV,SelectKBest,SelectPercentile
 from sklearn.ensemble import RandomForestClassifier
 import src.config as config
+from sklearn.feature_selection import VarianceThreshold
 from sklearn.svm import LinearSVC
 import pickle
 
@@ -374,6 +375,13 @@ def boruta_feature_selection(dataset,show=False):
 
 
 def svc_feature_selection(dataset,show=False):
+    # 不要な特徴量を削除
+    #初期設定
+    #1. 分散の小さいデータ(99%が同じ値)
+    #2. 分散分析よりp値が小さい準備に40%
+    dataset = remove_features(dataset)
+
+
     # 特徴量選択用のモデル(RandamForest)の定義
     svc = LinearSVC(random_state=1,max_iter=10000)
 
@@ -479,11 +487,16 @@ def objective(dataset, trial):
     return score_result.mean()
 
 def Foward_feature_selection(dataset,Foward=True):
-    
+    # 不要な特徴量を削除
+    #初期設定
+    #1. 分散の小さいデータ(99%が同じ値)
+    #2. 分散分析よりp値が小さい準備に40%
+    #dataset = remove_features(dataset)
+
     gkf = split_by_group(dataset)
     dataset.features = preprocessing.StandardScaler().fit_transform(dataset.features) 
     # SVCのパラメータ定義
-    svc = LinearSVC(C=1., tol=0.0001, verbose=0, random_state=0, dual=False)
+    svc = LinearSVC(C=1., tol=0.001, verbose=0, random_state=0, dual=False)
     
     # Make this a calibrated classifier ; not necessary with AUC as metric
     #folds = 10
@@ -494,7 +507,7 @@ def Foward_feature_selection(dataset,Foward=True):
     # For more details see:
     # http://rasbt.github.io/mlxtend/user_guide/feature_selection/SequentialFeatureSelector/
     sfs = SFS(svc,#sigmoid,
-              k_features=(5, 20),
+              k_features=(5,20),
               forward=Foward,
               floating=True,
               scoring='accuracy',
@@ -533,35 +546,30 @@ def Select_KBest(dataset,n=7):
     return selected_label, selected_features
 
 def Exhaustive_feature_selection(dataset):
+    # 不要な特徴量を削除
+    #初期設定
+    #1. 分散の小さいデータ(99%が同じ値)
+    #2. 分散分析よりp値が小さい準備に40%
+    dataset = remove_features(dataset)
+
     gkf = split_by_group(dataset)
     dataset.features = preprocessing.StandardScaler().fit_transform(dataset.features)
 
-
-    # SelectKBestで有意差の少ない特徴量を取り除く
-    # 特徴量のうち40%を選択
-    selector = SelectPercentile(percentile=40)
-    selector.fit(dataset.features, dataset.targets)
-    mask = selector.get_support()
-
-    # 選択した特徴量の列のみ取得
-    dataset.features = selector.transform(dataset.features)
-    dataset.features_label_list  = dataset.features_label_list[mask]
-    print("Select 40% Feature by using ANOVA")
-    print(dataset.features_label_list)
     
-    svc = LinearSVC(C=1., tol=0.0001, verbose=0, random_state=0, dual=False)
+    svc = LinearSVC(C=1., tol=0.001, verbose=0, random_state=0, dual=False)
     efs = EFS(svc,
-               min_features=5,
+               min_features=8,
                max_features=8,
                scoring='accuracy',
                print_progress=True,
-               cv=gkf
+               cv=gkf,
+               n_jobs= 4
                )
     efs = efs.fit(dataset.features, dataset.targets
                    ,custom_feature_names=tuple( dataset.features_label_list))
     
     # 出力
-    with open("./models/{}.pickle".format("ExhaustiveSearch_ALL_coef_True"), mode='wb') as fp:
+    with open("./models/{}.pickle".format("ExhaustiveSearch_ALL_coef_True_2020_01_31"), mode='wb') as fp:
         pickle.dump(efs,fp)
     print("{}   save...".format("./models/{}.pickle".format("ExhaustiveSearch_ALL_coef_True")))
 
@@ -576,6 +584,58 @@ def Exhaustive_feature_selection(dataset):
         print(i,'番目 ',dataset.features_label_list[i])
 
     return efs.best_feature_names_,dataset.features[:,efs.best_idx_]
+
+def remove_features(dataset):
+    print("-------preprocessing: Remove Features Data---------------")
+    #--------------------------------------------------
+    # 99%が同じデータは削除します
+    #--------------------------------------------------
+    sel = VarianceThreshold(threshold=0.1)
+    sel.fit(dataset.features)
+    print("Apply VarianceThreshold")
+    print("Number of SelectedFeatures : {}\n".format(sum(sel.get_support())))
+    # データを取り除く
+    dataset.features = sel.transform(dataset.features)
+    dataset.features_label_list = dataset.features_label_list[sel.get_support()]
+    
+    #--------------------------------------------------
+    # SelectKBestで有意差の少ない特徴量を取り除く
+    # 特徴量のうち80%を選択
+    # p値が1.00以下
+    #--------------------------------------------------
+    p_threshold = 1.00
+    percent = 80
+    selector = SelectPercentile(percentile=percent)
+    selector.fit(dataset.features, dataset.targets)
+    
+    # 選択した特徴量の列のみ取得
+    dataset.features = dataset.features[:,selector.pvalues_ <= p_threshold]
+    dataset.features_label_list  = dataset.features_label_list[selector.pvalues_ <= p_threshold]
+    print("Select Feature by using ANOVA")
+    print("Number of Selected Features : {}\n".format(len(dataset.features_label_list)))
+
+    #--------------------------------------------------
+    # 相関係数が0.8以上であるデータを取り除く
+    #--------------------------------------------------
+    threshold = 0.80
+    feat_corr = set()
+    df = pd.DataFrame(dataset.features, columns = dataset.features_label_list)
+    corr_matrix = df.corr()
+    for i in range(len(df.columns)):
+        for j in range(i):
+            if abs(corr_matrix.iloc[i, j]) > threshold:
+                feat_name = corr_matrix.columns[i]
+                feat_corr.add(feat_name)
+    #print(len(set(feat_corr)))
+    #print(feat_corr)
+    dataset.features = df.drop(labels=feat_corr, axis='columns').values
+    dataset.features_label_list = df.drop(labels=feat_corr, axis='columns').columns
+    
+    #print(dataset.features.shape)
+    print("Selected Correlation Coefficient Features: {}\n".format(len(dataset.features_label_list)))
+    print(dataset.features_label_list)
+
+    return dataset
 
 
 if __name__ =="__main__":

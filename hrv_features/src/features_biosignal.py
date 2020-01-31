@@ -31,7 +31,7 @@ def Grid_Search(dataset):
     # PenaltyL1 |    L1     |   L2
 
     # LinearSVCの取りうるモデルパラメータを設定
-    C_range= np.logspace(-2, 2, 50)
+    C_range= np.logspace(-2, 2, 100)
     param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[1000000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}, 
                     {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[1000000],
@@ -88,22 +88,21 @@ def build():
     # ------------------
     # データ整形
     # ------------------
-
-    # 標準化 [重要]
+    
 
     # 外れ値のある特徴量を取り除く
     emotion_dataset.features_label_list = emotion_dataset.features_label_list[~np.isinf(emotion_dataset.features).any(axis=0)]
     emotion_dataset.features = emotion_dataset.features[:, ~np.isinf(emotion_dataset.features).any(axis=0)]
     
     # 生体信号ごとに特徴量を選択する
-    biosignal_type = ["ECG","EDA"]
+    biosignal_type = ["ECG","EDA","RESP"]
     
     selected_features = Devide_Features_Biosignal(emotion_dataset.features_label_list,
                                                                     biosignal_type)
     emotion_dataset.features_label_list = emotion_dataset.features_label_list[selected_features]
     
     emotion_dataset.features = emotion_dataset.features[:,selected_features]
-    
+    # 標準化 [重要]
     emotion_dataset.features = preprocessing.StandardScaler().fit_transform(emotion_dataset.features) 
     
     # label encoding
@@ -120,6 +119,13 @@ def build():
     selected_label, selected_features = Foward_feature_selection(emotion_dataset)
     emotion_dataset.features_label_list = selected_label
     emotion_dataset.features = selected_features
+
+    #selected_features =  ['ar_peak_lf', 'lomb_rel_hf', 'nni_min', 'nni_max',
+    #                      'hr_max', 'nn50', 'tinn', 'sampen', 'bvp_min', 'sc_mean']
+    #emotion_dataset.features = emotion_dataset.features[:,emotion_dataset.features_label_list.isin(selected_features)]
+    #emotion_dataset.features_label_list = emotion_dataset.features_label_list[emotion_dataset.features_label_list.isin(selected_features)]
+
+
     best_model = Grid_Search(emotion_dataset)
 
 
@@ -147,6 +153,9 @@ def build():
                                 target_names=config.emotion_state))
 
 
+    # Plot permutation importance
+    plot_permutation_importance(emotion_dataset,best_model)
+    
     return best_model
 
 # 学習モデルを保存する
