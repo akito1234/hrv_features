@@ -6,7 +6,7 @@ from sklearn import preprocessing
 from src.data_processor import load_emotion_dataset,split_by_group
 from src.LinearSVC.model import load 
 from src import config
-
+from sklearn.svm import SVC
 # ---------------------------------------
 #　設定
 # ---------------------------------------
@@ -14,6 +14,7 @@ predict_path = r"Z:\theme\robot_communication\04_Analysis\Analysis_TimeVaries\fe
 selected_features =  ['ar_peak_lf', 'lomb_rel_hf', 'nni_min', 'nni_max', 'hr_max', 'nn50', 'tinn', 'sampen', 'bvp_min', 'sc_mean']
 model = "LinearSVM_ALL_FowardFeaturesSelection_2020_02_01.pickle"
 emotion_label = ["Amusement","Neutral", "Stress"]
+emotion_color = ["b","gray", "r"]
 time_record_path = r"Z:\theme\robot_communication\03_LogData\2020-01-28\kishida\robot_communication_2020_01_28__19_29_33.xlsx"
 
 
@@ -38,18 +39,28 @@ test = scale_clf.transform(test)
 print("Selected Feature : {}\n".format(selected_features))
 selected_test = test[:,test_features.isin(selected_features)]
 
+#-------------------------------------
+# 追加
+emotion_dataset = load_emotion_dataset()
+emotion_dataset.features = scale_clf.transform(emotion_dataset.features)
+emotion_dataset.features = emotion_dataset.features[:,emotion_dataset.features_label_list.isin(selected_features)]
+
+
+
 #-------------------------------
 # 予測
 #-------------------------------
 # モデル設定
-clf = load(model)
-accuracy = clf.predict(selected_test)
+#clf = load(model)
+clf = SVC(decision_function_shape='ovo',kernel="linear",C=0.9545484566618342,probability=True,
+          max_iter=-1,random_state= 1)
+accuracy = clf.fit(emotion_dataset.features,emotion_dataset.targets).predict(selected_test)
 print("accuracy: {}".format(accuracy))
 
 
-digit_score = clf.decision_function(selected_test)
-
-
+digit_score = clf.predict_proba(selected_test)
+print(digit_score)
+#np.savetxt(r"C:\Users\akito\Desktop\test_output.csv",digit_score,delimiter=",")
 
 # 描画
 time_record = pd.read_excel(time_record_path,header=0,index_col = 0)
@@ -61,21 +72,40 @@ amusement_finish = (time_record.loc["Amusement","FinishDatetime"]  - time_record
 
 
 print("End Time[s] : {}".format(end_time))
-plt.figure(figsize= (16,9))
+plt.figure(figsize= (29,13))
 
 plt.rcParams["font.family"]="Times New Roman"
-plt.rcParams["font.size"]=14
+plt.rcParams["font.size"]=50
 plt.rcParams["xtick.direction"]="in"
 plt.rcParams["ytick.direction"]="in"
+plt.rcParams['xtick.major.width'] = 3.0#x軸主目盛り線の線幅
+plt.rcParams['ytick.major.width'] = 3.0#y軸主目盛り線の線幅
+plt.rcParams['axes.linewidth'] = 3.0# 軸の線幅edge linewidth。囲みの太さ
+plt.rcParams["legend.markerscale"] = 2
+plt.rcParams["legend.fancybox"] = False
+plt.rcParams["legend.framealpha"] = 1
+plt.rcParams["legend.edgecolor"] = 'black'
+
+#plt.step(time[1:],accuracy==0,label = emotion_label[0])
+#plt.step(time[1:],accuracy==2,label = emotion_label[2])
 
 for i in range(len(emotion_label)):
-    plt.plot(time[1:], digit_score[:,i],label = emotion_label[i])
+    plt.plot(time[1:], digit_score[:,i]*100, emotion_color[i]
+             ,label = emotion_label[i],linewidth = 4.5)
 
     plt.xlim(300,end_time)
-plt.axvspan(amusement_start,amusement_finish,alpha=0.1,color="b",label="Amusement")
-plt.axvspan(stress_start, stress_finish,alpha=0.1,color="r",label="Stress")
-plt.legend()
-plt.tight_layout()
+plt.axvspan(amusement_start,amusement_finish,alpha=0.1,color="b"
+            #,label="Amusement Section"
+            )
+plt.axvspan(stress_start, stress_finish,alpha=0.1,color="r"
+            #,label="Stress Section"
+            )
+#plt.legend(bbox_to_anchor=(0.5,-0.06), loc='upper center',ncol=3, fontsize=35)
+plt.xlim(330,end_time)
+#plt.tight_layout()
 plt.xlabel("Time [s]")
-plt.ylabel("Prediction Score [-]")
-plt.show()
+plt.ylim(0,100)
+plt.yticks(np.arange(0,120,20))
+plt.ylabel("Probability [%]")
+#plt.show()
+plt.savefig(r"C:\Users\akito\Desktop\Figure_1.png")

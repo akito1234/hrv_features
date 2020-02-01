@@ -10,7 +10,7 @@ import eda_analysis
 import resp_analysis
 import pyhrv.frequency_domain as fd
 from opensignalsreader import OpenSignalsReader
-
+from sklearn.svm import SVC
 
 
 
