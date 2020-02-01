@@ -116,12 +116,13 @@ def build():
     # ----------------
     # 特徴量選択
     # ----------------
-    selected_label, selected_features = Foward_feature_selection(emotion_dataset)
+    selected_label, selected_features = Exhaustive_feature_selection(emotion_dataset)
     emotion_dataset.features_label_list = selected_label
     emotion_dataset.features = selected_features
 
-    #selected_features =  ['ar_peak_lf', 'lomb_rel_hf', 'nni_min', 'nni_max',
-    #                      'hr_max', 'nn50', 'tinn', 'sampen', 'bvp_min', 'sc_mean']
+    #selected_features =  ['fft_abs_lf', 'fft_rel_vlf', 'fft_log_vlf',
+    #                     #   'lomb_abs_vlf', 'lomb_rel_vlf',
+    #                     'tinn_m', 'sampen', 'bvp_min', 'pathicData_mean']
     #emotion_dataset.features = emotion_dataset.features[:,emotion_dataset.features_label_list.isin(selected_features)]
     #emotion_dataset.features_label_list = emotion_dataset.features_label_list[emotion_dataset.features_label_list.isin(selected_features)]
 

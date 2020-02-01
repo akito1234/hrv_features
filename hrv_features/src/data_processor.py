@@ -491,7 +491,7 @@ def Foward_feature_selection(dataset,Foward=True):
     #初期設定
     #1. 分散の小さいデータ(99%が同じ値)
     #2. 分散分析よりp値が小さい準備に40%
-    #dataset = remove_features(dataset)
+    dataset = remove_features(dataset)
 
     gkf = split_by_group(dataset)
     dataset.features = preprocessing.StandardScaler().fit_transform(dataset.features) 
@@ -558,12 +558,12 @@ def Exhaustive_feature_selection(dataset):
     
     svc = LinearSVC(C=1., tol=0.001, verbose=0, random_state=0, dual=False)
     efs = EFS(svc,
-               min_features=8,
-               max_features=8,
+               min_features=6,
+               max_features=6,
                scoring='accuracy',
                print_progress=True,
                cv=gkf,
-               n_jobs= 4
+               n_jobs= -1
                )
     efs = efs.fit(dataset.features, dataset.targets
                    ,custom_feature_names=tuple( dataset.features_label_list))
@@ -603,7 +603,7 @@ def remove_features(dataset):
     # 特徴量のうち80%を選択
     # p値が1.00以下
     #--------------------------------------------------
-    p_threshold = 1.00
+    p_threshold = 0.07
     percent = 80
     selector = SelectPercentile(percentile=percent)
     selector.fit(dataset.features, dataset.targets)
