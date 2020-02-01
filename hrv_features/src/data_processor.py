@@ -21,7 +21,6 @@ import pickle
 
 from mlxtend.feature_selection import SequentialFeatureSelector as SFS
 from mlxtend.plotting import plot_sequential_feature_selection as plot_sfs
-from sklearn.calibration import CalibratedClassifierCV
 from mlxtend.feature_selection import ExhaustiveFeatureSelector as EFS
 
 class EmotionRecognition:
@@ -486,7 +485,7 @@ def objective(dataset, trial):
 
     return score_result.mean()
 
-def Foward_feature_selection(dataset,Foward=True):
+def Foward_feature_selection(dataset,Foward=True,show=False):
     # 不要な特徴量を削除
     #初期設定
     #1. 分散の小さいデータ(99%が同じ値)
@@ -507,7 +506,7 @@ def Foward_feature_selection(dataset,Foward=True):
     # For more details see:
     # http://rasbt.github.io/mlxtend/user_guide/feature_selection/SequentialFeatureSelector/
     sfs = SFS(svc,#sigmoid,
-              k_features=(5,20),
+              k_features=(5,13),
               forward=Foward,
               floating=True,
               scoring='accuracy',
@@ -518,10 +517,6 @@ def Foward_feature_selection(dataset,Foward=True):
     sfs.fit(dataset.features, dataset.targets
             ,custom_feature_names=tuple( dataset.features_label_list))
 
-    # The whole run
-    #print(sfs.subsets_)
-    #print(sfs.k_feature_idx_)
-    #print(sfs.k_feature_names_)
 
     # Summarize the output
     print(' Best score: .%6f' % sfs.k_score_)
@@ -531,6 +526,13 @@ def Foward_feature_selection(dataset,Foward=True):
     print('最終的に選ばれた3つの特徴')
     for i in sfs.k_feature_idx_:
         print(i,'番目 ',dataset.features_label_list[i])
+
+    if show == True:
+        fig1 = plot_sfs(sfs.get_metric_dict(), kind='std_dev')
+        #plt.ylim([0.8, 1])
+        plt.title('Sequential Forward Selection (w. StdDev)')
+        plt.grid()
+        plt.show()
 
     return sfs.k_feature_names_,dataset.features[:,sfs.k_feature_idx_]
 
@@ -603,7 +605,7 @@ def remove_features(dataset):
     # 特徴量のうち80%を選択
     # p値が1.00以下
     #--------------------------------------------------
-    p_threshold = 0.07
+    p_threshold = 0.10
     percent = 80
     selector = SelectPercentile(percentile=percent)
     selector.fit(dataset.features, dataset.targets)
@@ -617,7 +619,7 @@ def remove_features(dataset):
     #--------------------------------------------------
     # 相関係数が0.8以上であるデータを取り除く
     #--------------------------------------------------
-    threshold = 0.80
+    threshold = 0.90
     feat_corr = set()
     df = pd.DataFrame(dataset.features, columns = dataset.features_label_list)
     corr_matrix = df.corr()

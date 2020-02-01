@@ -32,11 +32,11 @@ def Grid_Search(dataset):
 
     # LinearSVCの取りうるモデルパラメータを設定
     C_range= np.logspace(-2, 2, 100)
-    param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[1000000],
+    param_grid = [{"penalty": ["l2"],"loss": ["hinge"],"dual": [True],"max_iter":[10000000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}, 
-                    {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[1000000],
+                    {"penalty": ["l1"],"loss": ["squared_hinge"],"dual": [False],"max_iter":[10000000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}, 
-                    {"penalty": ["l2"],"loss": ["squared_hinge"],"dual": [True],"max_iter":[1000000],
+                    {"penalty": ["l2"],"loss": ["squared_hinge"],"dual": [True],"max_iter":[10000000],
                     'C': C_range, "tol":[1e-3],"random_state":[0]}]
     clf = LinearSVC(random_state=1)
     grid_clf = GridSearchCV(clf, param_grid, cv=gkf,n_jobs=-1)
@@ -116,15 +116,13 @@ def build():
     # ----------------
     # 特徴量選択
     # ----------------
-    selected_label, selected_features = Exhaustive_feature_selection(emotion_dataset)
-    emotion_dataset.features_label_list = selected_label
-    emotion_dataset.features = selected_features
+    #selected_label, selected_features = Foward_feature_selection(emotion_dataset,show=True)
+    #emotion_dataset.features_label_list = selected_label
+    #emotion_dataset.features = selected_features
 
-    #selected_features =  ['fft_abs_lf', 'fft_rel_vlf', 'fft_log_vlf',
-    #                     #   'lomb_abs_vlf', 'lomb_rel_vlf',
-    #                     'tinn_m', 'sampen', 'bvp_min', 'pathicData_mean']
-    #emotion_dataset.features = emotion_dataset.features[:,emotion_dataset.features_label_list.isin(selected_features)]
-    #emotion_dataset.features_label_list = emotion_dataset.features_label_list[emotion_dataset.features_label_list.isin(selected_features)]
+    selected_features =  ['ar_peak_lf', 'lomb_rel_hf', 'nni_min', 'nni_max', 'hr_max', 'nn50', 'tinn', 'sampen', 'bvp_min', 'sc_mean']
+    emotion_dataset.features = emotion_dataset.features[:,emotion_dataset.features_label_list.isin(selected_features)]
+    emotion_dataset.features_label_list = emotion_dataset.features_label_list[emotion_dataset.features_label_list.isin(selected_features)]
 
 
     best_model = Grid_Search(emotion_dataset)
@@ -174,7 +172,7 @@ def load(file_name):
     return clf
 
 if __name__ == "__main__":
-    #save("LinearSVM_TimeWindow_120s_Noralize_ratio")
+    #save("LinearSVM_ALL_FowardFeaturesSelection_2020_02_01")
     build()
     print("success")
     # データの取得

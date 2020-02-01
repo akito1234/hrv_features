@@ -85,10 +85,8 @@ def build():
     test = test.iloc[1:,:].values / test.iloc[0,:].values
     test = sc.transform(test)
 
-
-    #scaler = preprocessing.StandardScaler().fit(emotion_dataset.features) 
-    #with open("./models/{}.pickle".format("individual_diff_StandardScaler"), mode='wb') as fp:
-    #        pickle.dump(scaler,fp)
+    #with open("./models/{}.pickle".format("individual_ratio_StandardScaler_2020_02_01"), mode='wb') as fp:
+    #        pickle.dump(sc,fp)
 
     # label encoding
     le = preprocessing.LabelEncoder().fit(np.unique(emotion_dataset.targets))
@@ -102,15 +100,21 @@ def build():
     # 特徴量選択
     # ----------------
     # Boruta
-    #selected_label, selected_features = boruta_feature_selection(emotion_dataset,show=False)
-    selected_label, selected_features = Foward_feature_selection(emotion_dataset)
-    emotion_dataset.features_label_list = selected_label
-    emotion_dataset.features = selected_features
-    best_model = Grid_Search(emotion_dataset)
-
+    ##selected_label, selected_features = boruta_feature_selection(emotion_dataset,show=False)
+    #selected_label, selected_features = Foward_feature_selection(emotion_dataset)
+    #emotion_dataset.features_label_list = selected_label
+    #emotion_dataset.features = selected_features
+    selected_label =  ['ar_peak_lf', 'lomb_rel_hf', 'nni_min', 'nni_max', 'hr_max', 'nn50', 'tinn', 'sampen', 'bvp_min', 'sc_mean']
+    emotion_dataset.features = emotion_dataset.features[:,emotion_dataset.features_label_list.isin(selected_label)]
+    emotion_dataset.features_label_list = emotion_dataset.features_label_list[emotion_dataset.features_label_list.isin(selected_label)]
     # 追加
     # 特徴量選択
     selected_test = test[:,test_features.isin(selected_label)]
+
+
+    best_model = Grid_Search(emotion_dataset)
+    #best_model = load("LinearSVM_ALL_FowardFeaturesSelection_2020_02_01.pickle")
+
 
     #np.savetxt(r"Z:\theme\mental_arithmetic\05.Figure\FeaturesSelectionREFCV\ALL_Features_Importance.csv",
     #           best_model.coef_,delimiter=",")
