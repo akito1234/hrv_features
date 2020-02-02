@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import pandas as pd
+import matplotlib
+
 import matplotlib.pyplot as plt
+#del matplotlib.font_manager.weight_dict['roman']
+matplotlib.font_manager._rebuild()
+
+
 from sklearn import preprocessing
 from src.data_processor import load_emotion_dataset,split_by_group
 from src.LinearSVC.model import load 
@@ -10,12 +16,12 @@ from sklearn.svm import SVC
 # ---------------------------------------
 #　設定
 # ---------------------------------------
-predict_path = r"Z:\theme\robot_communication\04_Analysis\Analysis_TimeVaries\features_kishida_2020-01-28.xlsx"
+predict_path = r"C:\Users\akito\Desktop\Hashimoto\robot_communication\04_Analysis\Analysis_TimeVaries\features_kishida_2020-01-28.xlsx"
 selected_features =  ['ar_peak_lf', 'lomb_rel_hf', 'nni_min', 'nni_max', 'hr_max', 'nn50', 'tinn', 'sampen', 'bvp_min', 'sc_mean']
 model = "LinearSVM_ALL_FowardFeaturesSelection_2020_02_01.pickle"
 emotion_label = ["Amusement","Neutral", "Stress"]
 emotion_color = ["b","gray", "r"]
-time_record_path = r"Z:\theme\robot_communication\03_LogData\2020-01-28\kishida\robot_communication_2020_01_28__19_29_33.xlsx"
+#time_record_path = r"Z:\theme\robot_communication\03_LogData\2020-01-28\kishida\robot_communication_2020_01_28__19_29_33.xlsx"
 
 
 # 検証用のデータ
@@ -62,16 +68,15 @@ digit_score = clf.predict_proba(selected_test)
 print(digit_score)
 #np.savetxt(r"C:\Users\akito\Desktop\test_output.csv",digit_score,delimiter=",")
 
-# 描画
-time_record = pd.read_excel(time_record_path,header=0,index_col = 0)
-end_time = (time_record.loc["Amusement","FinishDatetime"] - time_record.loc["Neutral","StartDatetime"]).total_seconds()
-stress_start = (time_record.loc["Stress archimetic","FinishDatetime"]  - time_record.loc["Neutral","StartDatetime"]).total_seconds()
-stress_finish = (time_record.loc["Stress archimetic","StartDatetime"]  - time_record.loc["Neutral","StartDatetime"]).total_seconds()
-amusement_start = (time_record.loc["Amusement","StartDatetime"]  - time_record.loc["Neutral","StartDatetime"]).total_seconds()
-amusement_finish = (time_record.loc["Amusement","FinishDatetime"]  - time_record.loc["Neutral","StartDatetime"]).total_seconds()
+## 描画
+#time_record = pd.read_excel(time_record_path,header=0,index_col = 0)
+#end_time = (time_record.loc["Amusement","FinishDatetime"] - time_record.loc["Neutral","StartDatetime"]).total_seconds()
+#stress_start = (time_record.loc["Stress archimetic","FinishDatetime"]  - time_record.loc["Neutral","StartDatetime"]).total_seconds()
+#stress_finish = (time_record.loc["Stress archimetic","StartDatetime"]  - time_record.loc["Neutral","StartDatetime"]).total_seconds()
+#amusement_start = (time_record.loc["Amusement","StartDatetime"]  - time_record.loc["Neutral","StartDatetime"]).total_seconds()
+#amusement_finish = (time_record.loc["Amusement","FinishDatetime"]  - time_record.loc["Neutral","StartDatetime"]).total_seconds()
 
-
-print("End Time[s] : {}".format(end_time))
+#print("End Time[s] : {}".format(end_time))
 plt.figure(figsize= (29,13))
 
 plt.rcParams["font.family"]="Times New Roman"
@@ -88,24 +93,37 @@ plt.rcParams["legend.edgecolor"] = 'black'
 
 #plt.step(time[1:],accuracy==0,label = emotion_label[0])
 #plt.step(time[1:],accuracy==2,label = emotion_label[2])
+plt.tick_params(length = 20)
+
 
 for i in range(len(emotion_label)):
     plt.plot(time[1:], digit_score[:,i]*100, emotion_color[i]
              ,label = emotion_label[i],linewidth = 4.5)
 
-    plt.xlim(300,end_time)
-plt.axvspan(amusement_start,amusement_finish,alpha=0.1,color="b"
+
+    #plt.xlim(300,end_time)
+#plt.axvspan(amusement_start,amusement_finish,alpha=0.1,color="b"
+#            #,label="Amusement Section"
+#            )
+#plt.axvspan(stress_start, stress_finish,alpha=0.1,color="r"
+#            #,label="Stress Section"
+#            )
+
+plt.axvspan(200,720,alpha=0.1,color="r"
             #,label="Amusement Section"
             )
-plt.axvspan(stress_start, stress_finish,alpha=0.1,color="r"
+plt.axvspan(850, 1200,alpha=0.1,color="b"
             #,label="Stress Section"
             )
+
 #plt.legend(bbox_to_anchor=(0.5,-0.06), loc='upper center',ncol=3, fontsize=35)
-plt.xlim(330,end_time)
+#plt.xlim(330,end_time)
+plt.xlim(330,1200)
+
 #plt.tight_layout()
 plt.xlabel("Time [s]")
 plt.ylim(0,100)
 plt.yticks(np.arange(0,120,20))
 plt.ylabel("Probability [%]")
 #plt.show()
-plt.savefig(r"C:\Users\akito\Desktop\Figure_1.png")
+plt.savefig(r"C:\Users\akito\Desktop\Figure_1.png", bbox_inches="tight", pad_inches=0.05)
