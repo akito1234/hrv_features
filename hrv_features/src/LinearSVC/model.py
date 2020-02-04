@@ -62,12 +62,12 @@ def build():
     emotion_dataset = load_emotion_dataset()
 
 
-    ## 追加
-    ## 検証用のデータ
-    test = pd.read_excel(r"Z:\theme\robot_communication\04_Analysis\Analysis_TimeVaries\features_kishida_2020-01-28.xlsx"
+    # 追加
+    # 検証用のデータ
+    test = pd.read_excel(r"C:\Users\akito\Desktop\Analysis_TimeVaries\features_tohma_2020-01-28.xlsx"
                          ,index_col = 0,header=0).drop(config.remove_features_label,axis=1)
     test_features = test.columns
-
+    datetime = test.index
     # ------------------
     # データ整形
     # ------------------
@@ -100,13 +100,13 @@ def build():
     # 特徴量選択
     # ----------------
     # Boruta
-    ##selected_label, selected_features = boruta_feature_selection(emotion_dataset,show=False)
-    #selected_label, selected_features = Foward_feature_selection(emotion_dataset)
-    #emotion_dataset.features_label_list = selected_label
-    #emotion_dataset.features = selected_features
-    selected_label =  ['ar_peak_lf', 'lomb_rel_hf', 'nni_min', 'nni_max', 'hr_max', 'nn50', 'tinn', 'sampen', 'bvp_min', 'sc_mean']
-    emotion_dataset.features = emotion_dataset.features[:,emotion_dataset.features_label_list.isin(selected_label)]
-    emotion_dataset.features_label_list = emotion_dataset.features_label_list[emotion_dataset.features_label_list.isin(selected_label)]
+    #selected_label, selected_features = boruta_feature_selection(emotion_dataset,show=False)
+    selected_label, selected_features = Foward_feature_selection(emotion_dataset)
+    emotion_dataset.features_label_list = selected_label
+    emotion_dataset.features = selected_features
+    #selected_label =  ['ar_peak_lf', 'lomb_rel_hf', 'nni_min', 'nni_max', 'hr_max', 'nn50', 'tinn', 'sampen', 'bvp_min', 'sc_mean']
+    #emotion_dataset.features = emotion_dataset.features[:,emotion_dataset.features_label_list.isin(selected_label)]
+    #emotion_dataset.features_label_list = emotion_dataset.features_label_list[emotion_dataset.features_label_list.isin(selected_label)]
     # 追加
     # 特徴量選択
     selected_test = test[:,test_features.isin(selected_label)]
@@ -150,11 +150,15 @@ def build():
 
     # 確率
     predict_score = best_model.decision_function(selected_test)
+    import matplotlib.pyplot as plt
+    plt.figure()
+    plt.plot(datetime.tolist()[1:],predict_score)
+    plt.show()
     print(predict_score)
-    np.savetxt(r"Z:\theme\robot_communication\04_Analysis\Analysis_PredictEmotion\predict_device1_kishida_2020-01-31.csv"
-               ,predict_score,delimiter=",")
-    np.savetxt(r"Z:\theme\robot_communication\04_Analysis\Analysis_PredictEmotion\accuracy_device1_kishida_2020-01-31.csv"
-               ,accuracy,delimiter=",")
+    #np.savetxt(r"Z:\theme\robot_communication\04_Analysis\Analysis_PredictEmotion\predict_device1_kishida_2020-01-31.csv"
+    #           ,predict_score,delimiter=",")
+    #np.savetxt(r"Z:\theme\robot_communication\04_Analysis\Analysis_PredictEmotion\accuracy_device1_kishida_2020-01-31.csv"
+    #           ,accuracy,delimiter=",")
 
     return best_model
 

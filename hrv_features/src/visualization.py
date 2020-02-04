@@ -54,12 +54,9 @@ if __name__ == '__main__':
     from src.data_processor import load_emotion_dataset
     dataset = load_emotion_dataset()
 
-    #selected_features = ["fft_abs_lf", "fft_rel_vlf", "fft_log_vlf","lomb_peak_vlf",
-    #                     "lomb_abs_vlf", "lomb_rel_vlf","tinn_n","tinn_m","sampen", "bvp_min",
-    #                     "pathicData_mean","pathicData_log_mean"
-    #                     ]
-       
-    #dataset.features = dataset.features[:,dataset.features_label_list.isin(selected_features)]
-    #dataset.features_label_list = dataset.features_label_list[dataset.features_label_list.isin(selected_features)]
+    selected_features = ["sd_ratio", "bvp_min","nni_counter"]
+    
+    dataset.features = dataset.features[:,dataset.features_label_list.isin(selected_features)]
+    dataset.features_label_list = dataset.features_label_list[dataset.features_label_list.isin(selected_features)]
 
-    plot_single_histgraph(dataset,features_label="pathicData_std")
+    plot_corr(dataset)
