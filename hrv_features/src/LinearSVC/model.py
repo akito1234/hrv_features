@@ -64,7 +64,7 @@ def build():
 
     # 追加
     # 検証用のデータ
-    test = pd.read_excel(r"C:\Users\akito\Desktop\Analysis_TimeVaries\features_tohma_2020-01-28.xlsx"
+    test = pd.read_excel(r"Z:\theme\robot_communication\04_Analysis\Analysis_TimeVaries\features_shibata_2020-02-05.xlsx"
                          ,index_col = 0,header=0).drop(config.remove_features_label,axis=1)
     test_features = test.columns
     datetime = test.index
