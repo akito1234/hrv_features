@@ -106,16 +106,21 @@ def get_targets(df, target_label = "emotion",type="label"):
 
 
 if __name__ =="__main__":
-    # 描画設定
+    ## 描画設定
     plt.style.use('ggplot') 
     font = {'family' : 'meiryo'}
     matplotlib.rc('font', **font)
-    question_path = r"Z:\theme\mental_arithmetic\06.QuestionNaire\QuestionNaire_result.xlsx"
-    df = pd.read_excel(question_path,sheet_name="questionnaire",usecols=[i for i in range(13)])
-
-
-    multivariateGrid('Valence', 'Arousal', 'emotion', df=df,scatter_alpha=1)
+    question_path = r"C:\Users\akito\Desktop\stress\05.QuestionNaire\QuestionNaire_result.xlsx"
+    df = pd.read_excel(question_path,sheet_name="questionnaire",usecols=[6,7])
     
-    targets = get_targets(df)
-    #multivariateGrid('Valence', 'Arousal', 'emotion', df=df,scatter_alpha=1)
+    # すでにimport seaborn as snsでseabornが使える状態であるとする。より使いやすい版を後述。
+    fig, ax = plt.subplots(figsize=(16, 16)) #square=Trueを入れると各グリッドが正方形になる
+    sns.heatmap(data=df , cmap="RdBu_r", annot=True, fmt=".2f", square=True)
     plt.show()
+
+
+    #multivariateGrid('Valence', 'Arousal', 'emotion', df=df,scatter_alpha=1)
+    
+    #targets = get_targets(df)
+    ##multivariateGrid('Valence', 'Arousal', 'emotion', df=df,scatter_alpha=1)
+    #plt.show()

@@ -60,40 +60,50 @@ def welch_method(rri,resampled=False,sample_rate=4.):
     
 
 if __name__ == '__main__':
-    dict = r"Z:\theme\mental_stress\03.Analysis\Analysis_BioSignal\ECG"
-    path_list = ["RRI_kishida_2019-10-22.csv",
-                "RRI_shizuya_2019-10-23.csv",
-                "RRI_shibata_2019-10-28.csv",
-                "RRI_teraki_2019-10-23.csv",
-                "RRI_tohma_2019-10-21.csv"
-                ]
-    import os
+
+    path  = r"C:\Users\akito\Desktop\2020-02-18\0205_shizuya_ECG_RRI.csv"
+    skip = 158
+
+    rri = np.loadtxt(path,delimiter=",")
+    peaks = np.cumsum(rri)
+    data = resample_to_4Hz(rri[peaks >= skip*1000],sample_rate=4.)
+    np.savetxt(r"C:\Users\akito\Desktop\2020-02-18\0205_shizuya_resamp_RRI_ECG.csv",data,delimiter=",")
+
+
+    #dict = r"Z:\theme\mental_stress\03.Analysis\Analysis_BioSignal\ECG"
+    #path_list = ["RRI_kishida_2019-10-22.csv",
+    #            "RRI_shizuya_2019-10-23.csv",
+    #            "RRI_shibata_2019-10-28.csv",
+    #            "RRI_teraki_2019-10-23.csv",
+    #            "RRI_tohma_2019-10-21.csv"
+    #            ]
+    #import os
     
-    fig,axes = plt.subplots(len(path_list),2,sharex=True)
-    for i,path in enumerate(path_list):
-        abs_path = os.path.join(dict,path)
-        rri = np.loadtxt(abs_path,delimiter=',')
-        ts = np.cumsum(rri) * 0.001
-        ts = ts - ts[0]
+    #fig,axes = plt.subplots(len(path_list),2,sharex=True)
+    #for i,path in enumerate(path_list):
+    #    abs_path = os.path.join(dict,path)
+    #    rri = np.loadtxt(abs_path,delimiter=',')
+    #    ts = np.cumsum(rri) * 0.001
+    #    ts = ts - ts[0]
 
-        filtered = detrend(rri,Lambda= 500)
-        filtered_ts = np.arange(0,len(filtered)*0.25,step=0.25)
-        axes[i,0].plot(ts,rri)
-        axes[i,0].set_title(path)
-        axes[i,0].set_ylabel('RRI[ms]')
-        axes[i,0].plot(filtered_ts,(resample_to_4Hz(rri) - filtered),'r')
+    #    filtered = detrend(rri,Lambda= 500)
+    #    filtered_ts = np.arange(0,len(filtered)*0.25,step=0.25)
+    #    axes[i,0].plot(ts,rri)
+    #    axes[i,0].set_title(path)
+    #    axes[i,0].set_ylabel('RRI[ms]')
+    #    axes[i,0].plot(filtered_ts,(resample_to_4Hz(rri) - filtered),'r')
 
 
-        axes[i,1].plot(filtered_ts,filtered)
-        axes[i,1].set_title('filtered - '+path)
-        axes[i,1].set_ylabel('RRI[ms]')
+    #    axes[i,1].plot(filtered_ts,filtered)
+    #    axes[i,1].set_title('filtered - '+path)
+    #    axes[i,1].set_ylabel('RRI[ms]')
 
-        for j in range(2):
-            axes[i,j].axvspan(300,600,alpha=0.3,color="r",label="Stress")
-            axes[i,j].axvspan(900,1200,alpha=0.3,color="b",label="Amusement")
+    #    for j in range(2):
+    #        axes[i,j].axvspan(300,600,alpha=0.3,color="r",label="Stress")
+    #        axes[i,j].axvspan(900,1200,alpha=0.3,color="b",label="Amusement")
 
-    plt.tight_layout()
-    plt.legend()
-    fig.suptitle('Appling detrending method to RRI signal')
-    plt.show()
+    #plt.tight_layout()
+    #plt.legend()
+    #fig.suptitle('Appling detrending method to RRI signal')
+    #plt.show()
     

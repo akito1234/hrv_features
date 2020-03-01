@@ -169,80 +169,83 @@ def biosignal_multi_summary(path_list,emotion=None):
 
 
 if __name__ == '__main__':
-    path_list = [
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-10-21\tohma\opensignals_201806130003_2019-10-21_15-16-48.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-10-22\kishida\opensignals_dev_2019-10-22_13-54-50.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-10-23\shizuya\opensignals_dev_2019-10-23_14-09-52.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-10-23\teraki\opensignals_dev_2019-10-23_16-59-10.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-10-28\shibata\opensignals_dev_2019-10-28_13-50-02.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-19\shizuya\opensignals_201806130003_2019-11-19_16-38-07.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-19\takase\opensignals_device3_2019-11-19_16-38-30.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-20\takase\opensignals_201808080162_2019-11-20_13-39-19.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-20\takase\opensignals_device1_2019-11-20_15-37-40.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-20\teraki\opensignals_device1_2019-11-20_14-40-26.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-20\teraki\opensignals_device2_2019-11-20_13-40-49.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-21\kaneko\opensignals_201806130003_2019-11-21_14-58-59.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-21\kaneko\opensignals_201806130003_2019-11-21_16-01-49.txt",
-r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-21\kaneko\opensignals_201806130003_2019-11-21_16-44-45.txt",
-#r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-19\shibata\opensignals_201806130003_2019-11-19_14-34-44.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-21\kishida\opensignals_device3_2019-11-21_14-56-56.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-21\kishida\opensignals_device3_2019-11-21_16-00-52.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-21\kojima\opensignals_device2_2019-11-21_14-59-07.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-21\kojima\opensignals_device2_2019-11-21_16-06-09.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-21\shibata\opensignals_device2_2019-11-21_16-51-13.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-21\tohma\opensignals_device3_2019-11-21_16-54-54.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\moriyama\opensignals_201808080163_2019-12-05_14-44-44.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\moriyama\opensignals_201808080163_2019-12-05_16-03-59.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\otsuka\opensignals_device2_2019-12-05_14-32-48.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\otsuka\opensignals_device2_2019-12-05_16-01-19.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\tozyo\opensignals_device1_2019-12-05_14-45-10.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\tozyo\opensignals_device1_2019-12-05_16-02-47.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\moriyama\opensignals_201808080162_2019-12-10_15-09-14.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\moriyama\opensignals_device2_2019-12-10_16-40-48.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\otsuka\opensignals_device3_2019-12-10_14-52-41.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\otsuka\opensignals_device3_2019-12-10_16-08-42.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\otsuka\opensignals_device3_2019-12-10_16-39-25.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\tozyo\opensignals_201806130003_2019-12-10_14-54-49.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\tozyo\opensignals_201806130003_2019-12-10_16-10-31.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\tozyo\opensignals_201806130003_2019-12-10_16-37-56.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-11\kaneko\opensignals_device1_2019-12-11_15-18-00.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-11\kaneko\opensignals_device1_2019-12-11_16-17-56.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-11\kishida\opensignals_device3_2019-12-11_13-46-45.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-11\tohma\opensignals_201808080162_2019-12-11_15-22-53.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-11\tohma\opensignals_device2_2019-12-11_17-00-24.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\kishida\opensignals_201808080163_2019-12-12_17-50-27.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\kishida\opensignals_201808080163_2019-12-12_18-17-30.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\kojima\opensignals_device3_2019-12-12_13-42-47.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\kojima\opensignals_device3_2019-12-12_14-40-14.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shibata\opensignals_201808080162_2019-12-12_16-00-17.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shibata\opensignals_201808080162_2019-12-12_17-18-11.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shibata\opensignals_201808080162_2019-12-12_19-20-02.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shizuya\opensignals_device2_2019-12-12_11-15-27.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shizuya\opensignals_device2_2019-12-12_13-19-00.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shizuya\opensignals_201808080162_2019-12-12_14-57-19.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\tohma\opensignals_device3_2019-12-12_16-46-59.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\tohma\opensignals_201806130003_2019-12-12_19-36-46.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-19\moriyama\opensignals_201808080162_2019-12-19_15-30-35.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-19\shizuya\opensignals_201808080162_2019-12-19_14-52-34.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-19\teraki\opensignals_201806130003_2019-12-19_14-32-53.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-19\teraki\opensignals_201806130003_2019-12-19_15-23-01.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-19\teraki\opensignals_201806130003_2019-12-19_16-11-50.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2020-01-09\kojima\opensignals_201806130003_2020-01-09_16-33-51.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2020-01-09\kojima\opensignals_201806130003_2020-01-09_17-36-37.txt",
-                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2020-01-11\tohma\opensignals_201808080162_2020-01-11_19-26-48.txt"
-    ]
-    emotion = {'Neutral1':[0,120],
-               'Neutral2':[180,300],
-               'Stress':[300,420],
-               'Neutral3':[780,900],
-               'Amusement':[900,1020]
-               }
-    # メモ
-    # 柴田飛ばし2019-11-19
-    # 金子　2019-11-21
-    # データの並びを変える必要あり
-    df = biosignal_summary(path_list,emotion,output_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_120s_type2.xlsx")
-    df.to_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_120s_type2.xlsx")
+    path = r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-11-19\shizuya\opensignals_201806130003_2019-11-19_16-38-07.txt"
+    df = biosignal_time_summary(path, duration=300,overlap=60,skip_time=None,outpath=None)
+    df.to_excel(r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features_TimeVaries\features_shizuya_2019-11-19_300s.xlsx")
+#    path_list = [
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-10-21\tohma\opensignals_201806130003_2019-10-21_15-16-48.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-10-22\kishida\opensignals_dev_2019-10-22_13-54-50.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-10-23\shizuya\opensignals_dev_2019-10-23_14-09-52.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-10-23\teraki\opensignals_dev_2019-10-23_16-59-10.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-10-28\shibata\opensignals_dev_2019-10-28_13-50-02.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-19\shizuya\opensignals_201806130003_2019-11-19_16-38-07.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-19\takase\opensignals_device3_2019-11-19_16-38-30.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-20\takase\opensignals_201808080162_2019-11-20_13-39-19.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-20\takase\opensignals_device1_2019-11-20_15-37-40.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-20\teraki\opensignals_device1_2019-11-20_14-40-26.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-20\teraki\opensignals_device2_2019-11-20_13-40-49.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-21\kaneko\opensignals_201806130003_2019-11-21_14-58-59.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-21\kaneko\opensignals_201806130003_2019-11-21_16-01-49.txt",
+#r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-21\kaneko\opensignals_201806130003_2019-11-21_16-44-45.txt",
+##r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-19\shibata\opensignals_201806130003_2019-11-19_14-34-44.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-21\kishida\opensignals_device3_2019-11-21_14-56-56.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-21\kishida\opensignals_device3_2019-11-21_16-00-52.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-21\kojima\opensignals_device2_2019-11-21_14-59-07.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-21\kojima\opensignals_device2_2019-11-21_16-06-09.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-21\shibata\opensignals_device2_2019-11-21_16-51-13.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-11-21\tohma\opensignals_device3_2019-11-21_16-54-54.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\moriyama\opensignals_201808080163_2019-12-05_14-44-44.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\moriyama\opensignals_201808080163_2019-12-05_16-03-59.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\otsuka\opensignals_device2_2019-12-05_14-32-48.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\otsuka\opensignals_device2_2019-12-05_16-01-19.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\tozyo\opensignals_device1_2019-12-05_14-45-10.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-05\tozyo\opensignals_device1_2019-12-05_16-02-47.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\moriyama\opensignals_201808080162_2019-12-10_15-09-14.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\moriyama\opensignals_device2_2019-12-10_16-40-48.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\otsuka\opensignals_device3_2019-12-10_14-52-41.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\otsuka\opensignals_device3_2019-12-10_16-08-42.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\otsuka\opensignals_device3_2019-12-10_16-39-25.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\tozyo\opensignals_201806130003_2019-12-10_14-54-49.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\tozyo\opensignals_201806130003_2019-12-10_16-10-31.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-10\tozyo\opensignals_201806130003_2019-12-10_16-37-56.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-11\kaneko\opensignals_device1_2019-12-11_15-18-00.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-11\kaneko\opensignals_device1_2019-12-11_16-17-56.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-11\kishida\opensignals_device3_2019-12-11_13-46-45.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-11\tohma\opensignals_201808080162_2019-12-11_15-22-53.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-11\tohma\opensignals_device2_2019-12-11_17-00-24.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\kishida\opensignals_201808080163_2019-12-12_17-50-27.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\kishida\opensignals_201808080163_2019-12-12_18-17-30.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\kojima\opensignals_device3_2019-12-12_13-42-47.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\kojima\opensignals_device3_2019-12-12_14-40-14.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shibata\opensignals_201808080162_2019-12-12_16-00-17.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shibata\opensignals_201808080162_2019-12-12_17-18-11.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shibata\opensignals_201808080162_2019-12-12_19-20-02.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shizuya\opensignals_device2_2019-12-12_11-15-27.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shizuya\opensignals_device2_2019-12-12_13-19-00.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\shizuya\opensignals_201808080162_2019-12-12_14-57-19.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\tohma\opensignals_device3_2019-12-12_16-46-59.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-12\tohma\opensignals_201806130003_2019-12-12_19-36-46.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-19\moriyama\opensignals_201808080162_2019-12-19_15-30-35.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-19\shizuya\opensignals_201808080162_2019-12-19_14-52-34.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-19\teraki\opensignals_201806130003_2019-12-19_14-32-53.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-19\teraki\opensignals_201806130003_2019-12-19_15-23-01.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2019-12-19\teraki\opensignals_201806130003_2019-12-19_16-11-50.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2020-01-09\kojima\opensignals_201806130003_2020-01-09_16-33-51.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2020-01-09\kojima\opensignals_201806130003_2020-01-09_17-36-37.txt",
+#                 #r"Z:\theme\mental_arithmetic\03.BiometricData\2020-01-11\tohma\opensignals_201808080162_2020-01-11_19-26-48.txt"
+#    ]
+#    emotion = {'Neutral1':[0,120],
+#               'Neutral2':[180,300],
+#               'Stress':[300,420],
+#               'Neutral3':[780,900],
+#               'Amusement':[900,1020]
+#               }
+#    # メモ
+#    # 柴田飛ばし2019-11-19
+#    # 金子　2019-11-21
+#    # データの並びを変える必要あり
+#    df = biosignal_summary(path_list,emotion,output_path = r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_120s_type2.xlsx")
+#    df.to_excel(r"Z:\theme\mental_arithmetic\04.Analysis\Analysis_Features\biosignal_datasets_120s_type2.xlsx")
 
 
     #path_list = [

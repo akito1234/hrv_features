@@ -31,7 +31,7 @@ def eda_preprocess(signal,sampling_rate):
     return filtered
 
 # CDA法によるskin conducatance responseの算出
-def scr(signal,sampling_rate=1000.,downsamp = 4,plot=False):
+def scr(signal,sampling_rate=1000.0,downsamp = 4,plot=False):
     # check inputs
     if signal is None:
         raise TypeError("Please specify an input signal.")
@@ -78,34 +78,12 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     from opensignalsreader import OpenSignalsReader
 
-    path = r"Z:\theme\mental_arithmetic\03.BiometricData\2019-10-21\tohma\opensignals_201806130003_2019-10-21_15-16-48.txt"
+    path = r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-11-21\tohma\opensignals_device3_2019-11-21_16-54-54.txt"
     arc = OpenSignalsReader(path)
 
-    scr_data = scr(arc.signal('EDA'),
-                sampling_rate=1000,
-                downsamp = 4)
-
-    #scr_data = scr_features(scr_data)
-    
-    #for a in scr_data.keys():
-    #    print(a,scr_data[a])
-    #np.savetxt(r"C:\Users\akito\Desktop\kishida_opensignals_dev_2019-10-11_17-06-10.csv"
-    #           ,np.c_[scr_data['ts'],scr_data['sc'],scr_data['pathicData'],scr_data['tonicData']],delimiter=",")
-    #fig, axes = plt.subplots(2,1,sharex=True)
+    scr_data = scr(arc.signal('EDA'))
     plt.plot(scr_data['ts'],scr_data['sc'])
     plt.plot(scr_data['ts'],scr_data['tonicData'])
     plt.plot(scr_data['ts'],scr_data['pathicData'])
 
     plt.show()
-    #path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-28\shibata\opensignals_dev_2019-10-28_13-50-02.txt"
-    #arc = OpenSignalsReader(path)
-    #result = scr(arc.signal(['EDA']),result_type='phasicdriver')
-
-    #np.savetxt(r"Z:\theme\mental_stress\03.Analysis\Analysis_BioSignal\EDA\SCR_shibata_2019-10-28.csv"
-    #           ,np.c_[result['ts'],result['src']])
-
-    #import matplotlib.pyplot as plt
-    #fig,axs = plt.subplots(2,1,sharex=False)
-    #axs[0].plot(result['ts'],result['src'])
-    #axs[1].plot(arc.t,arc.signal(['EDA']))
-    #plt.show()

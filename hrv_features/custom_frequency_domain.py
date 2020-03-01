@@ -87,7 +87,7 @@ def welch_psd(nni = None,
 	fbands = fd._check_freq_bands(fbands)
 
     # 外れ値をスプライン補間
-	nni = _artefact_correction(nni,threshold=0.25)
+	#nni = _artefact_correction(nni,threshold=0.25)
 
 	#　4Hzでリサンプリング
 	nn_interpol = detrending.resample_to_4Hz(nni,fs);
@@ -212,7 +212,7 @@ def lomb_psd(nni=None,
     t -= t[0]
 
     # 外れ値をスプライン補間
-    nn = _artefact_correction(nn,threshold=0.25)
+    #nn = _artefact_correction(nn,threshold=0.25)
 
 
     # astropy ライブラリを使った周波数解析
@@ -306,7 +306,7 @@ def ar_psd(nni=None,
     fbands = fd._check_freq_bands(fbands)
     
     # 外れ値をスプライン補間
-    nni = _artefact_correction(nni,threshold=0.25)
+    #nni = _artefact_correction(nni,threshold=0.25)
 
     # 4Hzでリサンプリング
     nn_interpol = detrending.resample_to_4Hz(nni,fs);

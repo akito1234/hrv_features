@@ -20,10 +20,20 @@ def plot_signal(path):
     # 心拍データからピークを取り出す
     ecg_result = signals.ecg.ecg(signal= arc.signal(['ECG']) , sampling_rate=1000.0, show=False)
     # 皮膚コンダクタンス からSCRを取り出す
-    eda_result = eda_analysis.scr(arc.signal(['EDA']))
-
+    #eda_result = eda_analysis.scr(arc.signal(['EDA']))
+    eda_result = eda_analysis.eda_preprocess(arc.signal(['EDA']),1000.)
     # 呼吸周波数を取り出す
     resp_result = resp_analysis.resp(arc.signal('RESP'),show=False)
+
+    # output 
+    # ECG
+    np.savetxt(r"C:\Users\akito\Desktop\2019年度発表スライド\ecg_sample.csv",ecg_result["rpeaks"],delimiter=",")
+    # EDA
+    np.savetxt(r"C:\Users\akito\Desktop\2019年度発表スライド\eda_sample.csv",eda_result[::25])
+    # RESP
+    np.savetxt(r"C:\Users\akito\Desktop\2019年度発表スライド\resp_sample.csv",
+               np.c_[resp_result['resp_rate_ts'], resp_result['resp_rate']])
+
 
     # 描画設定
     fig,axes = plt.subplots(3,1,sharex=True,figsize = (16,9),subplot_kw=({"xticks":np.arange(0,1200,100)}) )
@@ -41,6 +51,8 @@ def plot_signal(path):
     axes[2].plot(resp_result['resp_rate_ts'],resp_result['resp_rate'],'b')
     axes[2].set_ylabel('RESP[Hz]')
     axes[2].set_ylim(0,0.5)
+
+
 
 
     for i in range(3):
@@ -117,8 +129,8 @@ def plot_hrv(path):
     return plt
 
 if __name__ == '__main__':
-    path = r"Z:\theme\robot_communication\03_LogData\2020-01-28\tohma\opensignals_device2_2020-01-28_20-32-01.txt"
-
-    plt = plot_raw(path,emotion_section={"Stress":[300,600],"Amusement":[600,900]})
+    path = r"C:\Users\akito\Desktop\stress\02.BiometricData\2019-10-11\tohma\opensignals_dev_2019-10-11_17-29-23.txt"
+    plot_signal(path)
+    #plt = plot_raw(path,emotion_section={"Stress":[300,600],"Amusement":[600,900]})
     plt.show()
     #plt.savefig(r"Z:\theme\mental_arithmetic\05.Figure\raw\tozyo_2019-12-05_16-02-47_RawData.png")

@@ -64,7 +64,7 @@ def build():
 
     # 追加
     # 検証用のデータ
-    test = pd.read_excel(r"C:\Users\akito\Desktop\Analysis_TimeVaries\features_tohma_2020-01-28.xlsx"
+    test = pd.read_excel(r"C:\Users\akito\Desktop\Analysis_TimeVaries\features_kaneko_2020-01-28.xlsx"
                          ,index_col = 0,header=0).drop(config.remove_features_label,axis=1)
     test_features = test.columns
     datetime = test.index
@@ -104,15 +104,24 @@ def build():
     selected_label, selected_features = Foward_feature_selection(emotion_dataset)
     emotion_dataset.features_label_list = selected_label
     emotion_dataset.features = selected_features
-    #selected_label =  ['ar_peak_lf', 'lomb_rel_hf', 'nni_min', 'nni_max', 'hr_max', 'nn50', 'tinn', 'sampen', 'bvp_min', 'sc_mean']
+    #selected_label =  ['ar_peak_lf', 'lomb_rel_hf', 'nni_min', 'nni_max', 'hr_max', 'nn50', 'tinn',
+                      #'sampen', 'bvp_min', 'sc_mean']
+
+    #selected_label =  ['fft_peak_lf', 'fft_abs_lf', 'ar_peak_lf'
+    #                   , 'lomb_abs_vlf', 'lomb_rel_vlf', 'nni_counter', 
+    #                   'nni_max', 'tinn', 'sd_ratio']
     #emotion_dataset.features = emotion_dataset.features[:,emotion_dataset.features_label_list.isin(selected_label)]
     #emotion_dataset.features_label_list = emotion_dataset.features_label_list[emotion_dataset.features_label_list.isin(selected_label)]
     # 追加
+
+
     # 特徴量選択
     selected_test = test[:,test_features.isin(selected_label)]
 
 
     best_model = Grid_Search(emotion_dataset)
+    #best_model = LinearSVC(C= 0.2442053094548651, dual= True, loss= 'squared_hinge', max_iter= 1000000, penalty='l2', 
+    #                       random_state= 0, tol= 0.001)
     #best_model = load("LinearSVM_ALL_FowardFeaturesSelection_2020_02_01.pickle")
 
 
@@ -155,9 +164,9 @@ def build():
     plt.plot(datetime.tolist()[1:],predict_score)
     plt.show()
     print(predict_score)
-    #np.savetxt(r"Z:\theme\robot_communication\04_Analysis\Analysis_PredictEmotion\predict_device1_kishida_2020-01-31.csv"
-    #           ,predict_score,delimiter=",")
-    #np.savetxt(r"Z:\theme\robot_communication\04_Analysis\Analysis_PredictEmotion\accuracy_device1_kishida_2020-01-31.csv"
+    np.savetxt(r"C:\Users\akito\Desktop\Analysis_TimeVaries\result\score_kaneko_2020-01-28_2.xlsx"
+               ,predict_score,delimiter=",")
+    #np.savetxt(r"Z:\theme\robot_communication\04_Analysis\Analysis_PredictEmotion\accuracy_device1_tohma_2020-01-31.csv"
     #           ,accuracy,delimiter=",")
 
     return best_model

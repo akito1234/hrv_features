@@ -158,21 +158,22 @@ def resp_psd(ts,filtered_signal):
 
 
 if __name__ == '__main__':
-    path = r"Z:\theme\mental_stress\02.BiometricData\2019-10-23\shizuya\opensignals_dev_2019-10-23_14-09-52.txt"
+    path = r"C:\Users\akito\Desktop\stress\02.BiometricData\opensignals_201808080162_2019-09-26_12-57-32.txt"
     arc = OpenSignalsReader(path)
     result = resp(signal=arc.signal('RESP'), sampling_rate=1000., show=False)
+    np.savetxt(r"C:\Users\akito\Desktop\respiration.csv",np.c_[result['ts'][::10],result['filtered'][::10]],delimiter=",")
     #plt.plot(result['inspiration'][1:],(result['inspiration'][1:] - result['expiration']))
     #plt.show()
     #resp_features = resp_features(result['peaks'][(result['peaks'] > 600000) & (result['peaks'] < 900000)])
 
-    fig,axes = plt.subplots(2,1,sharex=True)
-    axes[0].plot(result['peaks'][1:]*0.001,np.diff(result['peaks'])*0.001)
-    axes[1].plot(result['ts'],result['filtered'])
-    for ins,exp,peak in zip(result['inspiration'], result['expiration'], result['peaks']):
-        axes[1].axvline(ins*0.001,color= 'b') 
-        axes[1].axvline(exp*0.001,color= 'r')
-        axes[1].axvline(peak*0.001,color= 'g')
-    plt.show()
+    #fig,axes = plt.subplots(2,1,sharex=True)
+    #axes[0].plot(result['peaks'][1:]*0.001,np.diff(result['peaks'])*0.001)
+    #axes[1].plot(result['ts'],result['filtered'])
+    #for ins,exp,peak in zip(result['inspiration'], result['expiration'], result['peaks']):
+    #    axes[1].axvline(ins*0.001,color= 'b') 
+    #    axes[1].axvline(exp*0.001,color= 'r')
+    #    axes[1].axvline(peak*0.001,color= 'g')
+    #plt.show()
     #bvp = tools.nn_intervals(result['inspiration'].tolist())
     #plt.plot(result['inspiration'][1:],bvp,'r')
     #bvp = tools.nn_intervals(result['expiration'].tolist(),'g')

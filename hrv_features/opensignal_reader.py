@@ -18,42 +18,33 @@ from datetime import datetime as dt
 from biosinal_summary import biosignal_time_summary
 
 
-path = r"Z:\00_個人用\柴田\20200114実験データ\実験2\RRI\rri_201808080162_2020-01-14_16-59-55_shizuya.csv"
-outpath = r"Z:\00_個人用\柴田\20200114実験データ\実験2\Features\TimeWindow_120s_overlap_30s\HRVFeatures_TimeWindow_120s_overlap_30s_2020-01-14_16-59-55_shizuya.xlsx"
-
-
 #record_path = r"Z:\theme\robot_communication\03_LogData\2020-01-28\shibata\robot_communication_2020_01_28__18_05_32.csv"
 #outpath = r"Z:\theme\robot_communication\04_Analysis\Analysis_TimeVaries\features_kaneko_2020-01-28.xlsx"
 
-### Read OpenSignals file and plot all signals
-#arc = OpenSignalsReader(path)
-#time_start = dt.strptime(arc.info["date"] +" "+arc.info["time"], '%Y-%m-%d %H:%M:%S.%f')
-#time_record = pd.read_csv(record_path,index_col =0)
+record_path = r"C:\Users\akito\Desktop\実験データ\data2\2020-02-05\takase\robot_communication_2020_02_05__17_40_20.csv"
+path = r"C:\Users\akito\Desktop\実験データ\data2\2020-02-05\takase\opensignals_device2_2020-02-05_17-09-27.txt"
+# Read OpenSignals file and plot all signals
+arc = OpenSignalsReader(path)
 
-## 時間のずれを算出
-#exp_start = dt.strptime(time_record.loc["Neutral","StartDatetime"], '%Y-%m-%d %H:%M:%S.%f')
-#duration = (exp_start - time_start).total_seconds()
 
-#print("bitalino start : {}".format(time_start))
-#print("experimence start: {}".format(exp_start))
-#print("shift duration [s]: {}\n".format(duration))
+#outpath_features = r"C:\Users\akito\Desktop\実験データ\data2\RRI\features_shibata.xlsx"
+outpath_rri = r"C:\Users\akito\Desktop\実験データ\data2\RRI\0205_takse_ECG_RRI.xlsx"
+
+time_start = dt.strptime(arc.info["date"] +" "+arc.info["time"], '%Y-%m-%d %H:%M:%S.%f')
+time_record = pd.read_csv(record_path,index_col =0)
+
+# 時間のずれを算出
+exp_start = dt.strptime(time_record.loc["Neutral","StartDatetime"], '%Y-%m-%d %H:%M:%S.%f')
+duration = (exp_start - time_start).total_seconds()
+
+print("bitalino start : {}".format(time_start))
+print("experimence start: {}".format(exp_start))
+print("shift duration [s]: {}\n".format(duration))
 
 #df = biosignal_time_summary(path,duration = 300, overlap = 30, skip_time = duration)
-#df.to_excel(outpath)
-
-
+#df.to_excel(outpath_features)
 
 # peak detection
-#signal, rpeaks= signals.ecg.ecg(signal= arc.signal("ECG")[int(skip*1000):], sampling_rate=1000.0, show=False)[1:3]
-#nni = tools.nn_intervals(rpeaks.tolist())
-#signal, rpeaks= signals.ecg.ecg(signal= arc.signal("ECG")[int(duration*1000):], sampling_rate=1000.0, show=True)[1:3]
-
-
-
-## RRIから特徴量を算出する
-nni= np.loadtxt(path,delimiter=",")
-result = hf.segumentation_freq_features(nni,sample_time=120,time_step=30)
-
-## 結果をエクスポート
-#np.savetxt(outpath ,nni, delimiter=',' )
-result.to_excel(outpath)
+signal, rpeaks= signals.ecg.ecg(signal= arc.signal("ECG")[int(duration*1000):], sampling_rate=1000.0, show=True)[1:3]
+nni = tools.nn_intervals(rpeaks.tolist())
+np.savetxt(outpath_rri,nni,delimiter=",")
