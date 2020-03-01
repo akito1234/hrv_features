@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>12585d5f-fa88-4789-ae80-d18345d3f74b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>opensignal_reader.py</StartupFile>
+    <StartupFile>src\features\featuresHRV\featuresDomain\nonlinear.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -45,6 +45,10 @@
     <Compile Include="src\DecisionTreeClassifier\model.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="src\features\featuresHRV\featuresDomain\nonlinear.py" />
+    <Compile Include="src\features\featuresHRV\featuresDomain\time_domain.py" />
+    <Compile Include="src\features\featuresHRV\featuresDomain\tools.py" />
+    <Compile Include="src\features\featuresHRV\featuresDomain\utils.py" />
     <Compile Include="src\features_biosignal.py">
       <SubType>Code</SubType>
     </Compile>
@@ -109,7 +113,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="frequency_domain.py" />
-    <Compile Include="hrv_analysis.py" />
+    <Compile Include="src\features\featuresHRV\hrv_analysis.py" />
     <Compile Include="ledapy\analyse.py" />
     <Compile Include="ledapy\deconvolution.py" />
     <Compile Include="ledapy\leda2.py" />
@@ -161,6 +165,8 @@
     <Folder Include="ledapy\__pycache__\" />
     <Folder Include="models\" />
     <Folder Include="src\" />
+    <Folder Include="src\features\featuresHRV\" />
+    <Folder Include="src\features\featuresHRV\featuresDomain\" />
     <Folder Include="src\LinearSVC\" />
     <Folder Include="src\MultiClass\" />
     <Folder Include="src\LogisticRegressor\" />
@@ -171,6 +177,7 @@
     <Folder Include="src\LinearDiscriminantAnalysis\" />
     <Folder Include="src\model\" />
     <Folder Include="src\LinearSVR\" />
+    <Folder Include="src\features\" />
     <Folder Include="src\XGBClassifier\" />
     <Folder Include="src\RandomForestClassifier\" />
     <Folder Include="util\" />

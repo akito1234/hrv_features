@@ -20,31 +20,12 @@ from biosppy import signals
 import custom_frequency_domain as fd
 from util import detrending
 
-def features(nni,emotion):
-    for i,key in enumerate(emotion.keys()):
-        segment_hrv_report = segments_parameter(nni,emotion[key])
-        if i == 0:
-            df = pd.DataFrame([], columns=segment_hrv_report.keys())
-        df =  pd.concat([df, pd.DataFrame(segment_hrv_report , index=[key])])
-
-    return df
-
-
-def segments_parameter(_nni,_section):
-    tmStamps = np.cumsum(_nni)*0.001 #in seconds 
-    nni_item =  _nni[(tmStamps>=_section[0]) & (tmStamps<=_section[1])]
-    results = parameter(nni_item)
-    return results
-
-
 #---------------------------------------------
-#心拍変動からパラメータを算出する
+#　心拍変動から特徴量を算出する
 #---------------------------------------------
 def parameter(nni):
     #返り値を初期化
     results = {}
-    #nni = tools.nn_intervals(rpeaks=rpeaks.tolist())
-
     # -----------------周波数解析-------------------#
     # welch method
     welch_freqDomain = fd.welch_psd(nni,nfft=2 ** 10, show=False)
@@ -110,6 +91,22 @@ def modify_tuple_to_float(parameter_list):
             results[key] = parameter_list[key]
     return results
 
+
+def features(nni,emotion):
+    for i,key in enumerate(emotion.keys()):
+        segment_hrv_report = segments_parameter(nni,emotion[key])
+        if i == 0:
+            df = pd.DataFrame([], columns=segment_hrv_report.keys())
+        df =  pd.concat([df, pd.DataFrame(segment_hrv_report , index=[key])])
+
+    return df
+
+
+def segments_parameter(_nni,_section):
+    tmStamps = np.cumsum(_nni)*0.001 #in seconds 
+    nni_item =  _nni[(tmStamps>=_section[0]) & (tmStamps<=_section[1])]
+    results = parameter(nni_item)
+    return results
 
 
 
