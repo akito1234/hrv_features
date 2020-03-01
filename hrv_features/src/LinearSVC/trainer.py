@@ -16,12 +16,12 @@ from sklearn.svm import SVC
 # ---------------------------------------
 #　設定
 # ---------------------------------------
-predict_path = r"Z:\theme\robot_communication\04_Analysis\Analysis_TimeVaries\features_tohma_2020-01-28.xlsx"
+predict_path = r"Z:\theme\robot_communication\04_Analysis\Analysis_TimeVaries\features_shibata_2020-02-05.xlsx"
 selected_features =  ['ar_peak_lf', 'lomb_rel_hf', 'nni_min', 'nni_max', 'hr_max', 'nn50', 'tinn', 'sampen', 'bvp_min', 'sc_mean']
 model = "LinearSVM_ALL_FowardFeaturesSelection_2020_02_01.pickle"
 emotion_label = ["Amusement","Neutral", "Stress"]
 emotion_color = ["b","gray", "r"]
-time_record_path = r"Z:\theme\robot_communication\03_LogData\2020-01-28\tohma\robot_communication_2020_01_28__20_51_22.xlsx"
+time_record_path = r"Z:\theme\robot_communication\03_LogData\Biosignal\2020-02-05\shibata\robot_communication_2020_02_05__19_46_12.xlsx"
 
 
 # 検証用のデータ
@@ -66,7 +66,7 @@ print("accuracy: {}".format(accuracy))
 
 digit_score = clf.predict_proba(selected_test)
 print(digit_score)
-#np.savetxt(r"C:\Users\akito\Desktop\test_output.csv",digit_score,delimiter=",")
+np.savetxt(r"C:\Users\akito\Desktop\shibata_2.csv",digit_score,delimiter=",")
 
 # 描画
 time_record = pd.read_excel(time_record_path,header=0,index_col = 0)
@@ -106,9 +106,6 @@ plt.axvspan(stress_start, stress_finish,alpha=0.1,color="b"
             )
 
 
-
-
-
 plt.xlabel("Time [s]")
 plt.ylabel("Probability [%]")
 plt.yticks(np.arange(0,120,20))
@@ -116,5 +113,5 @@ plt.xticks(np.arange(0,1300,200))
 plt.ylim(0,100)
 plt.xlim(350,1200)
 plt.legend(bbox_to_anchor=(0.5,-0.25), loc='upper center',ncol=3, fontsize=100)
-#plt.show()
-plt.savefig(r"C:\Users\akito\Desktop\Figure_1.png", bbox_inches="tight", pad_inches=0.05)
+plt.show()
+#plt.savefig(r"C:\Users\akito\Desktop\Figure_tohma.png", bbox_inches="tight", pad_inches=0.05)

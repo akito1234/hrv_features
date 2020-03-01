@@ -17,7 +17,7 @@ import frequency_domain as fd
 from util import detrending
 
 # Local imports/HRV toolbox imports
-import pyhrv.tools as tools
+import pyhrv.utils as tools
 import biosppy
 
 

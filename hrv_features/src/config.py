@@ -8,7 +8,7 @@ questionnaire_path = r"C:\Users\akito\Desktop\stress\05.QuestionNaire\QuestionNa
 features_path = r"C:\Users\akito\Desktop\stress\03.Analysis\Analysis_Features\biosignal_datasets_1.xlsx"
 
 # 重要 出力される感情ラベルの種類
-emotion_state = ['Amusement','Neutral2','Stress']
+emotion_state = ['Amusement','Stress']
 
 emotion_baseline = "Neutral1"
 
